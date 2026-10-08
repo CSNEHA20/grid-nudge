@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gridnudge"
+version = "0.1.0"
+description = "Safety-gated, uplift-aware EV charging decision system"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Vishal", email = "vishal@vibesync.local" },
+    { name = "Sneha", email = "sneha@vibesync.local" }
+]
+dependencies = [
+    "pydantic>=2.0.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "pyyaml>=6.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.3.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "hypothesis>=6.80.0",
+    "jsonschema>=4.18.0",
+    "ruff>=0.1.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gridnudge*", "twin*", "eval*", "services*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+python scripts/check_ownership.py || { echo "Push blocked: ownership check failed"; exit 1; }

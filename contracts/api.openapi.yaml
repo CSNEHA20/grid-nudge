@@ -1,0 +1,161 @@
+openapi: 3.0.3
+info:
+  title: GridNudge API
+  version: 1.0.0
+  description: >
+    Safety-gated, uplift-aware EV charging decision system API.
+    Used by the digital twin runner, dashboard, and external evaluators.
+paths:
+  /decide:
+    post:
+      summary: Evaluate candidate EVs and return decisions
+      description: Batched inference across candidate EVs plugged in at current simulation timestep.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - run_id
+                - sim_time
+                - candidates
+              properties:
+                run_id:
+                  type: string
+                sim_time:
+                  type: string
+                  format: date-time
+                grid_forecast:
+                  type: object
+                stations:
+                  type: array
+                  items:
+                    type: object
+                candidates:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - user_id
+                      - ev
+                    properties:
+                      user_id:
+                        type: string
+                      ev:
+                        type: object
+                      trip:
+                        type: object
+                      context:
+                        type: object
+      responses:
+        '200':
+          description: List of decisions for candidate EVs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './decision_record.schema.json'
+
+  /outcomes:
+    post:
+      summary: Ingest realized outcome for a decision
+      description: Simulator delivers user outcome once the evaluation window closes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - decision_id
+                - run_id
+              properties:
+                decision_id:
+                  type: string
+                run_id:
+                  type: string
+                adopted:
+                  type: boolean
+                kwh_shifted:
+                  type: number
+                opted_out:
+                  type: boolean
+                realized_value:
+                  type: number
+      responses:
+        '202':
+          description: Outcome accepted and enqueued for causal reward update
+
+  /events:
+    post:
+      summary: Inject scenario event into the simulation
+      description: Injects heatwave, solar_drop, station_outage, or tariff_change.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - event_type
+              properties:
+                event_type:
+                  type: string
+                  enum: [heatwave, solar_drop, station_outage, tariff_change]
+                parameters:
+                  type: object
+      responses:
+        '200':
+          description: Event applied
+
+  /metrics:
+    get:
+      summary: Retrieve time series metrics for dashboard
+      parameters:
+        - name: run_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fleet load, grid stress, and nudges time series
+
+  /decision/{id}:
+    get:
+      summary: Fetch single DecisionRecord by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Full auditable DecisionRecord
+          content:
+            application/json:
+              schema:
+                $ref: './decision_record.schema.json'
+        '404':
+          description: Decision not found
+
+  /explain:
+    post:
+      summary: Generate explainability narration for a decision
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - decision_id
+              properties:
+                decision_id:
+                  type: string
+      responses:
+        '200':
+          description: Verified explanation text and facts used

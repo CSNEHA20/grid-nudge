@@ -1,0 +1,49 @@
+# Assumed Behavioral Priors (Twin hidden response model)
+# Grounded per data/ASSUMPTIONS.md - All items flagged ASSUMED
+
+archetype_weights:
+  commuter_frugal:
+    base_shift_logit: -2.2
+    frame_weights:
+      cost: 2.4
+      green: 0.1
+      battery: 0.8
+      convenience: 0.5
+      reassurance: 0.3
+    price_sensitivity_per_inr: 0.05
+    fatigue_sensitivity: 0.6
+  commuter_green:
+    base_shift_logit: -2.0
+    frame_weights:
+      cost: 0.8
+      green: 1.2
+      battery: 0.6
+      convenience: 0.4
+      reassurance: 0.5
+    price_sensitivity_per_inr: 0.01
+    fatigue_sensitivity: 0.4
+  cab_driver:
+    base_shift_logit: -2.5
+    frame_weights:
+      cost: 2.8
+      green: 0.0
+      battery: 0.4
+      convenience: 1.2
+      reassurance: 0.2
+    price_sensitivity_per_inr: 0.08
+    fatigue_sensitivity: 0.7
+  erratic_flex:
+    base_shift_logit: -1.8
+    frame_weights:
+      cost: 1.1
+      green: 0.4
+      battery: 0.5
+      convenience: 0.9
+      reassurance: 0.4
+    price_sensitivity_per_inr: 0.03
+    fatigue_sensitivity: 0.5
+
+fatigue:
+  decay_rate_per_day: 0.35
+  nudge_fatigue_penalty: 0.25
+  ignore_decay_penalty: 0.15

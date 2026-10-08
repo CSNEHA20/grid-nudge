@@ -1,0 +1,321 @@
+[
+  {
+    "decision_id": "d_001_nudge_cost",
+    "run_id": "run_20261010_eval_01",
+    "sim_time": "2026-10-10T18:45:00+05:30",
+    "user_id": "user_delhi_0412",
+    "ev": {
+      "model": "Tata Nexon EV Max",
+      "battery_kwh": 40.5,
+      "current_soc": 0.38,
+      "target_soc": 0.9,
+      "max_ac_kw": 7.2,
+      "plugged_in": true,
+      "connector_type": "Type 2",
+      "location": "home"
+    },
+    "journey": {
+      "p_arrive_above_reserve": 0.94,
+      "arrival_soc_q10": 0.22,
+      "arrival_soc_q50": 0.36,
+      "arrival_soc_q90": 0.48,
+      "reserve_soc": 0.1
+    },
+    "battery": {
+      "stress_score": 0.28,
+      "soh_delta_range_pct": [
+        -0.015,
+        0.04
+      ]
+    },
+    "station": {
+      "eta_wait_min_q50": 0.0,
+      "eta_wait_min_q90": 0.0,
+      "reliability": 0.99
+    },
+    "grid": {
+      "stress_q50": 0.88,
+      "stress_q90": 0.95,
+      "green_window_start": "2026-10-10T22:30:00+05:30",
+      "green_window_end": "2026-10-11T05:30:00+05:30"
+    },
+    "plans": [
+      {
+        "plan_id": "plan_default_01",
+        "type": "default",
+        "start": "2026-10-10T18:45:00+05:30",
+        "kw": 7.2,
+        "where": "home",
+        "outcomes": {
+          "cost_inr": 175.5,
+          "journey_conf_lb": 0.98,
+          "grid_value": -0.85,
+          "battery_stress_delta": 0.12,
+          "wait_min": 0.0
+        }
+      },
+      {
+        "plan_id": "plan_delay_01",
+        "type": "delay",
+        "start": "2026-10-10T22:30:00+05:30",
+        "kw": 7.2,
+        "where": "home",
+        "outcomes": {
+          "cost_inr": 124.2,
+          "journey_conf_lb": 0.94,
+          "grid_value": 1.45,
+          "battery_stress_delta": -0.05,
+          "wait_min": 0.0
+        }
+      }
+    ],
+    "safety": {
+      "invariants_ok": true,
+      "cedar": "ALLOW",
+      "vetoed": []
+    },
+    "persuasion": {
+      "chosen_plan": "plan_delay_01",
+      "frame": "cost",
+      "timing": "at_plug_in",
+      "uplift_mean": 0.34,
+      "uplift_p10": 0.22,
+      "propensity": 0.68,
+      "explored": false
+    },
+    "allocation": {
+      "selected": true,
+      "shadow_price": 12.5,
+      "slot": "2026-10-10T22:30:00+05:30"
+    },
+    "language": {
+      "message": "Charge at 10:30 PM tonight to save \u20b951 and support grid stability during evening peak hours.",
+      "facts_used": {
+        "saving_inr": 51.3,
+        "start_time": "22:30",
+        "journey_conf": 0.94
+      },
+      "verified": true,
+      "source": "template"
+    },
+    "outcome": {
+      "adopted": true,
+      "kwh_shifted": 18.4,
+      "opted_out": false,
+      "reward": 28.6
+    },
+    "fail_silent": false,
+    "error": null
+  },
+  {
+    "decision_id": "d_002_safety_veto",
+    "run_id": "run_20261010_eval_01",
+    "sim_time": "2026-10-10T19:15:00+05:30",
+    "user_id": "user_delhi_1088",
+    "ev": {
+      "model": "MG ZS EV",
+      "battery_kwh": 50.3,
+      "current_soc": 0.18,
+      "target_soc": 0.85,
+      "max_ac_kw": 7.4,
+      "plugged_in": true,
+      "connector_type": "Type 2",
+      "location": "home"
+    },
+    "journey": {
+      "p_arrive_above_reserve": 0.82,
+      "arrival_soc_q10": 0.06,
+      "arrival_soc_q50": 0.15,
+      "arrival_soc_q90": 0.24,
+      "reserve_soc": 0.1
+    },
+    "battery": {
+      "stress_score": 0.45,
+      "soh_delta_range_pct": [
+        -0.01,
+        0.025
+      ]
+    },
+    "station": {
+      "eta_wait_min_q50": 0.0,
+      "eta_wait_min_q90": 0.0,
+      "reliability": 0.99
+    },
+    "grid": {
+      "stress_q50": 0.92,
+      "stress_q90": 0.98,
+      "green_window_start": "2026-10-10T23:00:00+05:30",
+      "green_window_end": "2026-10-11T05:30:00+05:30"
+    },
+    "plans": [
+      {
+        "plan_id": "plan_default_02",
+        "type": "default",
+        "start": "2026-10-10T19:15:00+05:30",
+        "kw": 7.4,
+        "where": "home",
+        "outcomes": {
+          "cost_inr": 232.0,
+          "journey_conf_lb": 0.95,
+          "grid_value": -0.9,
+          "battery_stress_delta": 0.15,
+          "wait_min": 0.0
+        }
+      },
+      {
+        "plan_id": "plan_delay_risky",
+        "type": "delay",
+        "start": "2026-10-11T02:00:00+05:30",
+        "kw": 7.4,
+        "where": "home",
+        "outcomes": {
+          "cost_inr": 154.0,
+          "journey_conf_lb": 0.82,
+          "grid_value": 1.2,
+          "battery_stress_delta": -0.04,
+          "wait_min": 0.0
+        }
+      }
+    ],
+    "safety": {
+      "invariants_ok": false,
+      "cedar": "DENY",
+      "vetoed": [
+        "plan_delay_risky: journey_conf_lb 0.82 < threshold 0.90",
+        "plan_delay_risky: arrival_soc_q10 0.06 < reserve 0.10"
+      ]
+    },
+    "persuasion": {
+      "chosen_plan": null,
+      "frame": "none",
+      "timing": null,
+      "uplift_mean": 0.0,
+      "uplift_p10": 0.0,
+      "propensity": 1.0,
+      "explored": false
+    },
+    "allocation": {
+      "selected": false,
+      "shadow_price": 0.0,
+      "slot": null
+    },
+    "language": {
+      "message": null,
+      "facts_used": {},
+      "verified": true,
+      "source": "none"
+    },
+    "outcome": {
+      "adopted": null,
+      "kwh_shifted": 0.0,
+      "opted_out": false,
+      "reward": 0.0
+    },
+    "fail_silent": false,
+    "error": null
+  },
+  {
+    "decision_id": "d_003_learned_silence",
+    "run_id": "run_20261010_eval_01",
+    "sim_time": "2026-10-10T19:30:00+05:30",
+    "user_id": "user_delhi_0044",
+    "ev": {
+      "model": "Mahindra XUV400",
+      "battery_kwh": 39.4,
+      "current_soc": 0.65,
+      "target_soc": 0.9,
+      "max_ac_kw": 7.2,
+      "plugged_in": true,
+      "connector_type": "Type 2",
+      "location": "home"
+    },
+    "journey": {
+      "p_arrive_above_reserve": 0.98,
+      "arrival_soc_q10": 0.42,
+      "arrival_soc_q50": 0.55,
+      "arrival_soc_q90": 0.68,
+      "reserve_soc": 0.1
+    },
+    "battery": {
+      "stress_score": 0.18,
+      "soh_delta_range_pct": [
+        -0.005,
+        0.02
+      ]
+    },
+    "station": {
+      "eta_wait_min_q50": 0.0,
+      "eta_wait_min_q90": 0.0,
+      "reliability": 0.99
+    },
+    "grid": {
+      "stress_q50": 0.91,
+      "stress_q90": 0.97,
+      "green_window_start": "2026-10-10T22:30:00+05:30",
+      "green_window_end": "2026-10-11T05:30:00+05:30"
+    },
+    "plans": [
+      {
+        "plan_id": "plan_default_03",
+        "type": "default",
+        "start": "2026-10-10T19:30:00+05:30",
+        "kw": 7.2,
+        "where": "home",
+        "outcomes": {
+          "cost_inr": 110.0,
+          "journey_conf_lb": 0.99,
+          "grid_value": -0.75,
+          "battery_stress_delta": 0.08,
+          "wait_min": 0.0
+        }
+      },
+      {
+        "plan_id": "plan_delay_03",
+        "type": "delay",
+        "start": "2026-10-10T23:00:00+05:30",
+        "kw": 7.2,
+        "where": "home",
+        "outcomes": {
+          "cost_inr": 78.0,
+          "journey_conf_lb": 0.98,
+          "grid_value": 1.15,
+          "battery_stress_delta": -0.02,
+          "wait_min": 0.0
+        }
+      }
+    ],
+    "safety": {
+      "invariants_ok": true,
+      "cedar": "ALLOW",
+      "vetoed": []
+    },
+    "persuasion": {
+      "chosen_plan": null,
+      "frame": "none",
+      "timing": null,
+      "uplift_mean": -0.03,
+      "uplift_p10": -0.08,
+      "propensity": 0.92,
+      "explored": false
+    },
+    "allocation": {
+      "selected": false,
+      "shadow_price": 0.0,
+      "slot": null
+    },
+    "language": {
+      "message": null,
+      "facts_used": {},
+      "verified": true,
+      "source": "none"
+    },
+    "outcome": {
+      "adopted": true,
+      "kwh_shifted": 9.8,
+      "opted_out": false,
+      "reward": 14.2
+    },
+    "fail_silent": false,
+    "error": null
+  }
+]

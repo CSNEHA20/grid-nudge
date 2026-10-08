@@ -1,0 +1,36 @@
+# Simulation Configuration
+seed: 42
+n_users: 2000
+step_minutes: 15
+simulation_days: 7
+
+grid:
+  feeder_capacity_mw: 12.0
+  base_peak_mw: 8.5
+  base_offpeak_mw: 4.2
+  solar_peak_mw: 4.0
+  solar_peak_hour: 13
+
+stations:
+  count: 15
+  connectors_per_station: 6
+  connector_kw: 50.0
+  home_charger_kw: 7.4
+
+fleet_archetypes:
+  commuter_frugal: 0.40
+  commuter_green: 0.20
+  cab_driver: 0.25
+  erratic_flex: 0.15
+
+events:
+  heatwave:
+    enabled: true
+    temp_rise_c: 8.0
+    hvac_load_multiplier: 1.45
+  solar_drop:
+    enabled: false
+    solar_reduction_factor: 0.60
+  station_outage:
+    enabled: false
+    stations_offline: 3

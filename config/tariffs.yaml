@@ -1,0 +1,26 @@
+# Time-of-Day (ToD) Electricity Tariffs
+# Source: Delhi Electricity Regulatory Commission (DERC) Multi-Year Tariff Order for Delhi Discoms
+# Unit: INR (₹) per kWh
+
+currency: "INR"
+slots:
+  solar_hours:
+    name: "Solar Low / Off-Peak"
+    start_time: "10:00"
+    end_time: "16:00"
+    rate_inr_kwh: 4.50
+    rebate_pct: 20.0
+  evening_peak:
+    name: "Evening Peak Surcharge"
+    start_time: "17:00"
+    end_time: "23:00"
+    rate_inr_kwh: 8.50
+    surcharge_pct: 20.0
+  night_normal:
+    name: "Night / Standard"
+    start_time: "23:00"
+    end_time: "10:00"
+    rate_inr_kwh: 6.00
+    surcharge_pct: 0.0
+
+demand_charge_kw_month: 250.0

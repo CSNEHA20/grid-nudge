@@ -1,0 +1,15 @@
+# Safety Invariant & Policy Configuration
+# Grounded per AGENTS.md Section 3.6 and Section 9
+
+journey_confidence_lower_bound: 0.90
+reserve_soc: 0.10
+max_battery_soc: 1.00
+min_battery_soc: 0.00
+max_nudges_per_user_per_day: 3
+attention_budget_pct_per_interval: 0.08
+quiet_hours:
+  start_hour: 23
+  end_hour: 6
+rebound_peak_threshold_pct: 0.98
+cedar_mode: "python_evaluator"
+cedar_confidence_bps_threshold: 9000
