@@ -11,6 +11,7 @@ RULES = [
     ("contracts/**", "shared"),
     ("docs/engineering/*", "v"),
     ("docs/engineering/**", "v"),
+    ("docs/BUILD_LOG.md", "any"),
     ("docs/*", "s"),
     ("docs/**", "s"),
     ("dashboard/*", "s"),
@@ -62,6 +63,8 @@ def main() -> int:
     bad = []
     for f in files:
         o = owner_of(f)
+        if o in ("any", "both"):
+            continue
         if o == "shared" and who != "shared":
             bad.append((f, "shared (use a contract/* branch)"))
         elif o != "shared" and who != "shared" and o != who:
