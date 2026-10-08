@@ -35,3 +35,30 @@
   - `tests/test_contracts.py`
 - **Result:** Contracts validated against JSON schema and TypeScript types. All contract tests passing.
 - **Known Issues / Gaps:** Real external datasets not downloaded yet; synthetic fallbacks and assumed priors documented in data/ASSUMPTIONS.md.
+
+## 2026-10-08 — M2 Digital Twin
+
+- **Phase:** P1 / M2
+- **Goal:** Fast, reproducible EV-energy simulation environment (digital twin), baseline policies (B0, B1, B2), environmental disturbance events, and hidden human behavior engine.
+- **Files Created/Modified:**
+  - `twin/__init__.py`
+  - `twin/battery_truth.py`
+  - `twin/events.py`
+  - `twin/grid.py`
+  - `twin/stations.py`
+  - `twin/users.py`
+  - `twin/behavior_hidden.py`
+  - `twin/world.py`
+  - `twin/runner.py`
+  - `eval/baselines.py`
+  - `tests/test_twin.py`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - 2,000 EVs × 7 days simulation completes in 0.36 seconds (< 60s limit).
+  - Common random numbers (CRN) verified: identical trajectories for same seed.
+  - Physical conservation laws and SOC bounds [0.0, 1.0] verified.
+  - Evening peak surge visible in default unmanaged charging (B0 peak: 19.73 MW, EV peak: 9.06 MW).
+  - Rule-based peak shifting (B1) successfully reduces evening peak to 15.54 MW.
+  - Disturbance events (heatwave, solar drop, station outages) confirmed operational.
+  - 17/17 pytest tests passing; ruff lint clean.
+- **Known Issues / Gaps:** External real telemetry data integration planned in M1/M3.
