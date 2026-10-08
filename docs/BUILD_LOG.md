@@ -62,3 +62,29 @@
   - Disturbance events (heatwave, solar drop, station outages) confirmed operational.
   - 17/17 pytest tests passing; ruff lint clean.
 - **Known Issues / Gaps:** External real telemetry data integration planned in M1/M3.
+
+## 2026-10-09 — M3 Perception Engines
+
+- **Phase:** P2 / M3
+- **Goal:** Build calibrated journey confidence, battery stress scoring with relative SOH delta intervals, Erlang-C station wait forecasting, grid stress quantiles with green charging window detection, and fleet flexibility envelopes.
+- **Files Created/Modified:**
+  - `gridnudge/perception/__init__.py`
+  - `gridnudge/perception/journey.py`
+  - `gridnudge/perception/battery.py`
+  - `gridnudge/perception/station.py`
+  - `gridnudge/perception/grid.py`
+  - `gridnudge/perception/flexibility.py`
+  - `tests/test_perception.py`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - Journey confidence estimates calibrated probability with Monte Carlo uncertainty over traffic, temperature error, and driver factors.
+  - Strict monotonicity verified (higher departure SOC yields non-decreasing confidence).
+  - Thermal sensitivity verified (45°C heatwave increases HVAC draw and reduces arrival SOC).
+  - Batch performance: 500 EVs evaluated in ~250ms (well under 1,000ms threshold).
+  - Relative battery stress score and SOH delta ranges implemented (never claims absolute lifespan).
+  - Erlang-C queue wait percentiles (q50, q90) and reliability model implemented.
+  - Diurnal grid stress quantiles and midday green charging window detection operational.
+  - Flexibility forecast simulation envelope produces labeled simulation quantiles.
+  - 32/32 pytest tests passing; ruff lint clean.
+- **Known Issues / Gaps:** Chronos-2 zero-shot forecast comparison deferred to advanced phase.
+
