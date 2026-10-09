@@ -164,6 +164,26 @@
   - 64/64 pytest tests passing; ruff lint clean.
 - **Known Issues / Gaps:** OR-Tools global optimization comparison deferred to advanced phase.
 
+## 2026-10-09 — M8b Language Verifier & M8c Operator Copilot
+
+- **Phase:** P2 / M8b & M8c
+- **Goal:** Build numeric and claim verifier (`verify.py`), Bedrock converse rendering with deterministic template fallback (`render.py`), and read-only operator copilot inquiry tools (`agent/tools.py`).
+- **Files Created/Modified:**
+  - `gridnudge/language/__init__.py`
+  - `gridnudge/language/verify.py`
+  - `gridnudge/language/render.py`
+  - `agent/__init__.py`
+  - `agent/tools.py`
+  - `tests/test_language_copilot.py`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - Strict numeric verifier passes factual claims and rejects hallucinated numbers or forbidden guarantees.
+  - Bedrock converse message rendering gated by verifier with safe deterministic template fallback.
+  - Copilot tools operational: `get_decision`, `explain_veto` (cites decision ID, Cedar verdict, and veto reasons), `compare_policies`, and `inject_scenario`.
+  - 73/73 pytest tests passing; ruff lint clean.
+- **Known Issues / Gaps:** Sneha's multi-lingual message templates (`templates.py`, M8a) integrated seamlessly upon commit.
+
+
 
 
 
