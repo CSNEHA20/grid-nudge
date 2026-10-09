@@ -147,6 +147,24 @@
   - 58/58 pytest tests passing; ruff lint clean.
 - **Known Issues / Gaps:** Nudge allocation and fleet anti-herding handled in Allocator (M7).
 
+## 2026-10-09 — M7 Fleet Allocator
+
+- **Phase:** P2 / M7
+- **Goal:** Implement greedy fleet allocator enforcing attention budget limits, shadow pricing, per-user daily frequency caps, feeder capacity headroom, and anti-herding slot staggering.
+- **Files Created/Modified:**
+  - `gridnudge/allocator.py`
+  - `tests/test_allocator.py`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - Respects attention budget cap (e.g. 8% of plugged EVs per interval).
+  - Computes shadow price representing the marginal value of the last admitted candidate.
+  - Enforces daily per-user notification limit (3 nudges/day).
+  - Anti-herding staggering distributes shifted charging starts across 15-minute offsets, avoiding sudden rebound peaks.
+  - Feeder transformer capacity constraint enforced: candidates that would cause overload are pushed or skipped.
+  - 64/64 pytest tests passing; ruff lint clean.
+- **Known Issues / Gaps:** OR-Tools global optimization comparison deferred to advanced phase.
+
+
 
 
 
