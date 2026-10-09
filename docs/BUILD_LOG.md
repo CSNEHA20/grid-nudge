@@ -88,3 +88,21 @@
   - 32/32 pytest tests passing; ruff lint clean.
 - **Known Issues / Gaps:** Chronos-2 zero-shot forecast comparison deferred to advanced phase.
 
+## 2026-10-09 — M4 Planner
+
+- **Phase:** P2 / M4
+- **Goal:** Build deterministic candidate charging plan enumerator (`default`, `delay`, `slow_charge`, `top_up_now`, `relocate`) and outcome predictor (`cost_inr`, `journey_conf_lb`, `grid_value`, `battery_stress_delta`, `wait_min`, `creates_new_peak`).
+- **Files Created/Modified:**
+  - `gridnudge/planner.py`
+  - `tests/test_planner.py`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - Enumerates ≥ 2 valid candidate plans for typical residential EVs.
+  - Delay plans shift charging to night ToU slots, saving cost and yielding positive grid value.
+  - Monotonicity verified: delaying charging with tight departure deadline causes lower journey confidence, laying ground for Beat 1 Safety Veto.
+  - `top_up_now` triggered when battery SOC or journey confidence is at risk.
+  - `relocate` plan suggested when public charging stations have excessive queue wait.
+  - 38/38 pytest tests passing; ruff lint clean.
+- **Known Issues / Gaps:** Global multi-EV coordination handled in Allocator (M7).
+
+
