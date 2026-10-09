@@ -46,9 +46,9 @@ DEFAULT_CALIBRATOR = JourneyCalibrator()
 
 
 def estimate_journey_confidence(
-    departure_soc: float,
-    battery_kwh: float,
-    distance_km: float,
+    departure_soc: Optional[float] = None,
+    battery_kwh: float = 40.0,
+    distance_km: float = 30.0,
     base_wh_km: float = 160.0,
     ambient_temp_c: float = 30.0,
     avg_speed_kmh: float = 35.0,
@@ -57,6 +57,7 @@ def estimate_journey_confidence(
     seed: Optional[int] = 42,
     rng: Optional[np.random.Generator] = None,
     calibrator: Optional[JourneyCalibrator] = None,
+    soc: Optional[float] = None,
 ) -> Journey:
     """Compute calibrated journey confidence and arrival SOC quantiles using Monte Carlo.
 
@@ -72,10 +73,13 @@ def estimate_journey_confidence(
         seed: RNG seed for reproducible Common Random Numbers across plans.
         rng: Optional explicit numpy Generator.
         calibrator: Optional JourneyCalibrator instance.
+        soc: Optional alias for departure_soc.
 
     Returns:
         Journey contract object.
     """
+    if departure_soc is None:
+        departure_soc = soc if soc is not None else 0.5
     departure_soc = float(max(0.0, min(1.0, departure_soc)))
     battery_kwh = float(max(0.1, battery_kwh))
     distance_km = float(max(0.0, distance_km))

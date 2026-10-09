@@ -68,12 +68,27 @@ def policy_b2(world: World) -> List[Dict[str, Any]]:
     return decisions
 
 
+def create_policy_b4(
+    seed: int = 42,
+    run_id: str = "b4_gridnudge",
+) -> Any:
+    """B4: Full GridNudge decision policy with StateStore and closed-loop learning."""
+    from gridnudge.pipeline import create_pipeline_policy
+    from gridnudge.persuasion.lints import LinTS
+    from gridnudge.state import InMemoryStore
+
+    store = InMemoryStore()
+    bandit = LinTS(seed=seed)
+    return create_pipeline_policy(store=store, bandit=bandit, run_id=run_id)
+
+
 def run_baseline_comparison(
     seed: int = 42,
     n_users: int = 2000,
     n_steps: int = 96,  # 1 day by default
+    include_b4: bool = False,
 ) -> Dict[str, Dict[str, Any]]:
-    """Compare B0 and B1 under Common Random Numbers (CRN)."""
+    """Compare baseline policies under Common Random Numbers (CRN)."""
     # Run B0
     w0 = World(seed=seed, n_users=n_users)
     res_b0 = run_simulation(world=w0, n_steps=n_steps, policy_fn=policy_b0)
@@ -82,7 +97,16 @@ def run_baseline_comparison(
     w1 = World(seed=seed, n_users=n_users)
     res_b1 = run_simulation(world=w1, n_steps=n_steps, policy_fn=policy_b1)
 
-    return {
+    results = {
         "B0_uncontrolled": res_b0["metrics"],
         "B1_rule_based": res_b1["metrics"],
     }
+
+    if include_b4:
+        w4 = World(seed=seed, n_users=n_users)
+        pol_b4 = create_policy_b4(seed=seed)
+        res_b4 = run_simulation(world=w4, n_steps=n_steps, policy_fn=pol_b4)
+        results["B4_gridnudge"] = res_b4["metrics"]
+
+    return results
+

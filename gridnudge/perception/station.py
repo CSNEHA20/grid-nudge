@@ -5,7 +5,7 @@ forecast arrival rates, average charging dwell times, and operational connector 
 """
 
 import math
-from typing import Tuple
+from typing import Any, Optional, Tuple
 
 from gridnudge.contracts import StationView
 
@@ -77,13 +77,15 @@ def compute_eta_wait_quantiles(
 
 
 def estimate_station_wait(
-    station_id: int,
-    arrival_rate_per_hour: float,
+    station_id: Any = 0,
+    arrival_rate_per_hour: float = 8.0,
     avg_dwell_min: float = 35.0,
     connectors: int = 6,
     is_offline: bool = False,
     current_queue_len: int = 0,
     base_reliability: float = 0.95,
+    eta_step: Optional[int] = None,
+    **kwargs,
 ) -> StationView:
     """Predict queue wait quantiles and reliability for a station at vehicle ETA.
 

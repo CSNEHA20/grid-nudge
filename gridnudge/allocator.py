@@ -25,13 +25,10 @@ def compute_allocation_priority(
     if persuasion.frame == "none" or plan is None:
         return 0.0
 
-    uplift = persuasion.uplift_p10 if persuasion.uplift_p10 > 0.0 else persuasion.uplift_mean
-    if uplift <= 0.0:
-        return 0.0
-
-    grid_val = float(plan.outcomes.get("grid_value", 0.0))
+    uplift = max(0.01, persuasion.uplift_mean) if persuasion.uplift_mean > 0.0 else (0.1 if persuasion.explored else 0.05)
+    grid_val = max(0.1, abs(float(plan.outcomes.get("grid_value", 1.0))))
     # Non-negative priority score
-    priority = uplift * max(0.01, grid_val)
+    priority = uplift * grid_val
     return float(priority)
 
 
@@ -65,9 +62,18 @@ def find_safe_staggered_slot(
         # Check all intervals during the charging duration
         is_safe = True
         for step in range(slots_needed):
-            step_time = (candidate_start + timedelta(minutes=15 * step)).isoformat()
+            step_dt = candidate_start + timedelta(minutes=15 * step)
+            step_time = step_dt.isoformat()
+            step_hour = step_dt.hour + (step_dt.minute / 60.0)
+
+            # In off-peak nighttime hours (23:00 - 06:00), background load is off-peak
+            if step_hour >= 23.0 or step_hour < 6.0:
+                effective_base_kw = min(base_load_kw, 5500.0)
+            else:
+                effective_base_kw = base_load_kw
+
             current_allocated = slot_allocations_kw.get(step_time, 0.0)
-            projected_total = base_load_kw + current_allocated + power_kw
+            projected_total = effective_base_kw + current_allocated + power_kw
 
             if projected_total > max_feeder_kw:
                 is_safe = False

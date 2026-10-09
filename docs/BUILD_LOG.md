@@ -183,6 +183,32 @@
   - 73/73 pytest tests passing; ruff lint clean.
 - **Known Issues / Gaps:** Sneha's multi-lingual message templates (`templates.py`, M8a) integrated seamlessly upon commit.
 
+## 2026-10-09 — M9 Decision Pipeline & Closed-Loop Integration
+
+- **Phase:** P2 / M9
+- **Goal:** Build full decision pipeline orchestrator (`pipeline.py`), `StateStore` abstraction with `InMemoryStore` (`state.py`), closed-loop outcome processing, and B4 baseline policy runner (`eval/baselines.py`).
+- **Files Created/Modified:**
+  - `gridnudge/state.py`
+  - `gridnudge/pipeline.py`
+  - `eval/baselines.py`
+  - `tests/test_pipeline.py`
+  - `gridnudge/perception/journey.py`
+  - `gridnudge/perception/grid.py`
+  - `gridnudge/perception/station.py`
+  - `gridnudge/planner.py`
+  - `gridnudge/safety/invariants.py`
+  - `gridnudge/persuasion/fatigue.py`
+  - `gridnudge/persuasion/uplift.py`
+  - `gridnudge/allocator.py`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - `StateStore` protocol defined with `InMemoryStore` implementation for local execution.
+  - Complete pipeline (`decide_batch`) orchestrates perception, planning, safety gates #1 and #2, bandit persuasion, allocator, and language rendering with fail-silent wrapping.
+  - Closed-loop outcome processing (`process_outcomes`) ingests simulated outcomes, calculates causal rewards, and updates LinTS posterior.
+  - Twin-compatible B4 policy (`create_pipeline_policy`) links digital twin to GridNudge pipeline.
+  - 82/82 pytest tests passing; ownership check clean.
+- **Known Issues / Gaps:** AWS DynamoDB state store and SQS reward processing implemented in P3.
+
 
 
 

@@ -108,6 +108,17 @@ def decay_user_fatigue(
     return round(float(max(0.0, fatigue * decay_rate)), 3)
 
 
+def update_fatigue_after_nudge(
+    fatigue: float,
+    is_repeat_frame: bool = False,
+    increment: float = 1.0,
+    repeat_penalty: float = 0.5,
+) -> float:
+    """Increment user fatigue after receiving a nudge, adding penalty for repeating the same frame."""
+    penalty = repeat_penalty if is_repeat_frame else 0.0
+    return round(float(fatigue + increment + penalty), 3)
+
+
 def record_user_interaction(
     user_state: Dict[str, Any],
     nudged: bool,

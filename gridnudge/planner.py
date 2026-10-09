@@ -57,7 +57,7 @@ def calculate_charging_cost_inr(
 def generate_candidate_plans(
     ev_context: Dict[str, Any],
     sim_time_iso: str,
-    hour_of_day: float,
+    hour_of_day: float = 18.0,
     grid_stress: float = 0.85,
     solar_share: float = 0.20,
     ambient_temp_c: float = 30.0,
@@ -65,6 +65,9 @@ def generate_candidate_plans(
     station_views: Optional[Dict[int, Any]] = None,
     feeder_capacity_mw: float = 12.0,
     current_feeder_load_mw: float = 9.5,
+    user_id: Optional[str] = None,
+    commute_distance_km: Optional[float] = None,
+    **kwargs: Any,
 ) -> List[Plan]:
     """Enumerate candidate charging plans and compute predicted outcomes for an EV.
 
@@ -87,6 +90,8 @@ def generate_candidate_plans(
         station_views: Optional dictionary mapping station_id to StationView perception objects.
         feeder_capacity_mw: Total feeder transformer capacity in MW.
         current_feeder_load_mw: Current total feeder load in MW.
+        user_id: Optional user identifier.
+        commute_distance_km: Optional commute distance override in km.
 
     Returns:
         List of typed Plan objects.
@@ -95,7 +100,8 @@ def generate_candidate_plans(
     current_soc = float(ev_context.get("current_soc", 0.30))
     target_soc = float(ev_context.get("target_soc", 0.90))
     charger_kw = float(ev_context.get("charger_kw", 7.4))
-    commute_km = float(ev_context.get("commute_km", 45.0))
+    default_commute = commute_distance_km if commute_distance_km is not None else 45.0
+    commute_km = float(ev_context.get("commute_km", default_commute))
     base_wh_km = float(ev_context.get("base_wh_km", 160.0))
     hours_until_departure = float(ev_context.get("hours_until_departure", 8.0))
     has_home_charging = bool(ev_context.get("has_home_charging", True))
