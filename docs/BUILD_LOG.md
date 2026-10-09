@@ -125,5 +125,28 @@
   - 50/50 pytest tests passing; ruff lint clean.
 - **Known Issues / Gaps:** Native `cedarpy` binary compiled binding replaced with tested compliant Python evaluator per AGENTS.md §12.
 
+## 2026-10-09 — M6 Persuasion Engine (Contextual Bandit & Uplift)
+
+- **Phase:** P2 / M6
+- **Goal:** Uplift-aware contextual bandit with first-class `none` action, Linear Thompson Sampling, propensity logging, fatigue state, and Bayesian archetype estimation.
+- **Files Created/Modified:**
+  - `gridnudge/persuasion/__init__.py`
+  - `gridnudge/persuasion/features.py`
+  - `gridnudge/persuasion/lints.py`
+  - `gridnudge/persuasion/fatigue.py`
+  - `gridnudge/persuasion/uplift.py`
+  - `tests/test_persuasion.py`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - Fixed 121-dimensional joint feature encoding $\phi(x, a)$ with context-frame interactions.
+  - Linear Thompson Sampling (LinTS) bandit with discounting for non-stationarity and state serialization.
+  - First-class `none` action guarantees learned silence when uplift is non-positive.
+  - Paired uplift calculation ($\text{score}(a) - \text{score}(\text{none})$) and propensity logging $P(a|x)$ with $\epsilon$-exploration.
+  - 5% global holdout group permanently assigned `none` for honest evaluation.
+  - Causal reward metric balancing shifted energy, savings, battery stress, wait, fatigue, and opt-outs.
+  - 58/58 pytest tests passing; ruff lint clean.
+- **Known Issues / Gaps:** Nudge allocation and fleet anti-herding handled in Allocator (M7).
+
+
 
 
