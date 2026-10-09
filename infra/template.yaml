@@ -1,0 +1,286 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  GridNudge - Safety-gated, uplift-aware EV charging decision system.
+  WeMakeDevs x AWS Environmental Hacks (Waste & Energy track).
+
+Parameters:
+  StageName:
+    Type: String
+    Default: prod
+    Description: Deployment stage name
+  BedrockModelId:
+    Type: String
+    Default: "apac.amazon.nova-micro-v1:0"
+    Description: Amazon Bedrock foundation model ID for nudge language phrasing
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 30
+    MemorySize: 1024
+    Tracing: Active
+    Environment:
+      Variables:
+        USER_TABLE: !Ref UserState
+        MODEL_TABLE: !Ref ModelState
+        DECISION_TABLE: !Ref Decisions
+        LOG_BUCKET: !Ref LogBucket
+        REWARD_QUEUE_URL: !Ref RewardQueue
+        BEDROCK_MODEL_ID: !Ref BedrockModelId
+
+Resources:
+  # =========================================================================
+  # Persistence Layer: DynamoDB On-Demand Tables
+  # =========================================================================
+  UserState:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'gridnudge-user-state-${StageName}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+
+  ModelState:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'gridnudge-model-state-${StageName}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: model_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: model_id
+          KeyType: HASH
+
+  Decisions:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'gridnudge-decisions-${StageName}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: decision_id
+          AttributeType: S
+        - AttributeName: run_id
+          AttributeType: S
+        - AttributeName: sim_time
+          AttributeType: S
+      KeySchema:
+        - AttributeName: decision_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: by_run
+          KeySchema:
+            - AttributeName: run_id
+              KeyType: HASH
+            - AttributeName: sim_time
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+  # =========================================================================
+  # Storage & Messaging: S3 Log Bucket & SQS FIFO Queue
+  # =========================================================================
+  LogBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'gridnudge-logs-${AWS::AccountId}-${AWS::Region}-${StageName}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  RewardQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub 'gridnudge-rewards-${StageName}.fifo'
+      FifoQueue: true
+      ContentBasedDeduplication: true
+      VisibilityTimeout: 60
+
+  # =========================================================================
+  # HTTP API Gateway (v2)
+  # =========================================================================
+  Api:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref StageName
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+
+  # =========================================================================
+  # Lambda Functions (Thin adapters over pure python pipeline)
+  # =========================================================================
+  DecideFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: services.decide.handler
+      CodeUri: ..
+      Description: Batch decision pipeline orchestrator
+      Events:
+        DecideApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /decide
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserState
+        - DynamoDBReadPolicy:
+            TableName: !Ref ModelState
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Decisions
+        - S3WritePolicy:
+            BucketName: !Ref LogBucket
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:Converse
+              Resource: '*'
+
+  OutcomesFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: services.outcomes.handler
+      CodeUri: ..
+      Description: User charging outcome ingestion endpoint
+      Events:
+        OutcomesApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /outcomes
+            Method: post
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt RewardQueue.QueueName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Decisions
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ModelState
+
+  RewardUpdateFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: services.reward_update.handler
+      CodeUri: ..
+      Description: Single-writer LinTS posterior learner
+      ReservedConcurrentExecutions: 1
+      Events:
+        RewardQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt RewardQueue.Arn
+            BatchSize: 10
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ModelState
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserState
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Decisions
+        - S3WritePolicy:
+            BucketName: !Ref LogBucket
+
+  MetricsFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: services.metrics.handler
+      CodeUri: ..
+      Description: Aggregate time series timeline query endpoint
+      Events:
+        MetricsApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /metrics
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref Decisions
+
+  DecisionGetFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: services.decision_get.handler
+      CodeUri: ..
+      Description: Fetch single auditable DecisionRecord by ID
+      Events:
+        DecisionGetApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /decision/{id}
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref Decisions
+
+  ExplainFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: services.explain.handler
+      CodeUri: ..
+      Description: Verified decision explainability narrative
+      Events:
+        ExplainApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /explain
+            Method: post
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref Decisions
+
+  EventsFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: services.events.handler
+      CodeUri: ..
+      Description: Inject disturbance scenarios into simulation
+      Events:
+        EventsApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /events
+            Method: post
+
+# =========================================================================
+# Outputs
+# =========================================================================
+Outputs:
+  ApiUrl:
+    Description: HTTP API Gateway endpoint base URL
+    Value: !Sub 'https://${Api}.execute-api.${AWS::Region}.amazonaws.com/${StageName}'
+  UserStateTableName:
+    Description: User state DynamoDB table
+    Value: !Ref UserState
+  ModelStateTableName:
+    Description: LinTS model posterior state DynamoDB table
+    Value: !Ref ModelState
+  DecisionsTableName:
+    Description: Decision audit records DynamoDB table
+    Value: !Ref Decisions
+  RewardQueueUrl:
+    Description: SQS FIFO Reward queue URL
+    Value: !Ref RewardQueue
+  LogBucketName:
+    Description: S3 audit log bucket
+    Value: !Ref LogBucket

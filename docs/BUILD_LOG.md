@@ -207,10 +207,37 @@
   - Closed-loop outcome processing (`process_outcomes`) ingests simulated outcomes, calculates causal rewards, and updates LinTS posterior.
   - Twin-compatible B4 policy (`create_pipeline_policy`) links digital twin to GridNudge pipeline.
   - 82/82 pytest tests passing; ownership check clean.
-- **Known Issues / Gaps:** AWS DynamoDB state store and SQS reward processing implemented in P3.
+## 2026-10-09 — M10 AWS Infrastructure & Lambda Microservices
 
-
-
-
-
-
+- **Phase:** P3 / M10
+- **Goal:** AWS serverless infrastructure (`infra/template.yaml`), Lambda service handlers (`services/*.py`), `DynamoStore` implementation, and runner client (`GridNudgeClient`).
+- **Files Created/Modified:**
+  - `infra/template.yaml`
+  - `services/__init__.py`
+  - `services/common.py`
+  - `services/decide.py`
+  - `services/outcomes.py`
+  - `services/reward_update.py`
+  - `services/metrics.py`
+  - `services/decision_get.py`
+  - `services/explain.py`
+  - `services/events.py`
+  - `services/client.py`
+  - `gridnudge/state.py`
+  - `tests/test_services.py`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - Authored valid AWS SAM template (`infra/template.yaml`) declaring DynamoDB tables (`UserState`, `ModelState`, `Decisions` with `by_run` GSI), S3 `LogBucket`, SQS FIFO `RewardQueue`, HTTP API Gateway, and 7 Lambda functions with least-privilege IAM policies.
+  - Validated template with `sam validate -t infra/template.yaml`.
+  - Built thin Lambda handlers wrapped around `gridnudge.pipeline` with dependency-injected `StateStore`:
+    - `POST /decide`: batch inference orchestrator emitting structured CloudWatch metrics (`veto_count`, `fail_silent_count`, `nudges_sent`).
+    - `POST /outcomes`: accepts realized outcomes, enqueuing to SQS FIFO queue with fallback synchronous processing.
+    - `RewardUpdateFn`: single-writer (`ReservedConcurrentExecutions: 1`) SQS FIFO listener updating LinTS posterior and persisting audit logs to S3.
+    - `GET /metrics`: aggregates timeline series and summary statistics for dashboard.
+    - `GET /decision/{id}`: single auditable DecisionRecord retrieval.
+    - `POST /explain`: verified decision narration citing facts, Cedar verdicts, and safety veto reasons.
+    - `POST /events`: simulation scenario injection.
+  - Implemented `GridNudgeClient` supporting both remote HTTP and direct in-process execution modes.
+  - Enhanced `DynamoStore` in `gridnudge/state.py` with environment variable defaults and `query_decisions_by_run`.
+  - 101/101 pytest tests passing (19 new tests in `test_services.py`); 0 errors.
+- **Known Issues / Gaps:** Real AWS deployment (`sam deploy`) requires explicit user confirmation per safety rules.

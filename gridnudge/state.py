@@ -5,6 +5,7 @@ Provides a swappable StateStore abstraction:
 - DynamoStore: DynamoDB implementation for AWS Lambda execution.
 """
 
+import os
 import threading
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
@@ -40,6 +41,10 @@ class StateStore(Protocol):
 
     def get_decision(self, decision_id: str) -> Optional[Dict[str, Any]]:
         """Retrieve decision record by decision ID, or None if not found."""
+        ...
+
+    def query_decisions_by_run(self, run_id: str, limit: int = 1000) -> List[Dict[str, Any]]:
+        """Query decisions by run_id, ordered by sim_time."""
         ...
 
 
@@ -105,6 +110,13 @@ class InMemoryStore:
         with self._lock:
             return list(self._decisions.values())
 
+    def query_decisions_by_run(self, run_id: str, limit: int = 1000) -> List[Dict[str, Any]]:
+        """Query decisions matching run_id, sorted by sim_time."""
+        with self._lock:
+            matches = [d for d in self._decisions.values() if d.get("run_id") == run_id]
+            matches.sort(key=lambda x: str(x.get("sim_time", "")))
+            return [dict(d) for d in matches[:limit]]
+
     def clear(self) -> None:
         """Reset all in-memory store tables."""
         with self._lock:
@@ -122,14 +134,14 @@ class DynamoStore:
 
     def __init__(
         self,
-        user_table: str = "GridNudge-UserState",
-        model_table: str = "GridNudge-ModelState",
-        decision_table: str = "GridNudge-Decisions",
+        user_table: Optional[str] = None,
+        model_table: Optional[str] = None,
+        decision_table: Optional[str] = None,
         dynamodb_resource: Optional[Any] = None,
     ) -> None:
-        self.user_table_name = user_table
-        self.model_table_name = model_table
-        self.decision_table_name = decision_table
+        self.user_table_name = user_table or os.environ.get("USER_TABLE", "GridNudge-UserState")
+        self.model_table_name = model_table or os.environ.get("MODEL_TABLE", "GridNudge-ModelState")
+        self.decision_table_name = decision_table or os.environ.get("DECISION_TABLE", "GridNudge-Decisions")
         self._resource = dynamodb_resource
 
     def _get_resource(self) -> Any:
@@ -137,7 +149,11 @@ class DynamoStore:
             return self._resource
         try:
             import boto3
-            self._resource = boto3.resource("dynamodb")
+            endpoint_url = os.environ.get("DYNAMODB_ENDPOINT_URL")
+            if endpoint_url:
+                self._resource = boto3.resource("dynamodb", endpoint_url=endpoint_url)
+            else:
+                self._resource = boto3.resource("dynamodb")
             return self._resource
         except ImportError as e:
             raise RuntimeError("boto3 must be installed to use DynamoStore") from e
@@ -206,3 +222,29 @@ class DynamoStore:
         table = db.Table(self.decision_table_name)
         resp = table.get_item(Key={"decision_id": str(decision_id)})
         return resp.get("Item")
+
+    def query_decisions_by_run(self, run_id: str, limit: int = 1000) -> List[Dict[str, Any]]:
+        db = self._get_resource()
+        table = db.Table(self.decision_table_name)
+        try:
+            try:
+                from boto3.dynamodb.conditions import Key
+                key_cond = Key("run_id").eq(run_id)
+            except (ImportError, ModuleNotFoundError):
+                key_cond = f"run_id = {run_id}"
+
+            resp = table.query(
+                IndexName="by_run",
+                KeyConditionExpression=key_cond,
+                Limit=limit,
+            )
+            return resp.get("Items", [])
+        except Exception:
+            return []
+
+
+def get_default_store() -> StateStore:
+    """Return DynamoStore if AWS Lambda environment or USE_DYNAMO_STORE detected, otherwise InMemoryStore."""
+    if os.environ.get("AWS_LAMBDA_FUNCTION_NAME") or os.environ.get("USE_DYNAMO_STORE"):
+        return DynamoStore()
+    return InMemoryStore()
