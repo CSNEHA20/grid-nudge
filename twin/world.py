@@ -55,6 +55,7 @@ class World:
         self.start_datetime = datetime(2026, 10, 8, 0, 0, 0)
         self.pending_outcomes: List[Dict[str, Any]] = []
         self.closed_outcomes: List[Dict[str, Any]] = []
+        self.all_outcomes: List[Dict[str, Any]] = []
 
     def _load_default_configs(self) -> Dict[str, Any]:
         """Load configuration files from config directory if not provided."""
@@ -366,6 +367,7 @@ class World:
                     "true_uplift": o["true_uplift"],
                 }
                 self.closed_outcomes.append(closed)
+                self.all_outcomes.append(closed)
             else:
                 remaining_outcomes.append(o)
         self.pending_outcomes = remaining_outcomes
@@ -398,3 +400,28 @@ class World:
         outcomes = self.closed_outcomes
         self.closed_outcomes = []
         return outcomes
+
+    def flush_pending_outcomes(self) -> List[Dict[str, Any]]:
+        """Force-resolve and return any remaining pending outcomes at simulation end."""
+        closed = []
+        for o in self.pending_outcomes:
+            user = self.fleet.users[o["user_id"]]
+            kwh_shifted = 0.0
+            if o["adopted"] and o["plan_type"] == "delay":
+                kwh_shifted = round(float(user.battery_kwh * max(0.0, user.target_soc - o["initial_soc"])), 2)
+            stress_delta = -0.05 if (o["adopted"] and o["plan_type"] in ("delay", "slow_charge")) else 0.0
+            rec = {
+                "decision_id": o["decision_id"],
+                "user_id": o["user_id"],
+                "adopted": o["adopted"],
+                "kwh_shifted": kwh_shifted,
+                "savings_inr": o["savings_inr"],
+                "battery_stress_delta": stress_delta,
+                "opted_out": o["opted_out"],
+                "realized_value": round(kwh_shifted * 2.5 + o["savings_inr"] * 0.1, 2),
+                "true_uplift": o["true_uplift"],
+            }
+            closed.append(rec)
+            self.all_outcomes.append(rec)
+        self.pending_outcomes = []
+        return closed

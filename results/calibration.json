@@ -1,0 +1,80 @@
+{
+  "metric": "Journey Confidence P(arrival SOC >= reserve)",
+  "provenance": "Simulation",
+  "held_out_trips_count": 1500,
+  "expected_calibration_error": 0.0291,
+  "max_calibration_error": 0.5091,
+  "bins": [
+    {
+      "bin_start": 0.0,
+      "bin_end": 0.1,
+      "mean_predicted": 0.013,
+      "observed_freq": 0.101,
+      "count": 149
+    },
+    {
+      "bin_start": 0.1,
+      "bin_end": 0.2,
+      "mean_predicted": 0.158,
+      "observed_freq": 0.667,
+      "count": 18
+    },
+    {
+      "bin_start": 0.2,
+      "bin_end": 0.3,
+      "mean_predicted": 0.241,
+      "observed_freq": 0.273,
+      "count": 11
+    },
+    {
+      "bin_start": 0.3,
+      "bin_end": 0.4,
+      "mean_predicted": 0.342,
+      "observed_freq": 0.545,
+      "count": 11
+    },
+    {
+      "bin_start": 0.4,
+      "bin_end": 0.5,
+      "mean_predicted": 0.456,
+      "observed_freq": 0.647,
+      "count": 17
+    },
+    {
+      "bin_start": 0.5,
+      "bin_end": 0.6,
+      "mean_predicted": 0.54,
+      "observed_freq": 0.786,
+      "count": 14
+    },
+    {
+      "bin_start": 0.6,
+      "bin_end": 0.7,
+      "mean_predicted": 0.644,
+      "observed_freq": 0.833,
+      "count": 24
+    },
+    {
+      "bin_start": 0.7,
+      "bin_end": 0.8,
+      "mean_predicted": 0.749,
+      "observed_freq": 1.0,
+      "count": 9
+    },
+    {
+      "bin_start": 0.8,
+      "bin_end": 0.9,
+      "mean_predicted": 0.861,
+      "observed_freq": 0.949,
+      "count": 39
+    },
+    {
+      "bin_start": 0.9,
+      "bin_end": 1.0,
+      "mean_predicted": 0.998,
+      "observed_freq": 0.999,
+      "count": 1208
+    }
+  ],
+  "interval_coverage_80": 0.596
+}

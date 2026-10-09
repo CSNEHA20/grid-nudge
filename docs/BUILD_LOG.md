@@ -241,3 +241,37 @@
   - Enhanced `DynamoStore` in `gridnudge/state.py` with environment variable defaults and `query_decisions_by_run`.
   - 101/101 pytest tests passing (19 new tests in `test_services.py`); 0 errors.
 - **Known Issues / Gaps:** Real AWS deployment (`sam deploy`) requires explicit user confirmation per safety rules.
+
+## 2026-10-10 — M11 Evaluation Harness & Benchmark Suite
+
+- **Phase:** P5 / M11
+- **Goal:** Comprehensive evaluation harness across B0–B4 baselines with Common Random Numbers (CRN), 95% confidence intervals, calibration diagnostics, stress tests, and automated replay generation.
+- **Files Created/Modified:**
+  - `eval/__init__.py`
+  - `eval/baselines.py`
+  - `eval/metrics.py`
+  - `eval/calibration.py`
+  - `eval/plots.py`
+  - `eval/stress.py`
+  - `eval/make_replay.py`
+  - `eval/run.py`
+  - `gridnudge/pipeline.py`
+  - `twin/world.py`
+  - `twin/runner.py`
+  - `twin/events.py`
+  - `tests/test_eval.py`
+  - `results/summary.csv`
+  - `results/timeline.json`
+  - `results/plots/*.png`
+  - `results/replay/timeline.json`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - Policy catalog supporting B0 (uncontrolled), B1 (broadcast delay), B2 (safe rule-based), B3 (bandit without allocator), and B4 (GridNudge full pipeline).
+  - Common Random Numbers (CRN) evaluation reporting mean ± 95% confidence intervals across multi-seed runs.
+  - Headline metrics captured: evening peak load (18:00–22:00), peak reduction %, kWh shifted, nudges/user/day, opt-out rate %, true uplift, stranded trips (= 0 invariant guaranteed), ₹ saved, and regret vs oracle.
+  - Calibration diagnostics: reliability diagram, Expected Calibration Error (ECE), Maximum Calibration Error (MCE), and 80% quantile coverage check on held-out trips.
+  - Stress testing: misspecification testing with biased synthetic priors and mid-run tariff change non-stationarity stress testing.
+  - Replay generator (`eval/make_replay.py`) outputting deterministic 96-step timeline for dashboard replay mode.
+  - CLI benchmark runner (`python -m eval.run`) generating `results/summary.csv`, `results/timeline.json`, `results/plots/*.png`, and `results/replay/timeline.json`.
+  - 117/117 pytest tests passing (16 new tests in `test_eval.py`); 0 errors.
+- **Known Issues / Gaps:** None. Milestone M11 complete.

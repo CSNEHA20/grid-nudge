@@ -68,18 +68,49 @@ def policy_b2(world: World) -> List[Dict[str, Any]]:
     return decisions
 
 
-def create_policy_b4(
+def create_policy_b3(
     seed: int = 42,
-    run_id: str = "b4_gridnudge",
+    run_id: str = "b3_bandit_no_alloc",
 ) -> Any:
-    """B4: Full GridNudge decision policy with StateStore and closed-loop learning."""
+    """B3: Bandit without fleet allocator (no attention budget cap, no anti-herding staggering)."""
     from gridnudge.pipeline import create_pipeline_policy
     from gridnudge.persuasion.lints import LinTS
     from gridnudge.state import InMemoryStore
 
     store = InMemoryStore()
     bandit = LinTS(seed=seed)
-    return create_pipeline_policy(store=store, bandit=bandit, run_id=run_id)
+    return create_pipeline_policy(store=store, bandit=bandit, run_id=run_id, apply_allocation=False)
+
+
+def create_policy_b4(
+    seed: int = 42,
+    run_id: str = "b4_gridnudge",
+) -> Any:
+    """B4: Full GridNudge decision policy with StateStore, fleet allocator, and closed-loop learning."""
+    from gridnudge.pipeline import create_pipeline_policy
+    from gridnudge.persuasion.lints import LinTS
+    from gridnudge.state import InMemoryStore
+
+    store = InMemoryStore()
+    bandit = LinTS(seed=seed)
+    return create_pipeline_policy(store=store, bandit=bandit, run_id=run_id, apply_allocation=True)
+
+
+def get_policy_by_name(name: str, seed: int = 42) -> Any:
+    """Resolve policy runner callable by policy name (B0, B1, B2, B3, B4)."""
+    clean_name = name.upper().strip()
+    if clean_name in ("B0", "B0_UNCONTROLLED"):
+        return policy_b0
+    elif clean_name in ("B1", "B1_RULE_BASED", "B1_BROADCAST"):
+        return policy_b1
+    elif clean_name in ("B2", "B2_SAFE_PLANNER"):
+        return policy_b2
+    elif clean_name in ("B3", "B3_BANDIT_NO_ALLOC"):
+        return create_policy_b3(seed=seed)
+    elif clean_name in ("B4", "B4_GRIDNUDGE"):
+        return create_policy_b4(seed=seed)
+    else:
+        raise ValueError(f"Unknown policy: '{name}'. Supported policies: B0, B1, B2, B3, B4.")
 
 
 def run_baseline_comparison(

@@ -53,6 +53,7 @@ class EventManager:
     def inject(self, event: Dict[str, Any]) -> None:
         """Inject a disturbance event into the simulation."""
         evt = dict(event)
+        evt["type"] = evt.get("type") or evt.get("event_type", "unknown")
         evt.setdefault("start_step", 0)
         evt.setdefault("end_step", 100_000)
         self.active_events.append(evt)

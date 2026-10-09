@@ -51,6 +51,7 @@ def decide_batch(
     store: Optional[StateStore] = None,
     bandit: Optional[LinTS] = None,
     render_llm: bool = False,
+    apply_allocation: bool = True,
 ) -> List[DecisionRecord]:
     """Execute batched inference across candidate EVs plugged in at current simulation timestep.
 
@@ -255,23 +256,32 @@ def decide_batch(
     # -------------------------------------------------------------
     allocations_by_id: Dict[str, Allocation] = {}
     if candidate_records:
-        try:
-            allocations_by_id = allocate_fleet_nudges(
-                candidate_records=candidate_records,
-                total_plugged_count=max(len(candidates), 1),
-                sim_time_iso=sim_time_iso,
-                feeder_capacity_mw=capacity_mw,
-                base_load_mw=float(grid_fc.get("base_offpeak_mw", 5.5)),
-            )
-        except Exception as ex:
-            logger.exception("Allocator failed; failing silent for batch allocation: %s", ex)
-            # Default to no active allocation
+        if not apply_allocation:
+            # Policy B3: bandit without allocator
             for c_rec in candidate_records:
                 allocations_by_id[c_rec["candidate_id"]] = Allocation(
-                    selected=False,
+                    selected=True,
                     shadow_price=0.0,
-                    slot=None,
+                    slot=sim_time_iso,
                 )
+        else:
+            try:
+                allocations_by_id = allocate_fleet_nudges(
+                    candidate_records=candidate_records,
+                    total_plugged_count=max(len(candidates), 1),
+                    sim_time_iso=sim_time_iso,
+                    feeder_capacity_mw=capacity_mw,
+                    base_load_mw=float(grid_fc.get("base_offpeak_mw", 5.5)),
+                )
+            except Exception as ex:
+                logger.exception("Allocator failed; failing silent for batch allocation: %s", ex)
+                # Default to no active allocation
+                for c_rec in candidate_records:
+                    allocations_by_id[c_rec["candidate_id"]] = Allocation(
+                        selected=False,
+                        shadow_price=0.0,
+                        slot=None,
+                    )
 
     # -------------------------------------------------------------
     # Stage 3: Safety #2, Language & Verifier (M8), DecisionRecord packaging
@@ -505,6 +515,7 @@ def create_pipeline_policy(
     store: Optional[StateStore] = None,
     bandit: Optional[LinTS] = None,
     run_id: str = "b4_gridnudge",
+    apply_allocation: bool = True,
 ) -> Callable[[Any], List[Dict[str, Any]]]:
     """Create a digital twin compatible policy callback for B4 GridNudge.
 
@@ -567,6 +578,7 @@ def create_pipeline_policy(
             store=store,
             bandit=bandit,
             render_llm=False,
+            apply_allocation=apply_allocation,
         )
 
         # Convert active decisions to format required by world.apply_decisions()

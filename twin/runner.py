@@ -55,6 +55,15 @@ def run_simulation(
         if outcomes:
             all_outcomes.extend(outcomes)
 
+    # Flush any remaining unexpired outcomes at end of simulation
+    remaining_closed = world.flush_pending_outcomes()
+    if remaining_closed:
+        all_outcomes.extend(remaining_closed)
+
+    # De-duplicate with world.all_outcomes to ensure no missing outcomes popped by policy
+    outcome_map = {o["decision_id"]: o for o in (world.all_outcomes + all_outcomes)}
+    all_outcomes = list(outcome_map.values())
+
     elapsed_s = time.perf_counter() - start_time
 
     # Calculate overall summary metrics
