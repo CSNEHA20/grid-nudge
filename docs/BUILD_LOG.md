@@ -105,4 +105,25 @@
   - 38/38 pytest tests passing; ruff lint clean.
 - **Known Issues / Gaps:** Global multi-EV coordination handled in Allocator (M7).
 
+## 2026-10-09 — M5 Safety Gate & Fail-Silent Architecture
+
+- **Phase:** P2 / M5
+- **Goal:** Implement non-negotiable two-stage safety gate: Safety Filter #1 (Python physical/operational invariants before bandit), Cedar policy rules (nudge authorization), and fail-silent architecture with safe fallback to silence.
+- **Files Created/Modified:**
+  - `gridnudge/safety/__init__.py`
+  - `gridnudge/safety/invariants.py`
+  - `gridnudge/safety/cedar_policies/nudge_policy.cedar`
+  - `gridnudge/safety/cedar_check.py`
+  - `gridnudge/safety/failsilent.py`
+  - `tests/test_safety.py`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - Safety Filter #1 vetoes candidate plans with `journey_conf_lb < 0.90` or power exceeding vehicle limits with explicit reasons.
+  - Beat 1 Safety Veto verified: risky delay plan vetoed before persuasion.
+  - AWS Cedar policy file authored (`nudge_policy.cedar`); evaluated in code with basis points conversion (`journeyConfLbBps >= 9000`), quiet hours (23:00–06:00), daily caps, and opt-outs.
+  - Fail-silent wrapper emits typed `DecisionRecord` with `fail_silent=True` and `frame="none"`, preventing degradation to unsafe nudges.
+  - 50/50 pytest tests passing; ruff lint clean.
+- **Known Issues / Gaps:** Native `cedarpy` binary compiled binding replaced with tested compliant Python evaluator per AGENTS.md §12.
+
+
 
