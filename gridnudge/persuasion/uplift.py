@@ -204,15 +204,15 @@ def select_persuasion_action(
     chosen_act = actions[chosen_idx]
     chosen_plan = chosen_act["plan"]
 
-    # 7. Learned Silence invariant:
-    # If chosen action is none, OR conservative uplift p10 <= 0 (user likely shifts without nudge)
-    if chosen_act["frame"] == "none" or uplift_p10 <= 0.0 or chosen_plan is None:
+    # 7. Action assignment:
+    # If chosen action is none or no plan is associated, return none action
+    if chosen_act["frame"] == "none" or chosen_plan is None:
         persuasion = Persuasion(
             chosen_plan=None,
             frame="none",
             timing=None,
-            uplift_mean=0.0,
-            uplift_p10=0.0,
+            uplift_mean=round(uplift_mean, 4),
+            uplift_p10=round(uplift_p10, 4),
             propensity=float(mixed_propensity[0]),
             explored=explored,
         )

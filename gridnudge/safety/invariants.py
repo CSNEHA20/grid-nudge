@@ -143,3 +143,13 @@ def filter_safe_plans(
             all_vetoed_reasons.extend(reasons)
 
     return safe_plans, all_vetoed_reasons
+
+
+def check_invariants(
+    plan: Plan,
+    ev_context: Dict[str, Any],
+    sim_time_iso: Optional[str] = None,
+    limits: Optional[SafetyLimits] = None,
+) -> Tuple[bool, List[str]]:
+    """Validate candidate plan against physical invariants."""
+    return validate_plan_invariants(plan, ev_context, limits)

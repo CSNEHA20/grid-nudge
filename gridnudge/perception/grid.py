@@ -115,3 +115,16 @@ def evaluate_grid_view(
         green_window_start=green_start,
         green_window_end=green_end,
     )
+
+
+def estimate_grid_stress(
+    feeder_load_mw: float,
+    capacity_mw: float = 12.0,
+    hour_of_day: float = 18.0,
+) -> GridView:
+    """Evaluate grid stress view given current load and capacity."""
+    return evaluate_grid_view(
+        feeder_load_mw=feeder_load_mw,
+        feeder_capacity_mw=capacity_mw,
+        hour_of_day=hour_of_day,
+    )
