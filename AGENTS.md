@@ -1405,12 +1405,12 @@ Never silently modify the contract to make your own code easier.
 
 ### Git & Execution Workflow (Mandatory for all agents)
 
-Every coding agent MUST follow this exact sequence for any task:
-1. **Pull `dev` branch before execution**: Always fetch and pull the latest `dev` branch before starting work or creating branches (`git checkout dev && git pull origin dev`).
+Every coding agent MUST follow this exact sequence for any task across both repositories simultaneously (Vishal: `origin` `https://github.com/Vishallakshmikanthan/gridnudge.git`, Sneha: `sneha` `https://github.com/CSNEHA20/grid-nudge.git`):
+1. **Pull `dev` branch before execution**: Always fetch and pull the latest `dev` branch from both remotes before starting work or creating branches (`git checkout dev && git pull origin dev && git pull sneha dev`).
 2. **Work in a separate feature branch**: Never commit directly to `dev` or `master`. Always create/switch to a separate branch (`v/m*-...` for Vishal, `s/m*-...` for Sneha).
 3. **Zero Errors Mandate**: Run the full test suite (`python -m pytest tests/ -q`) and verify 0 errors before pushing. Never push or merge failing code.
-4. **Push feature branch**: Push the feature branch to origin (`git push origin <branch>`).
-5. **PR and Merge to `dev`**: Create PR to `dev` branch, merge into `dev`, and push updated `dev` branch to origin (`git checkout dev && git merge <branch> && git push origin dev`).
+4. **Push feature branch simultaneously**: Push the feature branch to both repositories (`git push origin <branch>` and `git push sneha <branch>`).
+5. **PR and Merge to `dev` simultaneously**: Merge into `dev`, and push updated `dev` branch to both repositories simultaneously (`git checkout dev && git merge <branch> && git push origin dev && git push sneha dev`).
 
 ---
 
