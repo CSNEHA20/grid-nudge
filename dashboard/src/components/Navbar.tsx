@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Zap, Bell } from "lucide-react";
+import { AlertsPopover } from "./AlertsPopover";
 
 export function Navbar() {
   const pathname = usePathname();
+  const [isAlertsOpen, setIsAlertsOpen] = useState(false);
 
   const isLive = pathname === "/" || pathname === "/live";
   const isDecisions = pathname.startsWith("/decision");
@@ -78,14 +81,22 @@ export function Navbar() {
           <span>SIMULATION · SAMPLE DATA</span>
         </div>
 
-        <button
-          type="button"
-          aria-label="System notifications"
-          className="relative w-10 h-10 rounded-full bg-navy-800/80 border border-slate-700/50 hover:border-slate-500 flex items-center justify-center text-slate-300 hover:text-white transition shadow-sm"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-navy-900" />
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsAlertsOpen(!isAlertsOpen)}
+            aria-label="System notifications"
+            className="relative w-10 h-10 rounded-full bg-navy-800/80 border border-slate-700/50 hover:border-slate-500 flex items-center justify-center text-slate-300 hover:text-white transition shadow-sm"
+          >
+            <Bell className="w-4 h-4" />
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-navy-900" />
+          </button>
+
+          <AlertsPopover
+            isOpen={isAlertsOpen}
+            onClose={() => setIsAlertsOpen(false)}
+          />
+        </div>
       </div>
     </header>
   );

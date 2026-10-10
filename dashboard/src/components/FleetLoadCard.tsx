@@ -21,13 +21,19 @@ export function FleetLoadCard({
   return (
     <div
       onClick={onClick}
-      className="p-4 rounded-2xl glass-panel-interactive cursor-pointer group"
+      className="p-4 rounded-2xl glass-panel-interactive cursor-pointer group transition-all"
+      title="Click to toggle 24-hour fleet load timeline"
     >
       {/* Title */}
-      <div className="flex items-center gap-2 mb-3">
-        <Activity className="w-4 h-4 text-slate-300 group-hover:text-nudge-gold transition" />
-        <span className="text-sm font-semibold text-slate-200 tracking-tight">
-          Fleet load
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Activity className="w-4 h-4 text-slate-300 group-hover:text-nudge-gold transition" />
+          <span className="text-sm font-semibold text-slate-200 tracking-tight">
+            Fleet load
+          </span>
+        </div>
+        <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-navy-900/80 text-slate-400 group-hover:text-amber-300 transition">
+          Waveform
         </span>
       </div>
 
@@ -54,8 +60,8 @@ export function FleetLoadCard({
         <span className="text-3xl font-extrabold text-white tracking-tight">
           {currentMw.toFixed(1)}
         </span>
-        <span className="text-xs text-slate-400 font-medium">
-          MW now · peak window in {timeToPeak}
+        <span className="text-xs text-slate-300 font-medium">
+          MW now · {timeToPeak}
         </span>
       </div>
     </div>

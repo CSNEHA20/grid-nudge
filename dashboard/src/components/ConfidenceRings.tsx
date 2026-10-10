@@ -1,5 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import { Info } from "lucide-react";
+import { METRIC_GLOSSARY } from "@/lib/glossary";
+
 interface ConfidenceRingsProps {
   journeyPct?: number;
   chargingPct?: number;
@@ -9,7 +13,9 @@ export function ConfidenceRings({
   journeyPct = 94,
   chargingPct = 91,
 }: ConfidenceRingsProps) {
-  // SVG circular calculation for Journey (radial tick circle)
+  const [activeTooltip, setActiveTooltip] = useState<"journey" | "charging" | null>(null);
+
+  // SVG circular calculation for Journey & Charging
   const radius = 38;
   const circumference = 2 * Math.PI * radius;
   const chargingOffset = circumference * (1 - chargingPct / 100);
@@ -23,7 +29,24 @@ export function ConfidenceRings({
   });
 
   return (
-    <div className="flex items-center justify-around gap-4 p-4 rounded-2xl glass-panel">
+    <div className="relative flex items-center justify-around gap-4 p-4 rounded-2xl glass-panel">
+      {/* Tooltip display */}
+      {activeTooltip && (
+        <div className="absolute -top-16 left-4 right-4 z-30 p-2.5 rounded-xl bg-navy-900/95 border border-slate-700 text-[11px] text-slate-200 shadow-xl backdrop-blur-md">
+          {activeTooltip === "journey" ? (
+            <div>
+              <span className="font-semibold text-sky-400 block mb-0.5">Fleet Journey Confidence</span>
+              <span>{METRIC_GLOSSARY.fleetJourneyConfidence}</span>
+            </div>
+          ) : (
+            <div>
+              <span className="font-semibold text-nudge-gold block mb-0.5">Charging Confidence</span>
+              <span>{METRIC_GLOSSARY.chargingConfidence}</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Journey Ring */}
       <div className="flex flex-col items-center">
         <div className="relative w-24 h-24 flex items-center justify-center">
@@ -49,7 +72,16 @@ export function ConfidenceRings({
             </span>
           </div>
         </div>
-        <span className="text-xs text-slate-400 font-medium mt-1">Journey</span>
+
+        <button
+          type="button"
+          onMouseEnter={() => setActiveTooltip("journey")}
+          onMouseLeave={() => setActiveTooltip(null)}
+          className="flex items-center gap-1 text-xs text-slate-400 hover:text-sky-300 font-medium mt-1 transition"
+        >
+          <span>Journey</span>
+          <Info className="w-3 h-3" />
+        </button>
       </div>
 
       {/* Charging Ring */}
@@ -85,7 +117,16 @@ export function ConfidenceRings({
             </span>
           </div>
         </div>
-        <span className="text-xs text-slate-400 font-medium mt-1">Charging</span>
+
+        <button
+          type="button"
+          onMouseEnter={() => setActiveTooltip("charging")}
+          onMouseLeave={() => setActiveTooltip(null)}
+          className="flex items-center gap-1 text-xs text-slate-400 hover:text-nudge-gold font-medium mt-1 transition"
+        >
+          <span>Charging</span>
+          <Info className="w-3 h-3" />
+        </button>
       </div>
     </div>
   );
