@@ -275,3 +275,54 @@
   - CLI benchmark runner (`python -m eval.run`) generating `results/summary.csv`, `results/timeline.json`, `results/plots/*.png`, and `results/replay/timeline.json`.
   - 117/117 pytest tests passing (16 new tests in `test_eval.py`); 0 errors.
 - **Known Issues / Gaps:** None. Milestone M11 complete.
+
+## 2026-10-10 — M12 High-Fidelity Next.js Dashboard
+
+- **Phase:** P4 / M12
+- **Goal:** Build the high-fidelity, luxury dark theme dashboard in Next.js (App Router, TypeScript, Tailwind CSS, Recharts) matching the reference design (`M12-Reference`) for `/live`, `/decisions`, `/decision/[id]`, and `/evaluation`.
+- **Files Created/Modified:**
+  - `scripts/check_ownership.py` (ownership rule update for Vishal M12 dashboard execution)
+  - `dashboard/package.json`
+  - `dashboard/tsconfig.json`
+  - `dashboard/tailwind.config.ts`
+  - `dashboard/src/app/globals.css`
+  - `dashboard/src/app/layout.tsx`
+  - `dashboard/src/app/page.tsx`
+  - `dashboard/src/app/live/page.tsx`
+  - `dashboard/src/app/decisions/page.tsx`
+  - `dashboard/src/app/decision/[id]/page.tsx`
+  - `dashboard/src/app/evaluation/page.tsx`
+  - `dashboard/src/app/api/timeline/route.ts`
+  - `dashboard/src/app/api/decisions/route.ts`
+  - `dashboard/src/app/api/decisions/[id]/route.ts`
+  - `dashboard/src/app/api/evaluation/route.ts`
+  - `dashboard/src/app/api/calibration/route.ts`
+  - `dashboard/src/components/Navbar.tsx`
+  - `dashboard/src/components/BackgroundBackdrop.tsx`
+  - `dashboard/src/components/ConcentricGauge.tsx`
+  - `dashboard/src/components/ConfidenceRings.tsx`
+  - `dashboard/src/components/AttentionBudget.tsx`
+  - `dashboard/src/components/FleetLoadCard.tsx`
+  - `dashboard/src/components/PeakReductionCircle.tsx`
+  - `dashboard/src/components/MetricsSummary.tsx`
+  - `dashboard/src/components/EventInjector.tsx`
+  - `dashboard/src/components/SafetyVetoAlert.tsx`
+  - `dashboard/src/components/FloatingDock.tsx`
+  - `dashboard/src/components/FleetLoadChartModal.tsx`
+  - `dashboard/src/components/LiveView.tsx`
+  - `dashboard/src/components/DecisionView.tsx`
+  - `dashboard/src/components/EvaluationView.tsx`
+  - `dashboard/src/lib/data.ts`
+  - `dashboard/src/types/decision-record.ts`
+  - `dashboard/public/replay/timeline.json`
+  - `dashboard/public/fixtures/*`
+  - `docs/BUILD_LOG.md`
+- **Result:**
+  - Production build (`npm run build`) succeeded with 0 errors across 12 static/dynamic routes.
+  - Pixel-perfect alignment with `M12-Reference`:
+    - **`/live`**: Fleet load sparkline, Journey (94%) radial tick & Charging (91%) rings, Attention budget bar (62% with striped unused pattern), massive concentric Feeder load dual ring (Broadcast 118% vs GridNudge 96%), Peak reduction hero circle (-14.2%), metrics summary (0.8 vs 4.0, 37 vetoed, 71% silent, 0 stranded), event injectors (heatwave, solar drop, station outage), interactive simulation timeline scrubber, and 24h fleet load curve modal with peak window shading.
+    - **`/decisions` and `/decision/[id]`**: Exact 6-stage pipeline stepper: Perception (82% confidence, arrival SOC, station wait, grid stress) → Candidate plans (p0 default, p1 delay [VETOED], p3 slow charge) → Safety gate (highlighted veto reason `journey_conf_lb 0.82 < 0.90`, Invariants PASS, Cedar ALLOW, nudges today 1/3) → Persuasion (battery frame, uplift +0.11, propensity 0.17) → Allocation (22:15 slot, shadow price 0.31) → Message bubble with numbers verified.
+    - **`/evaluation`**: 4 top KPI cards (Stranded = 0, Uplift = 0.21, Calibration err = 2.1%, Uplift est err = 0.03), horizontal peak load reduction bar chart with 95% CI error whiskers (No nudges 0%, Broadcast 4.1%, Rule-based 6.3%, Plain bandit 9.0%, GridNudge 14.2%), reliability calibration diagram (45° diagonal reference + empirical points), and full 5-policy evaluation table.
+  - Full test suite passing (`117/117 passed`). Zero errors mandate satisfied.
+- **Known Issues / Gaps:** None.
+
