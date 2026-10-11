@@ -11,3 +11,6 @@ In accordance with AGENTS.md Rule 1.1 and Rule 8, every assumed or synthetic par
 | Reserve State-of-Charge (SOC) | Minimum target arrival SOC reserve = 10% (0.10). | Buffer required to prevent stranding risk. | Driver customizable preference setting. |
 | Journey Energy Model | Nominal 150 Wh/km base consumption with ambient temperature HVAC penalty and traffic scale factors. | Physics-inspired model based on standard compact EV sedans/SUVs. | Vehicle telematics (CAN bus / OBD-II) real-world log. |
 | Feeder Capacity | Nominal feeder threshold: 12 MW per substation zone with 2,000 EVs. | Distribution grid feeder sizing for suburban Delhi feeder. | SCADA telemetry from DISCOM (e.g., BRPL / BYPL). |
+| Grid Base Demand Series | Synthetic 15-min series shaped after POSOCO national load profiles and diurnal patterns. | Scaled to 12 MW feeder context with daytime and evening peaks. | DISCOM distribution feeder SCADA feeds. |
+| EV Charging Sessions | Synthetic arrival, dwell, and energy distributions shaped after Caltech ACN-Data. | Parameterized log-normal dwell and energy distributions. | Charge point operator (CPO) session records. |
+| Charging Station Network | Synthetic station inventory shaped after BEE Delhi charging station directory. | Plausible distribution of 3.3 kW AC, 7.4 kW AC, and 50 kW DC chargers. | Open BEE public station API feed. |
