@@ -7,6 +7,7 @@ Emits structured metrics for CloudWatch and persists records into StateStore.
 
 import json
 import logging
+import os
 from typing import Any, Dict, Optional
 
 from gridnudge.pipeline import decide_batch
@@ -48,7 +49,7 @@ def handler(
         decisions = decide_batch(
             request=payload,
             store=active_store,
-            render_llm=False,
+            render_llm=os.environ.get("ENABLE_BEDROCK", "false").lower() == "true",
         )
 
         records_dump = [d.model_dump(mode="json") for d in decisions]

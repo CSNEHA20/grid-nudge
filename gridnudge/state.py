@@ -5,14 +5,50 @@ Provides a swappable StateStore abstraction:
 - DynamoStore: DynamoDB implementation for AWS Lambda execution.
 """
 
+import base64
+import logging
 import os
 import threading
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
+
+import numpy as np
+
+try:
+    from botocore.exceptions import ClientError
+except ImportError:
+    class ClientError(Exception):
+        response: dict = {}
+
+from gridnudge.state_codec import from_dynamo, to_dynamo
+
+logger = logging.getLogger(__name__)
 
 
 class ConcurrencyError(Exception):
     """Raised when an optimistic concurrency check fails on model or state update."""
     pass
+
+
+def pack_model(state: Dict[str, Any]) -> Dict[str, Any]:
+    """Convert large matrix arrays into base64 float64 byte strings for compact DynamoDB storage."""
+    s = dict(state)
+    for key in ("A", "b"):
+        if key in s and s[key] is not None:
+            arr = np.asarray(s.pop(key), dtype="<f8")
+            s[f"{key}_b64"] = base64.b64encode(arr.tobytes()).decode("ascii")
+            s[f"{key}_shape"] = list(arr.shape)
+    return s
+
+
+def unpack_model(item: Dict[str, Any]) -> Dict[str, Any]:
+    """Decode base64 float64 byte strings back to nested lists."""
+    s = dict(item)
+    for key in ("A", "b"):
+        if f"{key}_b64" in s:
+            raw = base64.b64decode(s.pop(f"{key}_b64"))
+            shape = tuple(int(x) for x in s.pop(f"{key}_shape"))
+            s[key] = np.frombuffer(raw, dtype="<f8").reshape(shape).tolist()
+    return s
 
 
 @runtime_checkable
@@ -163,12 +199,9 @@ class DynamoStore:
         table = db.Table(self.user_table_name)
         result: Dict[str, Dict[str, Any]] = {}
         for uid in ids:
-            try:
-                resp = table.get_item(Key={"user_id": str(uid)})
-                if "Item" in resp:
-                    result[str(uid)] = resp["Item"]
-            except Exception:
-                pass
+            resp = table.get_item(Key={"user_id": str(uid)})
+            if "Item" in resp:
+                result[str(uid)] = from_dynamo(resp["Item"])
         return result
 
     def put_users(self, users: Dict[str, Dict[str, Any]]) -> None:
@@ -176,7 +209,7 @@ class DynamoStore:
         table = db.Table(self.user_table_name)
         with table.batch_writer() as batch:
             for uid, state in users.items():
-                item = dict(state)
+                item = to_dynamo(dict(state))
                 item["user_id"] = str(uid)
                 batch.put_item(Item=item)
 
@@ -184,12 +217,16 @@ class DynamoStore:
         db = self._get_resource()
         table = db.Table(self.model_table_name)
         resp = table.get_item(Key={"model_id": model_id})
-        return resp.get("Item", {})
+        item = resp.get("Item")
+        if not item:
+            return {}
+        return unpack_model(from_dynamo(item))
 
     def put_model(self, model_id: str, model: Dict[str, Any], expected_version: int) -> None:
         db = self._get_resource()
         table = db.Table(self.model_table_name)
-        item = dict(model)
+        packed = pack_model(model)
+        item = to_dynamo(packed)
         item["model_id"] = model_id
         new_version = int(model.get("version", expected_version + 1))
         item["version"] = new_version
@@ -206,22 +243,25 @@ class DynamoStore:
                     ConditionExpression="version = :exp",
                     ExpressionAttributeValues={":exp": expected_version},
                 )
-        except Exception as e:
-            raise ConcurrencyError(f"DynamoDB conditional check failed for model '{model_id}': {e}") from e
+        except ClientError as e:
+            if e.response.get("Error", {}).get("Code") == "ConditionalCheckFailedException":
+                raise ConcurrencyError(f"DynamoDB conditional check failed for model '{model_id}': {e}") from e
+            raise
 
     def put_decisions(self, records: List[Dict[str, Any]]) -> None:
         db = self._get_resource()
         table = db.Table(self.decision_table_name)
         with table.batch_writer() as batch:
             for rec in records:
-                item = dict(rec)
+                item = to_dynamo(dict(rec))
                 batch.put_item(Item=item)
 
     def get_decision(self, decision_id: str) -> Optional[Dict[str, Any]]:
         db = self._get_resource()
         table = db.Table(self.decision_table_name)
         resp = table.get_item(Key={"decision_id": str(decision_id)})
-        return resp.get("Item")
+        item = resp.get("Item")
+        return from_dynamo(item) if item is not None else None
 
     def query_decisions_by_run(self, run_id: str, limit: int = 1000) -> List[Dict[str, Any]]:
         db = self._get_resource()
@@ -238,7 +278,7 @@ class DynamoStore:
                 KeyConditionExpression=key_cond,
                 Limit=limit,
             )
-            return resp.get("Items", [])
+            return [from_dynamo(item) for item in resp.get("Items", [])]
         except Exception:
             return []
 

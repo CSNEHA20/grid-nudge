@@ -13,6 +13,11 @@ Parameters:
     Type: String
     Default: "apac.amazon.nova-micro-v1:0"
     Description: Amazon Bedrock foundation model ID for nudge language phrasing
+  EnableBedrock:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+    Description: Enable Amazon Bedrock LLM rendering (fallback to templates if false)
 
 Globals:
   Function:
@@ -28,6 +33,7 @@ Globals:
         LOG_BUCKET: !Ref LogBucket
         REWARD_QUEUE_URL: !Ref RewardQueue
         BEDROCK_MODEL_ID: !Ref BedrockModelId
+        ENABLE_BEDROCK: !Ref EnableBedrock
 
 Resources:
   # =========================================================================
@@ -110,6 +116,9 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: !Ref StageName
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 20
+        ThrottlingRateLimit: 10
       CorsConfiguration:
         AllowOrigins:
           - '*'
@@ -128,7 +137,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: services.decide.handler
-      CodeUri: ..
+      CodeUri: ../build/lambda/
       Description: Batch decision pipeline orchestrator
       Events:
         DecideApi:
@@ -157,7 +166,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: services.outcomes.handler
-      CodeUri: ..
+      CodeUri: ../build/lambda/
       Description: User charging outcome ingestion endpoint
       Events:
         OutcomesApi:
@@ -178,7 +187,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: services.reward_update.handler
-      CodeUri: ..
+      CodeUri: ../build/lambda/
       Description: Single-writer LinTS posterior learner
       ReservedConcurrentExecutions: 1
       Events:
@@ -201,7 +210,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: services.metrics.handler
-      CodeUri: ..
+      CodeUri: ../build/lambda/
       Description: Aggregate time series timeline query endpoint
       Events:
         MetricsApi:
@@ -218,7 +227,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: services.decision_get.handler
-      CodeUri: ..
+      CodeUri: ../build/lambda/
       Description: Fetch single auditable DecisionRecord by ID
       Events:
         DecisionGetApi:
@@ -235,7 +244,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: services.explain.handler
-      CodeUri: ..
+      CodeUri: ../build/lambda/
       Description: Verified decision explainability narrative
       Events:
         ExplainApi:
@@ -252,7 +261,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: services.events.handler
-      CodeUri: ..
+      CodeUri: ../build/lambda/
       Description: Inject disturbance scenarios into simulation
       Events:
         EventsApi:

@@ -7,7 +7,6 @@ and driver behavior.
 
 from typing import List, Optional
 import numpy as np
-from sklearn.isotonic import IsotonicRegression
 
 from gridnudge.contracts import Journey
 
@@ -17,7 +16,8 @@ class JourneyCalibrator:
 
     def __init__(self):
         self._is_fitted = False
-        self._regressor = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0)
+        self._knots_x: Optional[np.ndarray] = None
+        self._knots_y: Optional[np.ndarray] = None
         # Default empirical anchors (raw_p -> calibrated_p) before fitting
         self._default_x = np.array([0.0, 0.1, 0.3, 0.5, 0.7, 0.85, 0.90, 0.95, 1.0])
         self._default_y = np.array([0.0, 0.09, 0.28, 0.49, 0.70, 0.86, 0.90, 0.96, 1.0])
@@ -27,15 +27,21 @@ class JourneyCalibrator:
         x = np.asarray(predicted_probs, dtype=float)
         y = np.asarray(observed_outcomes, dtype=float)
         if len(x) >= 10:
-            self._regressor.fit(x, y)
-            self._is_fitted = True
+            from sklearn.isotonic import IsotonicRegression  # offline use only
+            reg = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0).fit(x, y)
+            kx = getattr(reg, "X_thresholds_", getattr(reg, "X_threshold_", None))
+            ky = getattr(reg, "y_thresholds_", getattr(reg, "y_threshold_", None))
+            if kx is not None and ky is not None:
+                self._knots_x = np.asarray(kx, dtype=float)
+                self._knots_y = np.asarray(ky, dtype=float)
+                self._is_fitted = True
         return self
 
     def calibrate(self, raw_prob: float) -> float:
         """Calibrate a single raw probability value into a reliable probability."""
         p_clamped = max(0.0, min(1.0, float(raw_prob)))
-        if self._is_fitted:
-            calibrated = float(self._regressor.predict([p_clamped])[0])
+        if self._is_fitted and self._knots_x is not None and self._knots_y is not None:
+            calibrated = float(np.interp(p_clamped, self._knots_x, self._knots_y))
         else:
             calibrated = float(np.interp(p_clamped, self._default_x, self._default_y))
         return float(max(0.0, min(1.0, calibrated)))
