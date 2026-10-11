@@ -42,8 +42,10 @@ def policy_b1(world: World) -> List[Dict[str, Any]]:
 def policy_b2(world: World) -> List[Dict[str, Any]]:
     """B2: Safe rule-based planner.
 
-    Nudges users during peak, but applies a safety rule:
-    only delay if current SOC >= 0.25 so journey confidence is not compromised.
+    Nudges users during peak, but applies safety and frequency rules:
+    - Frequency cap: max 1 nudge per user per day.
+    - Reserve safety: current SOC must be >= 0.25 to preserve reserve and cover trip.
+    - Departure deadline check: at least 5 hours until departure if departure step is known.
     """
     state = world.grid_state()
     if not state.get("is_peak_window", False):
@@ -52,8 +54,10 @@ def policy_b2(world: World) -> List[Dict[str, Any]]:
     candidates = world.candidates()
     decisions = []
     for c in candidates:
-        if c.get("soc", 0.0) < 0.25:
-            # Safety rule: do not delay low-SOC vehicle
+        dep_step = c.get("departure_step", -1)
+        too_soon = (dep_step is not None and dep_step > world.current_step and (dep_step - world.current_step) * (world.step_minutes / 60.0) < 5.0)
+
+        if c.get("nudges_today", 0) >= 1 or c.get("soc", 0.0) < 0.25 or too_soon:
             continue
 
         decisions.append({

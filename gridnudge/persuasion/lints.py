@@ -17,7 +17,7 @@ class LinTS:
         self,
         d: int = FEATURE_DIM,
         lam: float = 1.0,
-        v: float = 0.5,
+        v: float = 0.08,
         gamma: float = 0.999,
         seed: int = 42,
     ):
@@ -39,6 +39,9 @@ class LinTS:
         # Sufficient statistics: Precision matrix A and reward vector b
         self.A = self.lam * np.eye(d, dtype=float)
         self.b = np.zeros(d, dtype=float)
+        # Prior expectation: delay plan and cost savings drive positive grid and driver value
+        self.b[11] = 1.0 * self.lam
+        self.b[15] = 1.5 * self.lam
         self.update_count = 0
         self.version = 1
 

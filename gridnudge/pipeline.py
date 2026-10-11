@@ -266,9 +266,10 @@ def decide_batch(
                 )
         else:
             try:
+                total_plugged = int(grid_fc.get("total_plugged_count", len(candidates)))
                 allocations_by_id = allocate_fleet_nudges(
                     candidate_records=candidate_records,
-                    total_plugged_count=max(len(candidates), 1),
+                    total_plugged_count=max(total_plugged, 1),
                     sim_time_iso=sim_time_iso,
                     feeder_capacity_mw=capacity_mw,
                     base_load_mw=float(grid_fc.get("base_offpeak_mw", 5.5)),
@@ -539,10 +540,18 @@ def create_pipeline_policy(
             return []
 
         grid_st = world.grid_state()
+        if not grid_st.get("is_peak_window", False):
+            return []
 
         # Build request payload
         cand_payload = []
         for c in candidates:
+            departure_step = c.get("departure_step")
+            hours_dep = (
+                max(1.0, (departure_step - world.current_step) * (world.step_minutes / 60.0))
+                if departure_step is not None
+                else 8.0
+            )
             cand_payload.append({
                 "user_id": c["user_id"],
                 "ev": {
@@ -551,23 +560,29 @@ def create_pipeline_policy(
                     "charger_kw": c["charger_kw"],
                 },
                 "trip": {
-                    "commute_km": 30.0,
-                    "departure_step": c.get("departure_step"),
+                    "commute_km": float(c.get("commute_km", 38.0)),
+                    "departure_step": departure_step,
+                    "hours_until_departure": hours_dep,
                 },
                 "context": {
                     "archetype": c["archetype"],
                     "fatigue": c["fatigue"],
                     "last_frame": c.get("last_frame", "none"),
+                    "nudges_today": c.get("nudges_today", 0),
                 },
             })
+
+        total_plugged = len([u for u in world.fleet.users if u.plugged])
+        capacity_mw = getattr(world.grid, "capacity_mw", grid_st.get("capacity_mw", 12.0))
 
         request = {
             "run_id": run_id,
             "sim_time": world.current_time.isoformat(),
             "grid_forecast": {
                 "feeder_load_mw": grid_st.get("feeder_load_mw", 6.0),
-                "capacity_mw": 12.0,
+                "capacity_mw": capacity_mw,
                 "grid_stress": grid_st.get("grid_stress", 0.5),
+                "total_plugged_count": total_plugged,
             },
             "candidates": cand_payload,
         }
@@ -585,15 +600,27 @@ def create_pipeline_policy(
         applied_decisions: List[Dict[str, Any]] = []
         for d in decisions:
             if d.allocation.selected and d.persuasion.frame != "none" and d.persuasion.chosen_plan:
-                # Find chosen plan object
-                plan_dict = {"type": "delay"}
-                savings = 65.0
-                delay_hrs = 3.5
+                chosen_p: Optional[Plan] = None
                 for p in d.plans:
                     if p.plan_id == d.persuasion.chosen_plan:
-                        plan_dict = p.model_dump()
-                        savings = float(p.outcomes.get("cost_saving_inr", 65.0))
+                        chosen_p = p
                         break
+
+                if chosen_p is not None:
+                    plan_dict = chosen_p.model_dump()
+                    savings = float(chosen_p.outcomes.get("cost_saving_inr", 65.0))
+                    if chosen_p.type == "delay":
+                        try:
+                            start_dt = datetime.fromisoformat(chosen_p.start.replace("Z", "+00:00"))
+                            delay_hrs = max(0.5, (start_dt - world.current_time).total_seconds() / 3600.0)
+                        except Exception:
+                            delay_hrs = 3.5
+                    else:
+                        delay_hrs = 0.0
+                else:
+                    plan_dict = {"type": "delay"}
+                    savings = 65.0
+                    delay_hrs = 3.5
 
                 applied_decisions.append({
                     "decision_id": d.decision_id,
@@ -601,8 +628,19 @@ def create_pipeline_policy(
                     "plan": plan_dict,
                     "frame": d.persuasion.frame,
                     "timing": d.persuasion.timing or "at_plug_in",
-                    "savings_inr": savings,
-                    "delay_hours": delay_hrs,
+                    "savings_inr": round(savings, 2),
+                    "delay_hours": round(delay_hrs, 2),
+                })
+            else:
+                # Candidate not selected or 'none' action: leave on default charging (no nudge)
+                applied_decisions.append({
+                    "decision_id": d.decision_id,
+                    "user_id": int(d.user_id),
+                    "plan": {"type": "default"},
+                    "frame": "none",
+                    "timing": None,
+                    "savings_inr": 0.0,
+                    "delay_hours": 0.0,
                 })
 
         return applied_decisions

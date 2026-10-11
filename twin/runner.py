@@ -86,6 +86,8 @@ def run_simulation(
         "total_nudges_sent": nudges_count,
         "total_kwh_shifted": round(total_kwh_shifted, 2),
         "outcomes_count": len(all_outcomes),
+        "stranded_attributable": getattr(world, "stranded_attributable_count", 0),
+        "stranded_any": getattr(world, "stranded_any_count", 0),
     }
 
     return {

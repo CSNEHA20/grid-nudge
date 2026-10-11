@@ -29,26 +29,27 @@ def compute_causal_reward(
     opted_out: bool = False,
     w_g: float = 1.0,
     w_u: float = 0.02,
-    w_b: float = 0.50,
+    w_b: float = 0.05,
     w_w: float = 0.02,
     w_f: float = 0.30,
     w_o: float = 5.0,
+    reward_scale: float = 25.0,
 ) -> float:
     """Compute realized causal reward metric.
 
     Formula (Guidance Section 9.6):
-        r = w_g * grid_value * kwh_shifted
+        r = (w_g * grid_value * kwh_shifted
           + w_u * savings_inr
           + w_b * (-battery_stress_delta)
           - w_w * extra_wait_min
           - w_f * fatigue_score
-          - w_o * (1.0 if opted_out else 0.0)
+          - w_o * (1.0 if opted_out else 0.0)) / reward_scale
 
     Applied to both 'none' and active nudges so uplift is directly comparable.
     """
     opt_out_penalty = w_o if opted_out else 0.0
 
-    r = (
+    raw_r = (
         (w_g * grid_value * kwh_shifted)
         + (w_u * savings_inr)
         + (w_b * (-1.0 * battery_stress_delta))
@@ -56,7 +57,8 @@ def compute_causal_reward(
         - (w_f * max(0.0, fatigue_score))
         - opt_out_penalty
     )
-    return round(float(r), 4)
+    scale = max(1.0, reward_scale)
+    return round(float(raw_r / scale), 4)
 
 
 def enumerate_candidate_actions(
@@ -77,8 +79,8 @@ def enumerate_candidate_actions(
     candidate_timings: List[Timing] = ["at_plug_in", "plus_30m", "pre_peak"]
 
     for plan in safe_plans:
-        # For non-default shifting plans, evaluate frame x timing combinations
-        if plan.type != "default":
+        # Focus persuasion actions on actionable grid-shifting plans
+        if plan.type in ("delay", "slow_charge", "relocate"):
             for frame in candidate_frames:
                 for timing in candidate_timings:
                     actions.append(
@@ -89,9 +91,9 @@ def enumerate_candidate_actions(
                             "plan": plan,
                         }
                     )
-        else:
-            # Default plan can receive gentle convenience or reassurance nudges
-            for frame in ["convenience", "reassurance"]:
+        elif plan.type == "top_up_now":
+            # Protective top-up only with reassurance/battery frame at plug-in
+            for frame in ["battery", "reassurance"]:
                 actions.append(
                     {
                         "action_id": f"act_{plan.plan_id}_{frame}_at_plug_in",

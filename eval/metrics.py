@@ -98,12 +98,14 @@ def compute_run_metrics(
     )
 
     # 6. Safety & Audit Invariants
-    # GridNudge safety gates guarantee stranded trips = 0
-    stranded_trips = 0
-    for o in outcomes:
-        # Check if user ever dropped below critical reserve threshold due to an accepted delay
-        if o.get("adopted") and o.get("initial_soc", 1.0) < 0.15:
-            stranded_trips += 1
+    stranded_attributable = summary.get("stranded_attributable")
+    if stranded_attributable is None:
+        stranded_attributable = 0
+        for o in outcomes:
+            if o.get("adopted") and o.get("initial_soc", 1.0) < 0.15:
+                stranded_attributable += 1
+
+    stranded_any = summary.get("stranded_any", stranded_attributable)
 
     # 7. Regret vs Oracle
     # Oracle knows true uplift and achieves max(0, true_uplift * 2.5); regret is forgone benefit
@@ -122,7 +124,8 @@ def compute_run_metrics(
         "nudges_per_user_per_day": round(nudges_per_user_per_day, 3),
         "opt_out_rate_pct": round(opt_out_rate_pct, 2),
         "mean_uplift_per_nudge": round(mean_uplift_per_nudge, 3),
-        "stranded_trips_attributable": stranded_trips,
+        "stranded_trips_attributable": int(stranded_attributable),
+        "stranded_trips_any": int(stranded_any),
         "total_savings_inr": round(total_savings_inr, 2),
         "mean_savings_per_adopting_user": round(mean_savings_per_adopting_user, 2),
         "regret_vs_oracle": round(regret, 2),
@@ -192,6 +195,7 @@ def aggregate_policy_runs(
             "opt_out_rate_pct",
             "mean_uplift_per_nudge",
             "stranded_trips_attributable",
+            "stranded_trips_any",
             "mean_savings_per_adopting_user",
             "regret_vs_oracle",
         ]

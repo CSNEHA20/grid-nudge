@@ -25,6 +25,8 @@ class EVUser:
     plug_in_step: int = -1
     departure_step: int = -1
     target_soc: float = 0.90
+    nominal_charger_kw: Optional[float] = None
+    charger_kw_cap: Optional[float] = None
 
     # Persuasion and fatigue state
     fatigue: float = 0.0
@@ -33,6 +35,10 @@ class EVUser:
     nudges_today: int = 0
     active_plan: Optional[Dict[str, Any]] = None
     delay_until_step: Optional[int] = None
+
+    def __post_init__(self) -> None:
+        if self.nominal_charger_kw is None:
+            self.nominal_charger_kw = float(self.charger_kw)
 
 
 class FleetManager:
@@ -115,6 +121,8 @@ class FleetManager:
                 continue
             if u.active_plan is not None:
                 continue
+            if u.soc >= u.target_soc:
+                continue
 
             candidates.append({
                 "user_id": u.user_id,
@@ -122,11 +130,13 @@ class FleetManager:
                 "soc": round(u.soc, 3),
                 "battery_kwh": u.battery_kwh,
                 "charger_kw": u.charger_kw,
+                "commute_km": u.commute_km,
                 "has_home_charging": u.has_home_charging,
                 "plug_in_step": u.plug_in_step,
                 "departure_step": u.departure_step,
                 "target_soc": u.target_soc,
                 "fatigue": round(u.fatigue, 3),
                 "last_frame": u.last_frame,
+                "nudges_today": u.nudges_today,
             })
         return candidates

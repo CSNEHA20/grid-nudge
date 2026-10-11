@@ -233,3 +233,35 @@ class TestLocalClosedLoopTwin:
         # 3. Model posterior was updated through closed loop
         assert bandit.update_count >= 0
         assert len(store.all_decisions()) > 0
+
+    def test_applied_decision_extracts_plan_delay_and_savings(self):
+        """Applied decision must use planner delay_hours and cost savings, not hard-coded constants."""
+        from datetime import datetime, timedelta
+        from gridnudge.pipeline import create_pipeline_policy
+        from gridnudge.state import InMemoryStore
+        from gridnudge.persuasion.lints import LinTS
+        from twin.world import World
+
+        w = World(seed=42, n_users=20)
+        # Advance world to 18:00 (step 72)
+        w.current_step = 72
+        user = w.fleet.users[0]
+        user.plugged = True
+        user.plug_in_step = 72
+        user.departure_step = 120
+
+        store = InMemoryStore()
+        bandit = LinTS(seed=42)
+        policy_fn = create_pipeline_policy(store=store, bandit=bandit, run_id="test_plan_delay")
+
+        decisions = policy_fn(w)
+        if decisions:
+            d = decisions[0]
+            # Plan delay must match the scheduled start time difference from 18:00
+            plan_obj = d.get("plan", {})
+            if plan_obj.get("type") == "delay":
+                p_start = datetime.fromisoformat(plan_obj["start"].replace("Z", "+00:00"))
+                expected_delay = (p_start - w.current_time).total_seconds() / 3600.0
+                assert abs(d["delay_hours"] - expected_delay) < 0.1
+            elif plan_obj.get("type") == "slow_charge":
+                assert d["delay_hours"] == 0.0

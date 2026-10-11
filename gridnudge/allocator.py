@@ -25,7 +25,10 @@ def compute_allocation_priority(
     if persuasion.frame == "none" or plan is None:
         return 0.0
 
-    uplift = max(0.01, persuasion.uplift_mean) if persuasion.uplift_mean > 0.0 else (0.1 if persuasion.explored else 0.05)
+    if persuasion.uplift_mean <= 0.0 and not persuasion.explored:
+        return 0.0
+
+    uplift = max(0.01, persuasion.uplift_mean) if persuasion.uplift_mean > 0.0 else 0.1
     grid_val = max(0.1, abs(float(plan.outcomes.get("grid_value", 1.0))))
     # Non-negative priority score
     priority = uplift * grid_val

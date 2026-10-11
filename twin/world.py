@@ -18,6 +18,63 @@ from twin.stations import StationNetwork
 from twin.users import FleetManager
 
 
+def compute_kwh_shifted_from_peak(
+    plan_type: str,
+    adopted: bool,
+    initial_soc: float,
+    target_soc: float,
+    battery_kwh: float,
+    nominal_charger_kw: float,
+    plug_in_step: int,
+    delay_hours: float = 3.5,
+    efficiency: float = 0.92,
+) -> float:
+    """Compute physical kWh moved out of the evening peak window (18:00 - 22:00, steps 72 - 88)."""
+    if not adopted or plan_type in ("default", "top_up_now"):
+        return 0.0
+
+    needed_kwh = max(0.0, (target_soc - initial_soc) * battery_kwh)
+    if needed_kwh <= 0.0 or nominal_charger_kw <= 0.0:
+        return 0.0
+
+    day_start = (plug_in_step // 96) * 96
+    peak_start = day_start + 72  # 18:00
+    peak_end = day_start + 88    # 22:00
+
+    # Default charging trajectory
+    dur_default_hrs = needed_kwh / (nominal_charger_kw * efficiency)
+    end_default_step = plug_in_step + int(np.ceil(dur_default_hrs * 4.0))
+
+    overlap_default_steps = max(0, min(end_default_step, peak_end) - max(plug_in_step, peak_start))
+    kwh_peak_default = min(needed_kwh, overlap_default_steps * 0.25 * nominal_charger_kw * efficiency)
+
+    if kwh_peak_default <= 0.0:
+        return 0.0
+
+    if plan_type == "delay":
+        delay_steps = int(delay_hours * 4.0)
+        delay_start_step = plug_in_step + delay_steps
+        delay_end_step = delay_start_step + int(np.ceil(dur_default_hrs * 4.0))
+
+        overlap_delay_steps = max(0, min(delay_end_step, peak_end) - max(delay_start_step, peak_start))
+        kwh_peak_delay = min(needed_kwh, overlap_delay_steps * 0.25 * nominal_charger_kw * efficiency)
+        return round(float(max(0.0, kwh_peak_default - kwh_peak_delay)), 2)
+
+    elif plan_type == "slow_charge":
+        slow_kw = max(2.0, nominal_charger_kw * 0.5)
+        dur_slow_hrs = needed_kwh / (slow_kw * efficiency)
+        slow_end_step = plug_in_step + int(np.ceil(dur_slow_hrs * 4.0))
+
+        overlap_slow_steps = max(0, min(slow_end_step, peak_end) - max(plug_in_step, peak_start))
+        kwh_peak_slow = min(needed_kwh, overlap_slow_steps * 0.25 * slow_kw * efficiency)
+        return round(float(max(0.0, kwh_peak_default - kwh_peak_slow)), 2)
+
+    elif plan_type == "relocate":
+        return round(float(kwh_peak_default), 2)
+
+    return 0.0
+
+
 class World:
     """The digital twin EV-energy simulation environment."""
 
@@ -56,6 +113,8 @@ class World:
         self.pending_outcomes: List[Dict[str, Any]] = []
         self.closed_outcomes: List[Dict[str, Any]] = []
         self.all_outcomes: List[Dict[str, Any]] = []
+        self.stranded_any_count = 0
+        self.stranded_attributable_count = 0
 
     def _load_default_configs(self) -> Dict[str, Any]:
         """Load configuration files from config directory if not provided."""
@@ -178,7 +237,7 @@ class World:
                 user.last_frame = frame
 
             adopted = resp["adopted"]
-            window_end_step = user.departure_step if user.departure_step > self.current_step else self.current_step + 40
+            window_end_step = min(user.departure_step, self.current_step + 4)
 
             if adopted and plan_type == "delay":
                 # Delay charging start until off-peak slot (e.g. 23:00)
@@ -186,9 +245,16 @@ class World:
                 user.delay_until_step = self.current_step + delay_steps
                 user.active_plan = plan if isinstance(plan, dict) else {"type": plan_type}
                 user.charging = False
+                user.session_had_adopted_nudge = True
             elif adopted and plan_type == "slow_charge":
-                user.charger_kw = max(2.0, user.charger_kw * 0.5)
-                user.active_plan = {"type": "slow_charge"}
+                nominal_kw = user.nominal_charger_kw if user.nominal_charger_kw is not None else user.charger_kw
+                user.charger_kw_cap = max(2.0, nominal_kw * 0.5)
+                user.charger_kw = user.charger_kw_cap
+                user.active_plan = {"type": "slow_charge", "charger_kw_cap": user.charger_kw_cap}
+                user.session_had_adopted_nudge = True
+            elif is_nudged and not adopted and not decision_id.startswith("b1_"):
+                # Respectful policy (B2/B4): do not spam candidate again if they rejected
+                user.active_plan = {"type": "default"}
 
             # Record outcome tracker
             self.pending_outcomes.append({
@@ -200,9 +266,13 @@ class World:
                 "is_nudged": is_nudged,
                 "adopted": adopted,
                 "savings_inr": savings_inr if adopted else 0.0,
+                "delay_hours": delay_hours,
                 "true_uplift": resp["true_uplift"],
                 "opted_out": resp["opted_out"],
                 "initial_soc": user.soc,
+                "target_soc": user.target_soc,
+                "battery_kwh": user.battery_kwh,
+                "nominal_charger_kw": user.nominal_charger_kw or user.charger_kw,
                 "plug_in_step": user.plug_in_step,
             })
 
@@ -262,14 +332,29 @@ class World:
                     u.charging = True
                     u.active_plan = None
                     u.delay_until_step = None
+                    u.charger_kw = u.nominal_charger_kw if u.nominal_charger_kw is not None else u.charger_kw
+                    u.charger_kw_cap = None
+                    u.session_had_adopted_nudge = False
 
             elif u.plugged:
                 # Check departure deadline
                 if self.current_step >= u.departure_step:
+                    # Check departure SOC against commute trip requirement + 10% reserve
+                    needed_energy_kwh = (u.commute_km * 0.5 * u.base_wh_km) / 1000.0
+                    reserve_kwh = u.battery_kwh * 0.10
+                    soc_kwh = u.soc * u.battery_kwh
+                    if soc_kwh < (needed_energy_kwh + reserve_kwh):
+                        self.stranded_any_count += 1
+                        if getattr(u, "session_had_adopted_nudge", False):
+                            self.stranded_attributable_count += 1
+
                     u.plugged = False
                     u.charging = False
                     u.active_plan = None
                     u.delay_until_step = None
+                    u.charger_kw = u.nominal_charger_kw if u.nominal_charger_kw is not None else u.charger_kw
+                    u.charger_kw_cap = None
+                    u.session_had_adopted_nudge = False
                     # Morning commute discharge
                     u.soc, _ = discharge_step(
                         soc=u.soc,
@@ -315,10 +400,11 @@ class World:
             u.charging = True
             charging_count += 1
 
+            kw_cap = u.charger_kw_cap if u.charger_kw_cap is not None else u.charger_kw
             new_soc, kw_drawn, kwh_del = charge_step(
                 soc=u.soc,
                 battery_kwh=u.battery_kwh,
-                charger_kw=u.charger_kw,
+                charger_kw=kw_cap,
                 step_hours=step_hours,
                 efficiency=0.92,
                 target_soc=u.target_soc,
@@ -346,20 +432,29 @@ class World:
         remaining_outcomes = []
         for o in self.pending_outcomes:
             if self.current_step >= o["window_end_step"]:
-                # Compute outcome realization
                 user = self.fleet.users[o["user_id"]]
-                kwh_shifted = 0.0
-                if o["adopted"] and o["plan_type"] == "delay":
-                    # Energy shifted out of peak window
-                    kwh_shifted = round(float(user.battery_kwh * max(0.0, user.target_soc - o["initial_soc"])), 2)
-
+                kwh_shifted = compute_kwh_shifted_from_peak(
+                    plan_type=o["plan_type"],
+                    adopted=o["adopted"],
+                    initial_soc=o["initial_soc"],
+                    target_soc=o.get("target_soc", user.target_soc),
+                    battery_kwh=o.get("battery_kwh", user.battery_kwh),
+                    nominal_charger_kw=o.get("nominal_charger_kw", user.nominal_charger_kw or user.charger_kw),
+                    plug_in_step=o["plug_in_step"],
+                    delay_hours=o.get("delay_hours", 3.5),
+                )
                 stress_delta = -0.05 if (o["adopted"] and o["plan_type"] in ("delay", "slow_charge")) else 0.0
 
                 closed = {
                     "decision_id": o["decision_id"],
                     "user_id": o["user_id"],
+                    "is_nudged": o.get("is_nudged", True),
+                    "plan_type": o["plan_type"],
+                    "frame": o.get("frame", "none"),
                     "adopted": o["adopted"],
+                    "initial_soc": o["initial_soc"],
                     "kwh_shifted": kwh_shifted,
+                    "kwh_shifted_from_peak": kwh_shifted,
                     "savings_inr": o["savings_inr"],
                     "battery_stress_delta": stress_delta,
                     "opted_out": o["opted_out"],
@@ -406,15 +501,27 @@ class World:
         closed = []
         for o in self.pending_outcomes:
             user = self.fleet.users[o["user_id"]]
-            kwh_shifted = 0.0
-            if o["adopted"] and o["plan_type"] == "delay":
-                kwh_shifted = round(float(user.battery_kwh * max(0.0, user.target_soc - o["initial_soc"])), 2)
+            kwh_shifted = compute_kwh_shifted_from_peak(
+                plan_type=o["plan_type"],
+                adopted=o["adopted"],
+                initial_soc=o["initial_soc"],
+                target_soc=o.get("target_soc", user.target_soc),
+                battery_kwh=o.get("battery_kwh", user.battery_kwh),
+                nominal_charger_kw=o.get("nominal_charger_kw", user.nominal_charger_kw or user.charger_kw),
+                plug_in_step=o["plug_in_step"],
+                delay_hours=o.get("delay_hours", 3.5),
+            )
             stress_delta = -0.05 if (o["adopted"] and o["plan_type"] in ("delay", "slow_charge")) else 0.0
             rec = {
                 "decision_id": o["decision_id"],
                 "user_id": o["user_id"],
+                "is_nudged": o.get("is_nudged", True),
+                "plan_type": o["plan_type"],
+                "frame": o.get("frame", "none"),
                 "adopted": o["adopted"],
+                "initial_soc": o["initial_soc"],
                 "kwh_shifted": kwh_shifted,
+                "kwh_shifted_from_peak": kwh_shifted,
                 "savings_inr": o["savings_inr"],
                 "battery_stress_delta": stress_delta,
                 "opted_out": o["opted_out"],

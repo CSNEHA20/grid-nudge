@@ -175,6 +175,7 @@ def generate_candidate_plans(
         where=location,
         outcomes={
             "cost_inr": cost_default,
+            "cost_saving_inr": 0.0,
             "journey_conf_lb": journey_default.p_arrive_above_reserve,
             "grid_value": grid_val_default,
             "battery_stress_delta": 0.0,
@@ -238,6 +239,7 @@ def generate_candidate_plans(
         where=location,
         outcomes={
             "cost_inr": cost_delay,
+            "cost_saving_inr": round(max(0.0, cost_default - cost_delay), 2),
             "journey_conf_lb": journey_delay.p_arrive_above_reserve,
             "grid_value": grid_val_delay,
             "battery_stress_delta": stress_delta_delay,
@@ -293,6 +295,7 @@ def generate_candidate_plans(
             where=location,
             outcomes={
                 "cost_inr": cost_slow,
+                "cost_saving_inr": round(max(0.0, cost_default - cost_slow), 2),
                 "journey_conf_lb": journey_slow.p_arrive_above_reserve,
                 "grid_value": grid_val_slow,
                 "battery_stress_delta": stress_delta_slow,
@@ -335,6 +338,7 @@ def generate_candidate_plans(
             where=location,
             outcomes={
                 "cost_inr": cost_top,
+                "cost_saving_inr": 0.0,
                 "journey_conf_lb": journey_top.p_arrive_above_reserve,
                 "grid_value": -0.5,  # Protective prioritization over grid
                 "battery_stress_delta": 0.05,
@@ -366,6 +370,7 @@ def generate_candidate_plans(
                 where=f"station_{best_station_id}",
                 outcomes={
                     "cost_inr": cost_default,
+                    "cost_saving_inr": 0.0,
                     "journey_conf_lb": journey_default.p_arrive_above_reserve,
                     "grid_value": 0.8,
                     "battery_stress_delta": -0.01,

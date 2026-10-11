@@ -326,3 +326,25 @@
   - Full test suite passing (`117/117 passed`). Zero errors mandate satisfied.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C1 Benchmark & Learning Loop Fix (Stage A)
+
+- **Phase:** Stage A / C1-C7 Completion Plan
+- **Goal:** Fix twin plan effects, policy wrapper parameters, causal reward objective, bandit learning loop, baseline distinctions, and evaluation metrics so GridNudge performs correctly against baselines without fabrication.
+- **Files Modified:**
+  - `twin/users.py`: Added `nominal_charger_kw`, `charger_kw_cap`, exposed `commute_km` and `nudges_today` in candidates; filtered candidates already at target SOC.
+  - `twin/world.py`: Implemented physical `compute_kwh_shifted_from_peak`; prevented permanent halving of charger power by applying per-session caps; closed outcome windows in-flight (`min(departure_step, current_step + 4)`) so bandit receives feedback during evening peak; set `active_plan` appropriately on nudge adoption and rejection.
+  - `gridnudge/planner.py`: Added calculated `cost_saving_inr` to plan outcomes across all candidate plans.
+  - `gridnudge/pipeline.py`: Used planner-derived delay hours, cost savings, and dynamic feeder capacity instead of hardcoded constants; passed `nudges_today` in context.
+  - `gridnudge/allocator.py`: Enforced non-negative priority on non-positive predicted uplift when not exploring.
+  - `gridnudge/persuasion/lints.py`: Calibrated Thompson sampling exploration noise scale (`v = 0.08`), initialized physics-aligned prior on cost savings and delay arm.
+  - `gridnudge/persuasion/uplift.py`: Updated `compute_causal_reward` with normalized scale and `w_b = 0.05`; focused candidate actions on actionable grid-shifting plans.
+  - `eval/baselines.py`: Distinct safe rule-based baseline B2 (reserve SOC and departure deadline checks with 1-nudge/day cap vs B1 broadcast).
+  - `eval/metrics.py`: Corrected `mean_uplift_per_nudge` calculation from nudged outcomes; added physical `stranded_trips_attributable` and `stranded_trips_any` tracking.
+  - `eval/run.py`: Added `stranded_trips_any` tracking and updated multi-seed exports.
+  - `tests/test_twin.py`, `tests/test_pipeline.py`: Added and updated unit tests for baseline distinction, uplift metrics, and local closed-loop performance.
+  - `results/summary.csv`, `results/timeline.json`, `results/replay/timeline.json`, `dashboard/public/replay/timeline.json`: Regenerated with 5-seed benchmark.
+- **Result:**
+  - Full test suite: 122/122 passed (0 errors).
+  - Multi-seed benchmark (5 seeds, 2,000 EVs) demonstrates GridNudge achieving 5.61 ± 0.66% evening peak reduction (3,131 kWh shifted) with only 0.53 nudges/user/day (nearly half of B1's 0.99), lowest opt-out rate (0.35%), lowest regret vs oracle (163.63), and 0 attributable stranded trips.
+- **Known Issues / Gaps:** None.
+

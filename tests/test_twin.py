@@ -211,3 +211,109 @@ def test_benchmark_performance_under_60_seconds():
     res = run_simulation(seed=42, n_users=2000, n_steps=672)
     elapsed = res["metrics"]["elapsed_seconds"]
     assert elapsed < 60.0, f"Simulation took {elapsed:.2f}s, exceeding 60s limit"
+
+
+def test_slow_charge_does_not_permanently_halve_charger_power():
+    """Adopting slow_charge must cap power per-session only, restoring nominal power at next session."""
+    from twin.world import compute_kwh_shifted_from_peak
+    w = World(seed=42, n_users=20)
+    user = w.fleet.users[0]
+    user.archetype = "commuter_frugal"
+    user.fatigue = 0.0
+    nominal_kw = user.charger_kw
+    assert user.nominal_charger_kw == nominal_kw
+
+    # Plug in user
+    user.plugged = True
+    user.plug_in_step = 72
+    user.departure_step = 96
+
+    # Apply slow_charge adoption
+    w.apply_decisions([{
+        "decision_id": "test_d1",
+        "user_id": user.user_id,
+        "plan": {"type": "slow_charge"},
+        "frame": "cost",
+        "timing": "at_plug_in",
+        "savings_inr": 100.0,
+        "delay_hours": 0.0,
+    }])
+
+    # Charger power is capped during this active plan
+    assert user.charger_kw == max(2.0, nominal_kw * 0.5)
+    assert user.charger_kw_cap == max(2.0, nominal_kw * 0.5)
+
+    # Trigger departure
+    w.current_step = 96
+    w._update_schedules_and_arrivals()
+
+    # Base nominal charger power must be restored, not halved permanently
+    assert user.charger_kw == nominal_kw
+    assert user.charger_kw_cap is None
+
+
+def test_kwh_shifted_from_peak_physical_values():
+    """kwh_shifted_from_peak must match exact physical hand-computed examples."""
+    from twin.world import compute_kwh_shifted_from_peak
+
+    # Arriving at 18:00 (step 72), 40 kWh battery, 0.5 -> 0.9 SOC (needs 16 kWh)
+    # nominal charger 7.4 kW at 0.92 efficiency = 6.808 kW
+    # Default duration = 16 / 6.808 = 2.35 hrs (10 steps). Finished at step 82 (before 22:00 = 88).
+    # Default peak energy = 16.0 kWh.
+
+    # 1. Delay by 5 hours (20 steps) to 23:00 (step 92): all 16 kWh shifted out of peak
+    shifted_delay_full = compute_kwh_shifted_from_peak(
+        plan_type="delay",
+        adopted=True,
+        initial_soc=0.5,
+        target_soc=0.9,
+        battery_kwh=40.0,
+        nominal_charger_kw=7.4,
+        plug_in_step=72,
+        delay_hours=5.0,
+    )
+    assert shifted_delay_full == 16.0
+
+    # 2. Slow charge (halved to 3.7 kW): 16 kWh at 3.7 kW takes 4.7 hours (19 steps to step 91).
+    # Draws power during steps 72 to 88 (16 steps = 4 hrs): 4 * 3.7 * 0.92 = 13.616 kWh.
+    # Energy shifted out of peak into night = 16.0 - 13.616 = 2.38 kWh
+    shifted_slow = compute_kwh_shifted_from_peak(
+        plan_type="slow_charge",
+        adopted=True,
+        initial_soc=0.5,
+        target_soc=0.9,
+        battery_kwh=40.0,
+        nominal_charger_kw=7.4,
+        plug_in_step=72,
+        delay_hours=0.0,
+    )
+    assert 2.0 <= shifted_slow <= 3.0
+
+    # 3. Top-up now or unadopted shift zero
+    assert compute_kwh_shifted_from_peak("top_up_now", True, 0.5, 0.9, 40.0, 7.4, 72) == 0.0
+    assert compute_kwh_shifted_from_peak("delay", False, 0.5, 0.9, 40.0, 7.4, 72) == 0.0
+
+
+def test_baselines_b1_and_b2_are_distinct():
+    """B1 (broadcast) and B2 (safe rule-based) must yield distinct nudge counts and peak loads."""
+    from eval.baselines import policy_b1, policy_b2
+    w1 = World(seed=42, n_users=200)
+    res_b1 = run_simulation(world=w1, n_steps=96, policy_fn=policy_b1)
+
+    w2 = World(seed=42, n_users=200)
+    res_b2 = run_simulation(world=w2, n_steps=96, policy_fn=policy_b2)
+
+    # B1 broadcasts to every plugged user; B2 caps to 1 nudge/day and checks reserve safety
+    assert res_b1["metrics"]["total_nudges_sent"] != res_b2["metrics"]["total_nudges_sent"]
+    assert res_b1["metrics"]["total_nudges_sent"] > res_b2["metrics"]["total_nudges_sent"]
+
+
+def test_mean_uplift_nonzero_on_nudged_outcomes():
+    """Mean uplift per nudge must be positive (> 0.0) when nudges are delivered."""
+    from eval.baselines import policy_b1
+    from eval.metrics import compute_run_metrics
+    w = World(seed=42, n_users=200)
+    res = run_simulation(world=w, n_steps=96, policy_fn=policy_b1)
+    m = compute_run_metrics(res)
+    assert m["mean_uplift_per_nudge"] > 0.0, "mean_uplift_per_nudge must not be 0.00"
+

@@ -136,6 +136,7 @@ def run_benchmark(
             "opt_out_rate_pct",
             "mean_uplift_per_nudge",
             "stranded_trips",
+            "stranded_trips_any",
             "mean_savings_inr",
             "regret_vs_oracle",
         ])
@@ -152,6 +153,7 @@ def run_benchmark(
                 st.get("opt_out_rate_pct", {}).get("formatted", "N/A"),
                 st.get("mean_uplift_per_nudge", {}).get("formatted", "N/A"),
                 st.get("stranded_trips_attributable", {}).get("formatted", "0.00 ± 0.00"),
+                st.get("stranded_trips_any", {}).get("formatted", "0.00 ± 0.00"),
                 st.get("mean_savings_per_adopting_user", {}).get("formatted", "N/A"),
                 st.get("regret_vs_oracle", {}).get("formatted", "N/A"),
             ])
