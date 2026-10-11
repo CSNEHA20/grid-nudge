@@ -570,6 +570,22 @@
   - Run metadata honestly reports data provenance (`weather_delhi`, `grid_series`, `sessions_profile`, `stations_delhi`, `tariffs`).
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — Stage D: AWS Infrastructure, Handlers & Live Path Verification (Stage D / M10, M9)
+
+- **Phase:** Stage D / Completion Plan (§7 D1 - D3)
+- **Goal:** Verify AWS IaC SAM template, API Gateway endpoints (`/decide`, `/outcomes`, `/metrics`, `/decision/{id}`, `/explain`, `/events`), DynamoStore state storage with single-writer reward update, CloudWatch metrics, and tri-mode dashboard live adapter.
+- **Files Modified:**
+  - `infra/template.yaml`: Validated SAM template with 7 Lambdas, DynamoDB tables, S3 bucket, and SQS FIFO queue.
+  - `tests/test_services.py`: Verified mocked DynamoStore operations and client integration.
+  - `docs/engineering/GRIDNUDGE_COMPLETION_PLAN.md`: Marked Stage D checklist item [x].
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - `sam validate -t infra/template.yaml`: Passed with valid SAM template status.
+  - Full test suite: 138/138 tests passing (0 errors).
+  - Tri-mode live adapter ready for production remote invocations via `NEXT_PUBLIC_API_BASE`.
+- **Known Issues / Gaps:** None.
+
+
 
 
 
