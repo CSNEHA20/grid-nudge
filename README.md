@@ -76,17 +76,17 @@ All metrics below originate from multi-seed runs evaluated under Common Random N
 
 | Policy ID | Policy Description | Evening Peak Load (MW) | Peak Reduction (%) | Energy Shifted (kWh) | Nudges / User / Day | Opt-Out Rate (%) | Attributable Stranded Trips | Regret vs Oracle |
 |---|---|---|---|---|---|---|---|---|
-| **B0** | Uncontrolled Default | 21.68 ± 0.28 | 0.00% | 0.0 | 0.00 | 0.00% | 0 | 486.2 |
-| **B1** | Broadcast Delay Nudges | 20.38 ± 0.19 | 6.02 ± 0.88% | 2,816 ± 180 | 0.99 ± 0.02 | 0.72% | 0 | 294.1 |
-| **B2** | Safe Rule-Based (1/day cap) | 20.38 ± 0.19 | 6.02 ± 0.88% | 2,816 ± 180 | 0.99 ± 0.02 | 0.72% | 0 | 294.1 |
-| **B3** | Plain Bandit (No Allocator) | 21.39 ± 0.18 | 1.32 ± 0.42% | 668 ± 94 | 0.54 ± 0.01 | 0.38% | 0 | 382.4 |
-| **B4** | **GridNudge Full Pipeline** | **20.47 ± 0.14** | **5.61 ± 0.66%** | **3,131 ± 142** | **0.53 ± 0.01** | **0.35%** | **0** | **163.6** |
+| **B0** | Uncontrolled Default | 22.94 ± 0.26 | 0.00 ± 0.00% | 0.00 ± 0.00 | 0.00 ± 0.00 | 0.00 ± 0.00% | 0.00 ± 0.00 | 0.00 ± 0.00 |
+| **B1** | Broadcast Delay Nudges | 18.88 ± 0.29 | 17.72 ± 0.51% | 12057.29 ± 267.42 | 0.67 ± 0.01 | 6.49 ± 0.74% | 0.00 ± 0.00 | 1896.35 ± 66.76 |
+| **B2** | Safe Rule-Based (1/day cap) | 19.29 ± 0.30 | 15.94 ± 0.49% | 10899.41 ± 240.11 | 0.54 ± 0.01 | 4.45 ± 0.59% | 0.00 ± 0.00 | 1638.26 ± 45.94 |
+| **B3** | Plain Bandit (No Allocator) | 20.56 ± 0.25 | 10.38 ± 0.35% | 5745.46 ± 209.31 | 0.22 ± 0.00 | 1.29 ± 0.28% | 0.00 ± 0.00 | 491.48 ± 10.07 |
+| **B4** | **GridNudge Full Pipeline** | **20.79 ± 0.28** | **9.38 ± 0.42%** | **5185.90 ± 179.03** | **0.14 ± 0.00** | **0.65 ± 0.17%** | **0.00 ± 0.00** | **334.81 ± 7.92** |
 
 ### Benchmark Takeaways:
-1. **Attention Efficiency:** GridNudge achieves comparable evening peak reduction (5.61% vs 6.02%) while **cutting driver notification volume in half** (0.53 vs 0.99 nudges/user/day).
-2. **Lowest Driver Fatigue:** Lowest opt-out rate across all policies (0.35% vs 0.72% in broadcast).
-3. **Lowest Oracle Regret:** LinTS causal bandit achieves the lowest regret (163.6), learning when drivers shift spontaneously without needing attention spent.
-4. **Zero Attributable Stranded Trips:** 100% adherence to the journey reserve safety invariant ($P(\text{SOC}_{\text{arrival}} \ge 10\%) \ge 90\%$).
+1. **Volume vs Peak Shaving:** At high nudge volume (0.67 nudges/user/day), B1 and B2 achieve higher peak reduction (17.72%). Under limited attention budget (0.14 nudges/user/day), GridNudge delivers 9.38% evening peak reduction while maintaining superior energy shifting efficiency per nudge.
+2. **Attention & Fatigue Preservation:** Lowest opt-out rate across all policies (0.65% vs 6.49% in broadcast), preventing alert fatigue and driver habituation.
+3. **Oracle Regret Minimization:** LinTS causal bandit achieves low cumulative regret (334.81), learning when drivers shift spontaneously without expending notification budget.
+4. **Zero Attributable Stranded Trips:** 100% adherence to journey reserve safety invariant ($P(\text{SOC}_{\text{arrival}} \ge 10\%) \ge 90\%$) with zero stranded trips.
 
 ---
 
@@ -96,13 +96,13 @@ Per AGENTS.md Rule 1.1 and Rule 8, we state data sources and modeling boundaries
 
 | Dataset / Dimension | Source & Method | Status in GridNudge |
 |---|---|---|
-| **Delhi Weather & Temperatures** | Open-Meteo Historical Archive (Delhi summer 45°C heatwaves) | Grounded processed series (`weather_delhi.parquet`) |
-| **Grid Feeder Load & Solar Profile** | Grid-India / POSOCO hourly demand series | Grounded normalized profiles (`grid_series.parquet`) |
-| **EV Session Dwell & Energy** | ACN-Data / Caltech EV Charging Dataset & Harvard Dataverse | Calibrated proxy distributions (`sessions_profile.parquet`) |
-| **Delhi Charging Plazas** | Bureau of Energy Efficiency (BEE) / Ministry of Power | Delhi public fast charger registry (`stations_delhi.parquet`) |
+| **Delhi Weather & Temperatures** | Open-Meteo Historical Archive (Delhi summer 45°C heatwaves) | Live fetched Open-Meteo API series (`weather_delhi.parquet`) |
+| **Grid Feeder Load & Solar Profile** | Grid-India / POSOCO hourly demand series | Synthetic, shaped after POSOCO hourly load curves (`grid_series.parquet`) |
+| **EV Session Dwell & Energy** | ACN-Data / Caltech EV Charging Dataset & Harvard Dataverse | Synthetic, shaped after Caltech ACN-Data distributions (`sessions_profile.parquet`) |
+| **Delhi Charging Plazas** | Bureau of Energy Efficiency (BEE) / Ministry of Power | Synthetic, shaped after Delhi BEE charging station registry (`stations_delhi.parquet`) |
 | **Electricity Tariffs** | Delhi Electricity Regulatory Commission (DERC) ToU Order | Grounded configuration (`config/tariffs.yaml`) |
 | **Driver Nudge Response Priors** | Literature-informed discrete choice model (A/B EV trial data) | Calibrated synthetic with hidden misspecification testing |
-| **Battery Aging** | Semi-empirical Arrhenius + C-rate model (NASA/Oxford battery data) | Relative stress scoring (not absolute lifespan claims) |
+| **Battery Aging** | Semi-empirical Arrhenius + C-rate model (NASA/Oxford battery data) | Synthetic relative battery stress formulation |
 
 ---
 
@@ -146,7 +146,7 @@ The stack is deployed and operational on AWS:
 | **Model State Table** | `gridnudge-model-state-prod` | DynamoDB LinTS matrix posterior with OCC |
 | **Decisions Table** | `gridnudge-decisions-prod` | DynamoDB immutable decision audit log |
 | **Reward FIFO Queue** | `gridnudge-rewards-prod.fifo` | SQS FIFO single-writer reward learning queue |
-| **S3 Audit Bucket** | `gridnudge-logs-583365238271-us-east-1-prod` | S3 batch and decision audit log bucket |
+| **S3 Audit Bucket** | `gridnudge-logs-<account-id>-us-east-1-prod` | S3 batch and decision audit log bucket |
 
 ### Live Endpoints
 - `POST /decide` — Batch decision pipeline orchestrator

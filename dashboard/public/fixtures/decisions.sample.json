@@ -104,6 +104,7 @@
       "opted_out": false,
       "reward": 28.6
     },
+    "context": {},
     "fail_silent": false,
     "error": null
   },
@@ -211,6 +212,7 @@
       "opted_out": false,
       "reward": 0.0
     },
+    "context": {},
     "fail_silent": false,
     "error": null
   },
@@ -315,6 +317,7 @@
       "opted_out": false,
       "reward": 14.2
     },
+    "context": {},
     "fail_silent": false,
     "error": null
   }

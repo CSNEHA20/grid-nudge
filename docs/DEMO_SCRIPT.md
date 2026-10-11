@@ -30,7 +30,7 @@
   >
   > Now look at GridNudge's response curve: rather than dumping all shifted demand into a single slot, our allocator staggers interventions across 15-minute intervals.
   >
-  > Across multi-seed runs, GridNudge achieves **5.6% evening peak reduction** and shifts **3,131 kWh** with nearly **half the nudge volume** of broadcast baselines (0.53 vs 0.99 nudges per driver per day)."
+  > Across multi-seed runs, GridNudge achieves **9.38% evening peak reduction** and shifts **5185.90 kWh** at an attention budget of **0.14 nudges per driver per day** (compared to 0.67 in unthrottled broadcast baselines)"
 
 ---
 
@@ -53,7 +53,7 @@
 - **Screen:** `/evaluation` (Reliability Diagram & KPI Cards) → Drawer (`OperatorCopilotDrawer`)
 - **Speaker:**
   > "On `/evaluation`, our claims are backed by rigorous statistical evidence.
-  > The reliability diagram shows predicted confidence tracking empirical arrival SOC with an Expected Calibration Error under 2.5%.
+  > The reliability diagram shows predicted confidence tracking empirical arrival SOC with an Expected Calibration Error of 1.01%.
   > Attributable stranded trips? Exactly **0**.
   >
   > In the drawer, our Read-Only Operator Copilot cites exact Decision IDs and Cedar policy verdicts without hallucinating numbers."
