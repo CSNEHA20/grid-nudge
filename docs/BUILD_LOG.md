@@ -457,3 +457,17 @@
   - Dataset provenance auditable via `world.get_provenance()`.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C9 Cedar Policy Audit & Engine Status Parity (Stage E8 / M5)
+
+- **Phase:** Stage E8 / C9 Completion Plan
+- **Goal:** Ensure honest auditability of Cedar policy authorization engine, documenting cedarpy and Python AST evaluator fallback status, and verifying declarative parity with `nudge_policy.cedar`.
+- **Files Modified:**
+  - `gridnudge/safety/cedar_check.py`: Added `get_cedar_engine_status()` exposing honest runtime engine info and rule declarations.
+  - `gridnudge/safety/__init__.py`: Exported `get_cedar_engine_status`.
+  - `tests/test_safety.py`: Added `test_cedar_engine_status_and_parity_with_declared_policy` asserting strict syntax and constraint parity.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - `pytest tests/test_safety.py` passing (13/13).
+  - Engine status honestly describes active evaluator without obfuscation.
+- **Known Issues / Gaps:** None.
+

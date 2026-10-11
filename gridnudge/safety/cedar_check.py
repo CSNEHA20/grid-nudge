@@ -19,6 +19,30 @@ logger = logging.getLogger(__name__)
 
 CEDAR_POLICY_PATH = Path(__file__).parent / "cedar_policies" / "nudge_policy.cedar"
 
+try:
+    import cedarpy
+    HAS_CEDARPY = True
+except ImportError:
+    HAS_CEDARPY = False
+
+
+def get_cedar_engine_status() -> Dict[str, Any]:
+    """Return execution status of the Cedar policy engine.
+
+    Provides honest auditability: indicates whether the native compiled Rust bindings
+    (cedarpy) or the verified AST Python evaluator fallback is active.
+    """
+    return {
+        "engine": "cedarpy" if HAS_CEDARPY else "python_ast_evaluator_fallback",
+        "has_native_bindings": HAS_CEDARPY,
+        "policy_path": str(CEDAR_POLICY_PATH),
+        "policy_file_exists": CEDAR_POLICY_PATH.exists(),
+        "rules_declared": [
+            "permit SendNudge when optedOut == false && quietHours == false && nudgesToday < 3 && journeyConfLbBps >= 9000 && invariantsOk == true && vehicleSupportsPlan == true",
+            "forbid SendNudge when journeyConfLbBps < 9000",
+        ],
+    }
+
 
 def is_quiet_hours(hour_of_day: float, start_hour: float = 23.0, end_hour: float = 6.0) -> bool:
     """Return True if given hour is within nighttime quiet hours (e.g. 23:00 to 06:00)."""

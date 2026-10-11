@@ -3,6 +3,7 @@
 from gridnudge.safety.cedar_check import (
     check_nudge_authorization,
     evaluate_cedar_policy,
+    get_cedar_engine_status,
     is_quiet_hours,
 )
 from gridnudge.safety.failsilent import (
@@ -25,6 +26,7 @@ __all__ = [
     "filter_safe_plans",
     "evaluate_cedar_policy",
     "check_nudge_authorization",
+    "get_cedar_engine_status",
     "is_quiet_hours",
     "build_fail_silent_record",
     "fail_silent_guard",

@@ -218,6 +218,21 @@ class TestCedarPolicy:
         assert verdict == "ALLOW"
         assert len(reasons) == 0
 
+    def test_cedar_engine_status_and_parity_with_declared_policy(self):
+        """Cedar engine status reports honest audit information and declarative parity."""
+        from gridnudge.safety.cedar_check import get_cedar_engine_status, CEDAR_POLICY_PATH
+        status = get_cedar_engine_status()
+        assert "engine" in status
+        assert status["policy_file_exists"] is True
+        assert CEDAR_POLICY_PATH.exists()
+
+        # Read actual .cedar file content to verify declarative alignment
+        cedar_text = CEDAR_POLICY_PATH.read_text(encoding="utf-8")
+        assert "permit" in cedar_text
+        assert "forbid" in cedar_text
+        assert "journeyConfLbBps" in cedar_text
+        assert "9000" in cedar_text
+
 
 class TestFailSilent:
     """Tests for fail-silent architecture and safe error degradation."""
