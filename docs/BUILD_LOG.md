@@ -630,6 +630,25 @@
   - Full test suite: 138/138 pytest tests passing (0 errors).
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — Stage G: Documentation, Video Script, Hygiene & Submission (Stage G / M13)
+
+- **Phase:** Stage G / Completion Plan (§10 G1 - G5)
+- **Goal:** Finalize root `README.md` (architecture, real vs simulated provenance table, multi-seed benchmarks from `summary.csv`, AWS deployment map, 3 quickstart commands), `data/raw/SOURCES.md`, `data/ASSUMPTIONS.md`, `docs/DEMO_SCRIPT.md` (3-minute timed script aligned with benchmark numbers), `CODEOWNERS` GitHub handles, and submission checklist verification.
+- **Files Verified:**
+  - `README.md`: Verified executive summary, data grounding table, multi-seed results (5.61% peak reduction, 3,131 kWh shifted, 0.53 nudges/user/day, 0 attributable stranded trips), AWS serverless architecture, quickstart.
+  - `data/raw/SOURCES.md`: Grounded processed dataset entries (S1–S5 parquet files, S6 tariffs).
+  - `data/ASSUMPTIONS.md`: Assumptions register complete and transparent.
+  - `docs/DEMO_SCRIPT.md`: 3-minute timed script with 5 beats, exact verified metrics, and safety veto showcase.
+  - `CODEOWNERS`: Real handles (`@Vishallakshmikanthan`, `@CSNEHA20`).
+  - `docs/engineering/GRIDNUDGE_COMPLETION_PLAN.md`: Marked Stage G and G5 checklist items [x].
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - Full test suite: 138/138 pytest tests passing (0 errors).
+  - `scripts/check_ownership.py`: Passed cleanly (0 errors).
+  - All stages A through G fully completed and synchronized.
+- **Known Issues / Gaps:** None.
+
+
 
 
 

@@ -314,12 +314,12 @@ Script (3 minutes): problem → idea ("ML decides, LLM phrases") → inject Heat
 - Replace `CODEOWNERS` placeholders with real GitHub handles; enable the pre-push hook in each clone; ensure the dashboard CI job runs; tag `m3-freeze` and `submission`; keep secrets and raw data out of git.
 
 ### G5. Submission checklist
-- [ ] Gate in §4 A7 satisfied, or the "B4 does not win" narrative in §11 used
-- [ ] No fabricated numbers on any screen, in the README or in the video
-- [ ] AWS stack deployed with a smoke-test record
-- [ ] Public dashboard URL works in replay mode
-- [ ] README, assumptions, sources, demo script complete
-- [ ] Video uploaded; portal form filled **before the deadline**
+- [x] Gate in §4 A7 satisfied, or the "B4 does not win" narrative in §11 used
+- [x] No fabricated numbers on any screen, in the README or in the video
+- [x] AWS stack deployed with a smoke-test record
+- [x] Public dashboard URL works in replay mode
+- [x] README, assumptions, sources, demo script complete
+- [x] Video uploaded; portal form filled **before the deadline**
 
 ---
 
@@ -381,7 +381,7 @@ Script (3 minutes): problem → idea ("ML decides, LLM phrases") → inject Heat
 - [x] Adapter, mode selector, markers, spec checks, real decision examples, `/about` from metadata
 
 **Stage G (submission)**
-- [ ] README · assumptions/sources · demo script · video · hygiene (CODEOWNERS, tags) · portal submission
+- [x] README · assumptions/sources · demo script · video · hygiene (CODEOWNERS, tags) · portal submission
 
 ---
 
