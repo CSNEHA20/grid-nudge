@@ -68,7 +68,7 @@ class TestPersuasionEngine:
         ev = {"current_soc": 0.35, "commute_km": 40.0}
         user_state = {"fatigue": 0.5, "nudges_today": 1}
         x = extract_context_features(ev, user_state, hour_of_day=19.0, grid_stress=0.88)
-        assert len(x) == 15
+        assert len(x) == 17
 
         phi = build_feature_vector(
             context_x=x,

@@ -56,11 +56,39 @@ def extract_context_features(
     nudges_today = float(user_state.get("nudges_today", 0)) / 3.0
     ignore_rate = float(user_state.get("ignore_rate", 0.0))
 
-    # Archetype posterior (defaults to prior if missing)
-    post = user_state.get("archetype_posterior", [0.30, 0.15, 0.20, 0.25, 0.10])
+    # Archetype posterior (defaults to prior if missing, or maps archetype string)
+    post = user_state.get("archetype_posterior")
+    if post is None:
+        arch = user_state.get("archetype") or ev_context.get("archetype")
+        if arch in ("commuter_frugal", "price_sensitive"):
+            post = [1.0, 0.0, 0.0, 0.0, 0.0]
+        elif arch in ("commuter_green", "eco_motivated"):
+            post = [0.0, 1.0, 0.0, 0.0, 0.0]
+        elif arch in ("cab_driver", "convenience"):
+            post = [0.0, 0.0, 1.0, 0.0, 0.0]
+        elif arch in ("routine_locked",):
+            post = [0.0, 0.0, 0.0, 1.0, 0.0]
+        elif arch in ("erratic_flex", "fatigue_prone"):
+            post = [0.0, 0.0, 0.0, 0.0, 1.0]
+        else:
+            post = [0.30, 0.15, 0.20, 0.25, 0.10]
     arch_0 = float(post[0])
     arch_1 = float(post[1])
     arch_2 = float(post[2])
+
+    # Shiftable peak energy and peak overlap features
+    shiftable = user_state.get("shiftable_peak_kwh")
+    if shiftable is None:
+        shiftable = ev_context.get("shiftable_peak_kwh", 0.0)
+    shiftable_kwh = float(shiftable)
+    shiftable_scaled = shiftable_kwh / 20.0
+
+    overlaps_peak_val = user_state.get("overlaps_peak")
+    if overlaps_peak_val is None:
+        overlaps_peak_val = ev_context.get("overlaps_peak")
+    if overlaps_peak_val is None:
+        overlaps_peak_val = 1.0 if (shiftable_kwh > 0.0 or (18.0 <= float(hour_of_day) <= 22.0)) else 0.0
+    overlaps_peak = float(overlaps_peak_val)
 
     features = np.array(
         [
@@ -79,6 +107,8 @@ def extract_context_features(
             arch_0,
             arch_1,
             arch_2,
+            shiftable_scaled,
+            overlaps_peak,
         ],
         dtype=float,
     )
@@ -131,9 +161,9 @@ def build_feature_vector(
     Structure:
     - [1.0] (bias: 1)
     - Action vector: frame (6) + timing (3) + plan (5) + savings (1) = 15 dims
-    - Context vector x: 15 dims
-    - Interaction term: x tensor_product frame_onehot = 15 * 6 = 90 dims
-    Total feature dimension d = 1 + 15 + 15 + 90 = 121 dimensions.
+    - Context vector x: 17 dims
+    - Interaction term: x tensor_product frame_onehot = 17 * 6 = 102 dims
+    Total feature dimension d = 1 + 15 + 17 + 102 = 135 dimensions.
     """
     action_vec = extract_action_vector(frame, timing, plan, default_cost)
     frame_onehot = action_vec[: len(ALL_FRAMES)]  # first 6 dims
@@ -145,4 +175,4 @@ def build_feature_vector(
     return phi.astype(float)
 
 
-FEATURE_DIM = 121
+FEATURE_DIM = 135
