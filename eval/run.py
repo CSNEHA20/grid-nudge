@@ -87,8 +87,10 @@ def run_benchmark(
             if scenario == "heatwave":
                 w.inject({
                     "event_type": "heatwave",
-                    "start_step": 64,
-                    "end_step": 92,
+                    "start_step": 0,
+                    "end_step": 100_000,
+                    "base_load_mult": 1.25,
+                    "temp_rise_c": 6.0,
                     "parameters": {"temp_c": 44.0, "multiplier": 1.25},
                 })
             elif scenario == "solar_drop":
@@ -219,19 +221,28 @@ def run_benchmark(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="GridNudge Multi-Seed Benchmark Evaluation Harness")
-    parser.add_argument("--seeds", type=int, default=5, help="Number of random seeds (default: 5)")
+    parser.add_argument(
+        "--seeds",
+        nargs="+",
+        type=int,
+        default=[1, 2, 3, 4, 5],
+        help="List of random seeds (e.g. 1 2 3 4 5) or seed count",
+    )
     parser.add_argument("--users", type=int, default=2000, help="Synthetic fleet user count (default: 2000)")
     parser.add_argument("--days", type=int, default=1, help="Simulation duration in days (default: 1 day = 96 steps)")
     parser.add_argument("--steps", type=int, default=None, help="Explicit simulation steps override")
     parser.add_argument("--scenario", type=str, default="heatwave", choices=["normal", "heatwave", "solar_drop", "tariff_change"])
     parser.add_argument("--policies", nargs="+", default=["B0", "B1", "B2", "B3", "B4"], help="Policies to evaluate")
     parser.add_argument("--output_dir", type=str, default="results", help="Directory for output artifacts")
-    parser.add_argument("--seed_start", type=int, default=42, help="Starting random seed value")
+    parser.add_argument("--seed_start", type=int, default=42, help="Starting random seed value if count is given")
 
     args = parser.parse_args()
 
     n_steps = args.steps if args.steps is not None else args.days * 96
-    seed_list = [args.seed_start + i * 101 for i in range(args.seeds)]
+    if len(args.seeds) == 1 and args.seeds[0] > 10:
+        seed_list = [args.seed_start + i * 101 for i in range(args.seeds[0])]
+    else:
+        seed_list = args.seeds
 
     run_benchmark(
         seeds=seed_list,

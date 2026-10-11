@@ -15,66 +15,77 @@ def policy_b0(world: World) -> List[Dict[str, Any]]:
     return []
 
 
+def create_policy_b1(max_rate: float = 1.0) -> Any:
+    """Create B1 policy with optional rate capping for Pareto evaluation."""
+    def policy_fn(world: World) -> List[Dict[str, Any]]:
+        state = world.grid_state()
+        if not state.get("is_peak_window", False):
+            return []
+
+        candidates = world.candidates()
+        decisions = []
+        for c in candidates:
+            if max_rate < 1.0 and (int(c["user_id"]) % 100) >= int(max_rate * 100):
+                continue
+            decisions.append({
+                "decision_id": f"b1_s{world.current_step}_u{c['user_id']}",
+                "user_id": c["user_id"],
+                "plan": {"type": "delay"},
+                "frame": "cost",
+                "timing": "at_plug_in",
+                "savings_inr": 65.0,
+                "delay_hours": 3.5,
+            })
+        return decisions
+    return policy_fn
+
+
 def policy_b1(world: World) -> List[Dict[str, Any]]:
-    """B1: Simple rule-based peak shifting.
+    """B1: Simple rule-based peak shifting."""
+    return create_policy_b1(max_rate=1.0)(world)
 
-    Nudges all candidates plugged during peak hours (17:00 - 23:00) with a cost-frame delay.
-    """
-    state = world.grid_state()
-    if not state.get("is_peak_window", False):
-        return []
 
-    candidates = world.candidates()
-    decisions = []
-    for c in candidates:
-        decisions.append({
-            "decision_id": f"b1_s{world.current_step}_u{c['user_id']}",
-            "user_id": c["user_id"],
-            "plan": {"type": "delay"},
-            "frame": "cost",
-            "timing": "at_plug_in",
-            "savings_inr": 65.0,
-            "delay_hours": 3.5,
-        })
-    return decisions
+def create_policy_b2(max_rate: float = 1.0) -> Any:
+    """Create B2 policy with optional rate capping for Pareto evaluation."""
+    def policy_fn(world: World) -> List[Dict[str, Any]]:
+        state = world.grid_state()
+        if not state.get("is_peak_window", False):
+            return []
+
+        candidates = world.candidates()
+        decisions = []
+        for c in candidates:
+            dep_step = c.get("departure_step", -1)
+            too_soon = (dep_step is not None and dep_step > world.current_step and (dep_step - world.current_step) * (world.step_minutes / 60.0) < 5.0)
+
+            if c.get("nudges_today", 0) >= 1 or c.get("soc", 0.0) < 0.25 or too_soon:
+                continue
+
+            if max_rate < 1.0 and (int(c["user_id"]) % 100) >= int(max_rate * 100):
+                continue
+
+            decisions.append({
+                "decision_id": f"b2_s{world.current_step}_u{c['user_id']}",
+                "user_id": c["user_id"],
+                "plan": {"type": "delay"},
+                "frame": "cost",
+                "timing": "at_plug_in",
+                "savings_inr": 65.0,
+                "delay_hours": 3.5,
+            })
+        return decisions
+    return policy_fn
 
 
 def policy_b2(world: World) -> List[Dict[str, Any]]:
-    """B2: Safe rule-based planner.
-
-    Nudges users during peak, but applies safety and frequency rules:
-    - Frequency cap: max 1 nudge per user per day.
-    - Reserve safety: current SOC must be >= 0.25 to preserve reserve and cover trip.
-    - Departure deadline check: at least 5 hours until departure if departure step is known.
-    """
-    state = world.grid_state()
-    if not state.get("is_peak_window", False):
-        return []
-
-    candidates = world.candidates()
-    decisions = []
-    for c in candidates:
-        dep_step = c.get("departure_step", -1)
-        too_soon = (dep_step is not None and dep_step > world.current_step and (dep_step - world.current_step) * (world.step_minutes / 60.0) < 5.0)
-
-        if c.get("nudges_today", 0) >= 1 or c.get("soc", 0.0) < 0.25 or too_soon:
-            continue
-
-        decisions.append({
-            "decision_id": f"b2_s{world.current_step}_u{c['user_id']}",
-            "user_id": c["user_id"],
-            "plan": {"type": "delay"},
-            "frame": "cost",
-            "timing": "at_plug_in",
-            "savings_inr": 65.0,
-            "delay_hours": 3.5,
-        })
-    return decisions
+    """B2: Safe rule-based planner."""
+    return create_policy_b2(max_rate=1.0)(world)
 
 
 def create_policy_b3(
     seed: int = 42,
     run_id: str = "b3_bandit_no_alloc",
+    sample_rate: float = 1.0,
 ) -> Any:
     """B3: Bandit without fleet allocator (no attention budget cap, no anti-herding staggering)."""
     from gridnudge.pipeline import create_pipeline_policy
@@ -83,12 +94,57 @@ def create_policy_b3(
 
     store = InMemoryStore()
     bandit = LinTS(seed=seed)
-    return create_pipeline_policy(store=store, bandit=bandit, run_id=run_id, apply_allocation=False)
+    base_fn = create_pipeline_policy(store=store, bandit=bandit, run_id=run_id, apply_allocation=False)
+
+    if sample_rate >= 1.0:
+        return base_fn
+
+    def sampled_policy_fn(world: World) -> List[Dict[str, Any]]:
+        decisions = base_fn(world)
+        if sample_rate >= 1.0:
+            return decisions
+        filtered = []
+        for d in decisions:
+            if (int(d.get("user_id", 0)) % 100) < int(sample_rate * 100):
+                filtered.append(d)
+            else:
+                filtered.append({
+                    "decision_id": d.get("decision_id"),
+                    "user_id": d.get("user_id"),
+                    "plan": {"type": "default"},
+                    "frame": "none",
+                    "timing": None,
+                    "savings_inr": 0.0,
+                    "delay_hours": 0.0,
+                })
+        return filtered
+
+    return sampled_policy_fn
+
+
+_WARM_BANDIT_STATE: Optional[Dict[str, Any]] = None
+
+
+def get_warm_bandit(seed: int = 42) -> Any:
+    """Return a LinTS bandit warm-started on development seeds >= 100."""
+    global _WARM_BANDIT_STATE
+    from gridnudge.persuasion.lints import LinTS
+
+    if _WARM_BANDIT_STATE is None:
+        from gridnudge.persuasion.pretrain import pretrain_bandit
+        b = pretrain_bandit(dev_seeds=[101, 102], n_users=400, days=2, epsilon=0.20)
+        _WARM_BANDIT_STATE = b.get_state()
+
+    bandit = LinTS(seed=seed)
+    bandit.load_state(_WARM_BANDIT_STATE)
+    return bandit
 
 
 def create_policy_b4(
     seed: int = 42,
     run_id: str = "b4_gridnudge",
+    warm_start: bool = True,
+    budget_pct: float = 0.08,
 ) -> Any:
     """B4: Full GridNudge decision policy with StateStore, fleet allocator, and closed-loop learning."""
     from gridnudge.pipeline import create_pipeline_policy
@@ -96,13 +152,24 @@ def create_policy_b4(
     from gridnudge.state import InMemoryStore
 
     store = InMemoryStore()
-    bandit = LinTS(seed=seed)
-    return create_pipeline_policy(store=store, bandit=bandit, run_id=run_id, apply_allocation=True)
+    if warm_start:
+        bandit = get_warm_bandit(seed=seed)
+    else:
+        bandit = LinTS(seed=seed)
+    return create_pipeline_policy(
+        store=store,
+        bandit=bandit,
+        run_id=run_id,
+        apply_allocation=True,
+        budget_pct=budget_pct,
+    )
 
 
 def create_policy_b4a(
     seed: int = 42,
     run_id: str = "b4a_delay_only",
+    warm_start: bool = True,
+    budget_pct: float = 0.08,
 ) -> Any:
     """B4a: Ablation policy restricted to delay plans only."""
     from gridnudge.pipeline import create_pipeline_policy
@@ -110,19 +177,24 @@ def create_policy_b4a(
     from gridnudge.state import InMemoryStore
 
     store = InMemoryStore()
-    bandit = LinTS(seed=seed)
+    if warm_start:
+        bandit = get_warm_bandit(seed=seed)
+    else:
+        bandit = LinTS(seed=seed)
     return create_pipeline_policy(
         store=store,
         bandit=bandit,
         run_id=run_id,
         apply_allocation=True,
         allowed_plan_types=["delay"],
+        budget_pct=budget_pct,
     )
 
 
 def create_policy_b4b(
     seed: int = 42,
     run_id: str = "b4b_no_fatigue",
+    budget_pct: float = 0.08,
 ) -> Any:
     """B4b: Ablation policy without fatigue features."""
     from gridnudge.pipeline import create_pipeline_policy
@@ -137,6 +209,7 @@ def create_policy_b4b(
         run_id=run_id,
         apply_allocation=True,
         disable_fatigue_features=True,
+        budget_pct=budget_pct,
     )
 
 
