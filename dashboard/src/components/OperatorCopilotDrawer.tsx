@@ -79,9 +79,9 @@ export function OperatorCopilotDrawer({
           ...prev,
           {
             sender: "copilot",
-            text: `Auditing live telemetry for "${text}". All values verified from current simulation run: Peak reduction 14.2%, 0 attributable stranded trips, and 100% Cedar policy compliance.`,
+            text: `Auditing telemetry for "${text}". Simulation run metrics: GridNudge (B4) evening peak 20.47 MW (5.6% reduction vs B0), 0 attributable stranded trips, and 100% safety invariant compliance.`,
             citations: [
-              { type: "decision", id: "d_001_nudge_cost", label: "Live Run #10" },
+              { type: "decision", id: "d_001_nudge_cost", label: "Run #42" },
               { type: "rule", id: "cedar_rule_01", label: "Cedar Policy" },
             ],
             tools_used: [

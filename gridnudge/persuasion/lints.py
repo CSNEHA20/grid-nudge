@@ -39,9 +39,11 @@ class LinTS:
         # Sufficient statistics: Precision matrix A and reward vector b
         self.A = self.lam * np.eye(d, dtype=float)
         self.b = np.zeros(d, dtype=float)
-        # Prior expectation: delay plan and cost savings drive positive grid and driver value
-        self.b[11] = 1.0 * self.lam
-        self.b[15] = 1.5 * self.lam
+        # Prior expectation: delay plan, cost frame, and price-sensitive interaction drive peak reduction
+        self.b[2] = 1.2 * self.lam   # cost frame
+        self.b[11] = 2.0 * self.lam  # delay plan
+        self.b[15] = 1.5 * self.lam  # cost savings
+        self.b[104] = 1.0 * self.lam # price_sensitive archetype x cost frame interaction
         self.update_count = 0
         self.version = 1
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ChevronDown, Info } from "lucide-react";
 import { METRIC_GLOSSARY } from "@/lib/glossary";
 
-export type ReferencePolicyKey = "B0" | "B1" | "B2" | "B3";
+export type ReferencePolicyKey = "B0" | "B1" | "B2" | "B3" | "B4";
 
 export interface PolicyOption {
   key: ReferencePolicyKey;
@@ -12,26 +12,28 @@ export interface PolicyOption {
   reductionPct: number;
 }
 
-const POLICY_OPTIONS: PolicyOption[] = [
-  { key: "B1", label: "Broadcast (B1)", reductionPct: 14.2 },
-  { key: "B0", label: "No nudges (B0)", reductionPct: 18.5 },
-  { key: "B2", label: "Rule-based (B2)", reductionPct: 9.8 },
+const DEFAULT_POLICY_OPTIONS: PolicyOption[] = [
+  { key: "B1", label: "Broadcast (B1)", reductionPct: 18.6 },
+  { key: "B2", label: "Rule-based (B2)", reductionPct: 16.6 },
   { key: "B3", label: "Plain bandit (B3)", reductionPct: 6.4 },
+  { key: "B4", label: "GridNudge (B4)", reductionPct: 5.6 },
 ];
 
 interface PeakReductionCircleProps {
   seedCount?: number;
+  policyOptions?: PolicyOption[];
 }
 
 export function PeakReductionCircle({
-  seedCount = 10,
+  seedCount = 5,
+  policyOptions = DEFAULT_POLICY_OPTIONS,
 }: PeakReductionCircleProps) {
   const [selectedPolicy, setSelectedPolicy] = useState<ReferencePolicyKey>("B1");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
   const currentOption =
-    POLICY_OPTIONS.find((p) => p.key === selectedPolicy) || POLICY_OPTIONS[0];
+    policyOptions.find((p) => p.key === selectedPolicy) || policyOptions[0];
 
   return (
     <div className="relative flex flex-col items-center justify-center p-6 rounded-full aspect-square w-64 h-64 mx-auto glass-panel border border-amber-400/25 shadow-glow">
@@ -82,7 +84,7 @@ export function PeakReductionCircle({
 
           {isDropdownOpen && (
             <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 w-44 rounded-xl bg-navy-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-md overflow-hidden z-30 py-1">
-              {POLICY_OPTIONS.map((opt) => (
+              {policyOptions.map((opt) => (
                 <button
                   key={opt.key}
                   type="button"

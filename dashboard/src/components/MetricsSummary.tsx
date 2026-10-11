@@ -14,10 +14,10 @@ interface MetricsSummaryProps {
 }
 
 export function MetricsSummary({
-  nudgesPerUser = 0.8,
-  broadcastNudges = 4.0,
-  vetoedCount = 37,
-  silentPct = 71,
+  nudgesPerUser = 0.53,
+  broadcastNudges = 0.99,
+  vetoedCount = 0,
+  silentPct = 43,
   strandedCount = 0,
 }: MetricsSummaryProps) {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);

@@ -11,9 +11,9 @@ interface AttentionBudgetProps {
 }
 
 export function AttentionBudget({
-  usedPct = 62,
-  shadowPrice = 12.5,
-  rule = "8% of plugged-in EVs per interval",
+  usedPct = 0,
+  shadowPrice = 0.0,
+  rule = "Fleet attention budget per interval",
 }: AttentionBudgetProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isExhausted = usedPct >= 100;

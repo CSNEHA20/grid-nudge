@@ -26,21 +26,21 @@ const DEFAULT_ALERTS: AlertItem[] = [
     time: "18:30 IST",
     type: "STRESS",
     title: "Feeder Stress Spike",
-    detail: "Broadcast baseline reached 118% of capacity (14.2 MW / 12.0 MW)",
+    detail: "Uncontrolled baseline reached 21.7 MW (180% of 12.0 MW feeder capacity)",
   },
   {
     id: "alt-3",
     time: "18:45 IST",
     type: "BUDGET",
-    title: "Attention Budget Warning",
-    detail: "62% interval attention budget utilized (shadow price ₹12.5/nudge)",
+    title: "Attention Budget Active",
+    detail: "Interval attention budget active during peak window (shadow price ₹0.16/nudge)",
   },
   {
     id: "alt-4",
     time: "14:00 IST",
     type: "EVENT",
     title: "Heatwave Stress Injected",
-    detail: "+3.5°C temperature rise, 1.25× baseline cooling multiplier active",
+    detail: "+4.0°C temperature rise, 1.25× baseline cooling multiplier active",
   },
 ];
 

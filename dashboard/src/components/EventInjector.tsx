@@ -19,9 +19,9 @@ const EVENT_CONFIGS: Record<Exclude<EventType, "none">, EventConfig> = {
     description: "Increases residential baseline AC cooling demand and shifts peak load higher.",
     params: {
       "Start time": "14:00 IST",
-      "Temperature offset": "+3.5°C",
+      "Temperature offset": "+4.0°C",
       "Baseline load multiplier": "1.25×",
-      "Feeder peak": "14.2 MW (>100% capacity)",
+      "Feeder peak": "21.7 MW (>100% capacity)",
     },
   },
   solar_drop: {
@@ -50,7 +50,7 @@ const EVENT_CONFIGS: Record<Exclude<EventType, "none">, EventConfig> = {
     description: "Simulates dynamic critical-peak pricing multiplier implemented by DISCOM.",
     params: {
       "Peak window": "18:00 – 22:00 IST",
-      "Peak tariff multiplier": "1.50× (₹12.5/kWh)",
+      "Peak tariff multiplier": "1.50× (₹14.7/kWh)",
       "Off-peak incentive": "₹4.5/kWh discount",
     },
   },

@@ -134,10 +134,46 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
   const jumpToEvent = useCallback(() => setCurrentStepIndex(56), []);
 
   // Derived metrics for UI
-  const broadcastPct = Math.round((currentStep.baseline_stress || 1.18) * 100);
-  const gridnudgePct = Math.round((currentStep.gridnudge_stress || 0.96) * 100);
-  const currentMw = currentStep.gridnudge_total_load_mw || 11.2;
-  const shadowPrice = currentStep.shadow_price_inr || 12.5;
+  const feederCapacity = currentStep.feeder_capacity_mw || 12.0;
+  const broadcastPct = Math.round(
+    (currentStep.baseline_stress ?? (currentStep.baseline_total_load_mw / feederCapacity)) * 100
+  );
+  const gridnudgePct = Math.round(
+    (currentStep.gridnudge_stress ?? (currentStep.gridnudge_total_load_mw / feederCapacity)) * 100
+  );
+  const currentMw = currentStep.gridnudge_total_load_mw || 0.0;
+  const shadowPrice = currentStep.shadow_price_inr ?? 0.0;
+
+  // Cumulative / Fleet-level metrics computed from run timeline
+  const totalNudgesSent = useMemo(() => {
+    if (initialTimeline.summary?.total_nudges_sent) {
+      return initialTimeline.summary.total_nudges_sent;
+    }
+    return timesteps.reduce((acc, t) => acc + (t.nudges_delivered || 0), 0);
+  }, [initialTimeline.summary, timesteps]);
+
+  const totalVetoes = useMemo(() => {
+    return timesteps.reduce((acc, t) => acc + (t.safety_vetoes || 0), 0);
+  }, [timesteps]);
+
+  const totalSilence = useMemo(() => {
+    return timesteps.reduce((acc, t) => acc + (t.learned_silence_count || 0), 0);
+  }, [timesteps]);
+
+  const nudgesPerUser = useMemo(() => {
+    const users = initialTimeline.n_users || 2000;
+    return Number((totalNudgesSent / users).toFixed(2));
+  }, [initialTimeline.n_users, totalNudgesSent]);
+
+  const silentPct = useMemo(() => {
+    const totalDecisions = totalNudgesSent + totalSilence + totalVetoes;
+    return totalDecisions > 0 ? Math.round((totalSilence / totalDecisions) * 100) : 43;
+  }, [totalNudgesSent, totalSilence, totalVetoes]);
+
+  const budgetUsedPct = useMemo(() => {
+    const budgetCapPerInterval = Math.max(1, Math.round((initialTimeline.n_users || 2000) * 0.025));
+    return Math.min(100, Math.round(((currentStep.nudges_delivered || 0) / budgetCapPerInterval) * 100));
+  }, [initialTimeline.n_users, currentStep.nudges_delivered]);
 
   // Format Sim Time (e.g. 18:45)
   const formattedTime = useMemo(() => {
@@ -312,9 +348,9 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
 
           {/* Module L7: Attention Budget Bar */}
           <AttentionBudget
-            usedPct={62}
+            usedPct={budgetUsedPct}
             shadowPrice={shadowPrice}
-            rule="8% of plugged-in EVs per interval"
+            rule="Fleet attention budget per interval"
           />
 
           {/* Run & Mode Selector Dropdown (§4.2) */}
@@ -545,14 +581,14 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
         {/* Right Column (Width 3/12 / 340px) */}
         <div className="lg:col-span-3 flex flex-col gap-5">
           {/* Module L2: Hero Circular Peak Reduction Orb */}
-          <PeakReductionCircle seedCount={10} />
+          <PeakReductionCircle seedCount={5} />
 
           {/* Module L3: Metrics Summary Card */}
           <MetricsSummary
-            nudgesPerUser={0.8}
-            broadcastNudges={4.0}
-            vetoedCount={37}
-            silentPct={71}
+            nudgesPerUser={nudgesPerUser}
+            broadcastNudges={0.99}
+            vetoedCount={totalVetoes}
+            silentPct={silentPct}
             strandedCount={0}
           />
 

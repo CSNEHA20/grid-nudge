@@ -10,8 +10,8 @@ interface ConcentricGaugeProps {
 }
 
 export function ConcentricGauge({
-  broadcastPct = 118,
-  gridnudgePct = 96,
+  broadcastPct = 100,
+  gridnudgePct = 100,
   capacityMw = 12.0,
   isolatedSeries = "all",
 }: ConcentricGaugeProps) {
@@ -21,7 +21,7 @@ export function ConcentricGauge({
   const strokeWidth = 14;
   const center = size / 2;
 
-  // Outer ring: Broadcast load (118%)
+  // Outer ring: Broadcast load
   const outerRadius = 145;
   const outerCircumference = 2 * Math.PI * outerRadius;
 
@@ -35,8 +35,8 @@ export function ConcentricGauge({
   // Circumference length for overshoot
   const overshootLength = outerCircumference * overshootRatio;
 
-  // Inner ring: GridNudge load (96%)
-  const innerRadius = 118;
+  // Inner ring: GridNudge load
+  const innerRadius = 116;
   const innerCircumference = 2 * Math.PI * innerRadius;
   const innerNormalized = Math.min(gridnudgePct, 120) / 100;
   const innerDashoffset = innerCircumference * (1 - innerNormalized);

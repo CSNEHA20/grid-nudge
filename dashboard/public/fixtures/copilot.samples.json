@@ -33,9 +33,9 @@
     },
     {
       "question": "How does GridNudge compare against Broadcast under the heatwave?",
-      "answer": "Under the 10-seed heatwave benchmark with common random numbers, Broadcast alerts caused a secondary rebound peak (118% feeder capacity) by herding users to the exact same 22:00 slot. GridNudge achieved 14.2% peak load reduction while keeping feeder load at 96% of capacity (0 rebound peaks) with zero stranded trips.",
+      "answer": "Under the 5-seed heatwave benchmark with common random numbers, GridNudge achieved evening peak reduction to 20.47 MW with 0 attributable stranded trips and 0.53 nudges/user/day (vs 0.99 for Broadcast B1), preserving driver attention and avoiding rebound peaks.",
       "citations": [
-        { "type": "evaluation", "id": "policy_b4_vs_b1", "label": "Evaluation Scoreboard (10 seeds)" },
+        { "type": "evaluation", "id": "policy_b4_vs_b1", "label": "Evaluation Scoreboard (5 seeds)" },
         { "type": "metric", "id": "stranded_trips", "label": "Attributable Stranded: 0" }
       ],
       "tools_used": [

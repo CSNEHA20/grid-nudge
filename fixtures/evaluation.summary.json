@@ -10,9 +10,9 @@
       "name": "Uncontrolled / Default",
       "description": "EVs charge at max power immediately upon plug-in",
       "peak_load_mw": {
-        "mean": 13.42,
-        "ci_low": 13.15,
-        "ci_high": 13.68
+        "mean": 21.68,
+        "ci_low": 21.5,
+        "ci_high": 21.86
       },
       "peak_reduction_pct": {
         "mean": 0.0,
@@ -47,73 +47,73 @@
       "name": "Broadcast Peak Alert",
       "description": "Generic cost-saving notification broadcast to all plugged EVs at peak",
       "peak_load_mw": {
-        "mean": 12.85,
-        "ci_low": 12.58,
-        "ci_high": 13.12
+        "mean": 17.65,
+        "ci_low": 17.48,
+        "ci_high": 17.82
       },
       "peak_reduction_pct": {
-        "mean": 4.25,
-        "ci_low": 3.8,
-        "ci_high": 4.7
+        "mean": 18.62,
+        "ci_low": 18.23,
+        "ci_high": 19.01
       },
       "kwh_shifted_daily": {
-        "mean": 1840.0,
-        "ci_low": 1710.0,
-        "ci_high": 1960.0
+        "mean": 1185.9,
+        "ci_low": 1166.8,
+        "ci_high": 1205.0
       },
       "nudges_per_user_day": {
-        "mean": 2.85,
-        "ci_low": 2.8,
-        "ci_high": 2.9
+        "mean": 0.99,
+        "ci_low": 0.97,
+        "ci_high": 1.01
       },
-      "safety_violations": 14,
-      "stranded_trips": 5,
+      "safety_violations": 0,
+      "stranded_trips": 0,
       "mean_savings_inr_user_day": {
-        "mean": 18.5,
-        "ci_low": 16.2,
-        "ci_high": 20.8
+        "mean": 9.3,
+        "ci_low": 9.3,
+        "ci_high": 9.3
       },
       "opt_out_rate_pct": {
-        "mean": 8.4,
-        "ci_low": 7.6,
-        "ci_high": 9.2
+        "mean": 0.75,
+        "ci_low": 0.68,
+        "ci_high": 0.82
       }
     },
     {
       "id": "B2",
       "name": "Rule-Based Safe Planner",
-      "description": "Safe plans only, but static rules with no uplift learning or budget",
+      "description": "Safe plans only, static rules without uplift learning or budget",
       "peak_load_mw": {
-        "mean": 12.18,
-        "ci_low": 11.95,
-        "ci_high": 12.4
+        "mean": 18.08,
+        "ci_low": 17.9,
+        "ci_high": 18.26
       },
       "peak_reduction_pct": {
-        "mean": 9.24,
-        "ci_low": 8.6,
-        "ci_high": 9.85
+        "mean": 16.63,
+        "ci_low": 16.23,
+        "ci_high": 17.03
       },
       "kwh_shifted_daily": {
-        "mean": 3210.0,
-        "ci_low": 3040.0,
-        "ci_high": 3380.0
+        "mean": 1040.3,
+        "ci_low": 1027.7,
+        "ci_high": 1052.9
       },
       "nudges_per_user_day": {
-        "mean": 1.95,
-        "ci_low": 1.9,
-        "ci_high": 2.0
+        "mean": 0.75,
+        "ci_low": 0.74,
+        "ci_high": 0.76
       },
       "safety_violations": 0,
       "stranded_trips": 0,
       "mean_savings_inr_user_day": {
-        "mean": 29.4,
-        "ci_low": 27.1,
-        "ci_high": 31.7
+        "mean": 9.3,
+        "ci_low": 9.3,
+        "ci_high": 9.3
       },
       "opt_out_rate_pct": {
-        "mean": 4.8,
-        "ci_low": 4.2,
-        "ci_high": 5.4
+        "mean": 0.48,
+        "ci_low": 0.43,
+        "ci_high": 0.53
       }
     },
     {
@@ -121,36 +121,36 @@
       "name": "Bandit Without Allocator",
       "description": "Contextual bandit learns personalization, but uncoordinated timing creates rebound",
       "peak_load_mw": {
-        "mean": 11.92,
-        "ci_low": 11.7,
-        "ci_high": 12.15
+        "mean": 20.3,
+        "ci_low": 20.07,
+        "ci_high": 20.53
       },
       "peak_reduction_pct": {
-        "mean": 11.18,
-        "ci_low": 10.45,
-        "ci_high": 11.9
+        "mean": 6.39,
+        "ci_low": 5.63,
+        "ci_high": 7.15
       },
       "kwh_shifted_daily": {
-        "mean": 4120.0,
-        "ci_low": 3950.0,
-        "ci_high": 4290.0
+        "mean": 484.8,
+        "ci_low": 449.9,
+        "ci_high": 519.8
       },
       "nudges_per_user_day": {
-        "mean": 1.45,
-        "ci_low": 1.38,
-        "ci_high": 1.52
+        "mean": 0.71,
+        "ci_low": 0.7,
+        "ci_high": 0.72
       },
       "safety_violations": 0,
       "stranded_trips": 0,
       "mean_savings_inr_user_day": {
-        "mean": 36.8,
-        "ci_low": 34.2,
-        "ci_high": 39.4
+        "mean": 6.8,
+        "ci_low": 6.6,
+        "ci_high": 7.0
       },
       "opt_out_rate_pct": {
-        "mean": 2.6,
-        "ci_low": 2.1,
-        "ci_high": 3.1
+        "mean": 0.45,
+        "ci_low": 0.42,
+        "ci_high": 0.48
       }
     },
     {
@@ -158,36 +158,36 @@
       "name": "GridNudge (Full System)",
       "description": "Safety gate + uplift bandit with none arm + fleet budget allocator & staggering",
       "peak_load_mw": {
-        "mean": 10.74,
-        "ci_low": 10.55,
-        "ci_high": 10.92
+        "mean": 20.47,
+        "ci_low": 20.25,
+        "ci_high": 20.69
       },
       "peak_reduction_pct": {
-        "mean": 19.97,
-        "ci_low": 18.85,
-        "ci_high": 21.1
+        "mean": 5.61,
+        "ci_low": 4.95,
+        "ci_high": 6.27
       },
       "kwh_shifted_daily": {
-        "mean": 5480.0,
-        "ci_low": 5290.0,
-        "ci_high": 5670.0
+        "mean": 447.4,
+        "ci_low": 415.0,
+        "ci_high": 479.8
       },
       "nudges_per_user_day": {
-        "mean": 0.72,
-        "ci_low": 0.68,
-        "ci_high": 0.76
+        "mean": 0.53,
+        "ci_low": 0.52,
+        "ci_high": 0.54
       },
       "safety_violations": 0,
       "stranded_trips": 0,
       "mean_savings_inr_user_day": {
-        "mean": 48.2,
-        "ci_low": 45.6,
-        "ci_high": 50.8
+        "mean": 5.3,
+        "ci_low": 5.0,
+        "ci_high": 5.6
       },
       "opt_out_rate_pct": {
-        "mean": 0.8,
-        "ci_low": 0.5,
-        "ci_high": 1.1
+        "mean": 0.35,
+        "ci_low": 0.31,
+        "ci_high": 0.39
       }
     }
   ]

@@ -348,3 +348,39 @@
   - Multi-seed benchmark (5 seeds, 2,000 EVs) demonstrates GridNudge achieving 5.61 ± 0.66% evening peak reduction (3,131 kWh shifted) with only 0.53 nudges/user/day (nearly half of B1's 0.99), lowest opt-out rate (0.35%), lowest regret vs oracle (163.63), and 0 attributable stranded trips.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C2 Dashboard Honesty & Run-Grounded Metrics (Stage B)
+
+- **Phase:** Stage B / C2 Completion Plan
+- **Goal:** Remove all hardcoded demo literals and unverified values from dashboard components (`ConcentricGauge`, `PeakReductionCircle`, `AlertsPopover`, `AttentionBudget`, `MetricsSummary`, `EventInjector`, `OperatorCopilotDrawer`). Ground all dashboard metrics and fixtures in real simulation runs (`results/summary.csv`, `results/replay/timeline.json`, `results/calibration.json`).
+- **Files Modified:**
+  - `dashboard/src/components/ConcentricGauge.tsx`: Replaced hardcoded default load percentages and inner radius literals; removed unverified literals from comments.
+  - `dashboard/src/components/PeakReductionCircle.tsx`: Replaced hand-authored policy options with values grounded in `results/summary.csv`; enabled dynamic `policyOptions` prop mapping.
+  - `dashboard/src/components/AlertsPopover.tsx`: Grounded alerts in actual simulation telemetry (21.7 MW peak, 180% capacity, ₹0.16 shadow price).
+  - `dashboard/src/components/AttentionBudget.tsx`: Replaced hardcoded 62% and ₹12.5 defaults with 0% and ₹0.0 defaults.
+  - `dashboard/src/components/MetricsSummary.tsx`: Grounded default metrics in real 5-seed benchmark results (0.53 nudges/user/day vs 0.99 broadcast).
+  - `dashboard/src/components/EventInjector.tsx`: Updated feeder peak to 21.7 MW and peak tariff to ₹14.7/kWh matching `events.json`.
+  - `dashboard/src/components/OperatorCopilotDrawer.tsx`: Grounded telemetry audit statement in real run metrics (20.47 MW evening peak, 5.6% reduction).
+  - `dashboard/public/fixtures/copilot.samples.json`: Grounded heatwave benchmark question/answer in real 5-seed simulation results.
+  - `dashboard/src/components/LiveView.tsx`: Computed feeder stress percentages, attention budget utilization, nudges per user, silent percentage, and safety veto counts dynamically from step telemetry and summary metrics.
+  - `eval/make_fixtures.py`: Derived `evaluation.summary.json` directly from `results/summary.csv`, `metrics.timeline.json` from `results/replay/timeline.json`, and `calibration.json` from `results/calibration.json`; mirrored all fixtures to `dashboard/public/fixtures/` and replay timeline to `dashboard/public/replay/`.
+  - `fixtures/*` & `dashboard/public/fixtures/*`: Regenerated all fixtures from real run data.
+  - `tests/test_no_demo_literals.py`: Added automated regression test enforcing zero banned demo literals in dashboard components and verified provenance.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - Automated test suite passing (including `test_no_demo_literals.py` and `test_contracts.py`).
+  - All dashboard metrics and fixtures verified against simulation run data with zero fabricated values.
+- **Known Issues / Gaps:** None.
+
+## 2026-10-11 — C3 Causal Reward & Bandit Objective Alignment (Stage A3)
+
+- **Phase:** Stage A / C3 Completion Plan
+- **Goal:** Align bandit reward and priors to prioritize peak shaving (grid shifting + driver savings) over passive battery stress bonuses.
+- **Files Modified:**
+  - `gridnudge/persuasion/uplift.py`: Increased `w_g = 2.0` and `w_u = 0.04`, keeping `w_b = 0.05` as small tie-breaker so bandit prioritizes real peak-shifting over `slow_charge` battery bonus.
+  - `gridnudge/persuasion/lints.py`: Initialized informative priors for `cost` frame (`b[2] = 1.2`), `delay` plan (`b[11] = 2.0`), `savings` (`b[15] = 1.5`), and price-sensitive interaction (`b[104] = 1.0`).
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - Persuasion tests passing (`pytest tests/test_persuasion.py`).
+  - Bandit incentivized to choose `delay` and `cost` framing for peak reduction.
+- **Known Issues / Gaps:** None.
+
