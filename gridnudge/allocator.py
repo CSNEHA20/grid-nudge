@@ -20,18 +20,20 @@ from gridnudge.contracts import Allocation, Persuasion, Plan
 def compute_allocation_priority(
     persuasion: Persuasion,
     plan: Optional[Plan],
+    shiftable_peak_kwh: float = 0.5,
 ) -> float:
-    """Calculate candidate ranking priority: uplift x grid_value."""
+    """Calculate candidate ranking priority: max(uplift_mean, 0) x max(shiftable_peak_kwh, 0.5) x grid_value."""
     if persuasion.frame == "none" or plan is None:
         return 0.0
 
-    if persuasion.uplift_mean <= 0.0 and not persuasion.explored:
+    uplift = max(persuasion.uplift_mean, 0.05 if persuasion.explored else 0.0)
+    if uplift <= 0.0:
         return 0.0
 
-    uplift = max(0.01, persuasion.uplift_mean) if persuasion.uplift_mean > 0.0 else 0.1
+    shiftable = max(float(shiftable_peak_kwh), 0.5)
     grid_val = max(0.1, abs(float(plan.outcomes.get("grid_value", 1.0))))
-    # Non-negative priority score
-    priority = uplift * grid_val
+    # Priority scaled by shiftable energy and grid value
+    priority = uplift * shiftable * grid_val
     return float(priority)
 
 
@@ -142,7 +144,8 @@ def allocate_fleet_nudges(
             allocations[cand_id] = Allocation(selected=False, shadow_price=0.0, slot=None)
             continue
 
-        priority = compute_allocation_priority(persuasion, plan)
+        shiftable_val = float(cand.get("shiftable_peak_kwh", user_state.get("shiftable_peak_kwh", cand.get("ev_context", {}).get("shiftable_peak_kwh", 0.5))))
+        priority = compute_allocation_priority(persuasion, plan, shiftable_peak_kwh=shiftable_val)
         if priority <= 0.0:
             allocations[cand_id] = Allocation(selected=False, shadow_price=0.0, slot=None)
             continue

@@ -174,3 +174,22 @@ class TestFleetAllocator:
         )
         assert compute_allocation_priority(p_active, plan) > 0.0
         assert compute_allocation_priority(p_none, None) == 0.0
+
+    def test_candidate_with_more_shiftable_kwh_selected_first(self):
+        """Of two otherwise identical candidates, the one with more shiftable kWh is selected first."""
+        cand_low = self.make_candidate("user_low_kwh", uplift_p10=0.20, grid_value=1.0)
+        cand_low["shiftable_peak_kwh"] = 2.0
+
+        cand_high = self.make_candidate("user_high_kwh", uplift_p10=0.20, grid_value=1.0)
+        cand_high["shiftable_peak_kwh"] = 20.0
+
+        # With a tight budget of 1 nudge (from total_plugged=12 with budget_pct=0.08 -> max(1, floor(0.96)) = 1)
+        allocations = allocate_fleet_nudges(
+            candidate_records=[cand_low, cand_high],
+            total_plugged_count=12,
+            sim_time_iso="2026-10-10T19:00:00+05:30",
+            budget_pct=0.08,
+        )
+
+        assert allocations["user_high_kwh"].selected is True
+        assert allocations["user_low_kwh"].selected is False
