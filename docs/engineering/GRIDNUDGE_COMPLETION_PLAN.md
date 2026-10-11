@@ -367,9 +367,9 @@ Script (3 minutes): problem → idea ("ML decides, LLM phrases") → inject Heat
 - [x] B4 build check for demo literals; `npm run build`; dashboard CI
 
 **Stage C (data)**
-- [ ] C1 five fetch scripts with `--synthetic` fallbacks; sources logged
-- [ ] C2 `twin/data_loader.py` wired into users, grid, world, stations, tariffs
-- [ ] C3 re-calibrate, re-test, re-benchmark; update assumptions and README table
+- [x] C1 five fetch scripts with `--synthetic` fallbacks; sources logged
+- [x] C2 `twin/data_loader.py` wired into users, grid, world, stations, tariffs
+- [x] C3 re-calibrate, re-test, re-benchmark; update assumptions and README table
 
 **Stage D (AWS)**
 - [ ] Budget alert; deploy; smoke tests; integration run; `DynamoStore` tests; CloudWatch evidence

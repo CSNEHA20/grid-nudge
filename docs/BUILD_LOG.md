@@ -553,5 +553,23 @@
   - Zero fabricated demo numbers in UI source; all metrics grounded in verified simulation outputs.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — Stage C: Real Data Integration & Provenance Verification (Stage C / M1)
+
+- **Phase:** Stage C / Completion Plan (§6 C1 - C3)
+- **Goal:** Ground the digital twin with processed empirical datasets (weather, grid series, sessions, stations, tariffs) with calibrated synthetic fallbacks, unit tests for data loaders, and schema validation.
+- **Files Created/Modified:**
+  - `data/scripts/fetch_weather.py`, `fetch_grid.py`, `fetch_sessions.py`, `fetch_stations.py`, `validate.py`: Complete grounding scripts with `--synthetic` flag support.
+  - `twin/data_loader.py`: Modular dataset loaders wired into fleet, grid, world, stations, and tariffs with fallback logging.
+  - `tests/test_data_loader.py`: Created unit tests verifying dataset loading, graceful fallback on missing files, and `World.get_provenance()` reporting.
+  - `docs/engineering/GRIDNUDGE_COMPLETION_PLAN.md`: Marked Stage C checklist items [x] C1 - C3.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - `python data/scripts/validate.py`: Passes all schema checks for all 4 parquet files and `tariffs.yaml`.
+  - `pytest tests/test_data_loader.py`: Passing (3/3).
+  - Full test suite: 138/138 tests passing (0 errors).
+  - Run metadata honestly reports data provenance (`weather_delhi`, `grid_series`, `sessions_profile`, `stations_delhi`, `tariffs`).
+- **Known Issues / Gaps:** None.
+
+
 
 
