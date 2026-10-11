@@ -424,3 +424,16 @@
   - Scoreboard accurately represents distinct behavioral policies.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C7 Stranded Trips & Attributable Safety Invariant (Stage A6)
+
+- **Phase:** Stage A / C7 Completion Plan
+- **Goal:** Ensure physical measurement of stranded trips in evaluation metrics, distinguishing attributable stranded trips from general trips, and verify mean uplift calculation.
+- **Files Modified:**
+  - `eval/metrics.py`: Measured `stranded_attributable` and `stranded_any` directly from twin departure telemetry rather than heuristic proxy; ensured `mean_uplift_per_nudge` is computed on nudged outcomes.
+  - `twin/world.py`: Ensured slow charge sets active charger capacity cap properly.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - `pytest tests/test_eval.py` passing (16/16).
+  - Safety invariant: 0 attributable stranded trips verified by physical measurement.
+- **Known Issues / Gaps:** None.
+

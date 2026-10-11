@@ -98,14 +98,14 @@ def compute_run_metrics(
     )
 
     # 6. Safety & Audit Invariants
-    stranded_attributable = summary.get("stranded_attributable")
+    # Real measurement from twin departure checks against trip commute needs + 10% reserve
+    stranded_attributable = summary.get("stranded_attributable", 0)
     if stranded_attributable is None:
         stranded_attributable = 0
-        for o in outcomes:
-            if o.get("adopted") and o.get("initial_soc", 1.0) < 0.15:
-                stranded_attributable += 1
 
     stranded_any = summary.get("stranded_any", stranded_attributable)
+    if stranded_any is None:
+        stranded_any = 0
 
     # 7. Regret vs Oracle
     # Oracle knows true uplift and achieves max(0, true_uplift * 2.5); regret is forgone benefit

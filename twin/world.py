@@ -251,7 +251,7 @@ class World:
             elif adopted and plan_type == "slow_charge":
                 nominal_kw = user.nominal_charger_kw if user.nominal_charger_kw is not None else user.charger_kw
                 user.charger_kw_cap = max(2.0, nominal_kw * 0.5)
-                user.charger_kw = nominal_kw
+                user.charger_kw = user.charger_kw_cap
                 user.active_plan = {"type": "slow_charge", "charger_kw_cap": user.charger_kw_cap}
                 user.session_had_adopted_nudge = True
             elif is_nudged and not adopted and not decision_id.startswith("b1_"):
