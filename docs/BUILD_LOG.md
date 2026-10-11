@@ -471,3 +471,16 @@
   - Engine status honestly describes active evaluator without obfuscation.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C10 Dashboard Live Adapter & API Gateway Integration (Stage D / M10)
+
+- **Phase:** Stage D / C10 Completion Plan
+- **Goal:** Build tri-mode data adapter in dashboard (`NEXT_PUBLIC_API_BASE`, `NEXT_PUBLIC_DATA_MODE` for live, replay, and fixture modes) with graceful fallback and verified type safety.
+- **Files Modified:**
+  - `dashboard/src/lib/data.ts`: Implemented `fetchFromApiOrFallback` connecting to remote API Gateway Lambda endpoints with fallback to local run files.
+  - `dashboard/src/components/LiveView.tsx`: Ensured type safety and robust cumulative counter parsing.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - Production build (`npm run build`) passed with 0 errors across all 16 static/dynamic routes.
+  - Clean API adapter supports switching to live AWS Lambda endpoints via `NEXT_PUBLIC_API_BASE`.
+- **Known Issues / Gaps:** None.
+

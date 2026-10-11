@@ -6,6 +6,7 @@ export interface TimelineData {
   scenario: string;
   provenance: string;
   feeder_name: string;
+  n_users?: number;
   timesteps: Array<{
     step: number;
     sim_time: string;
@@ -26,6 +27,7 @@ export interface TimelineData {
     learned_silence_count: number;
     shadow_price_inr: number;
   }>;
+  summary?: Record<string, string | number | boolean | null>;
 }
 
 export interface EvaluationPolicy {
@@ -234,13 +236,40 @@ export interface CopilotData {
   }>;
 }
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+const DATA_MODE = process.env.NEXT_PUBLIC_DATA_MODE || (API_BASE ? "live" : "replay");
+
 async function readJsonFile<T>(relativePath: string): Promise<T> {
   const fullPath = path.join(process.cwd(), relativePath);
   const content = await fs.readFile(fullPath, "utf-8");
   return JSON.parse(content) as T;
 }
 
+async function fetchFromApiOrFallback<T>(endpoint: string, fallbackFile: string): Promise<T> {
+  if (DATA_MODE === "live" && API_BASE) {
+    try {
+      const res = await fetch(`${API_BASE.replace(/\/+$/, "")}${endpoint}`, { cache: "no-store" });
+      if (res.ok) {
+        return (await res.json()) as T;
+      }
+    } catch {
+      // Graceful fallback to stored run file
+    }
+  }
+  return await readJsonFile<T>(fallbackFile);
+}
+
 export async function getTimelineData(): Promise<TimelineData> {
+  if (DATA_MODE === "live" && API_BASE) {
+    try {
+      const res = await fetch(`${API_BASE.replace(/\/+$/, "")}/metrics`, { cache: "no-store" });
+      if (res.ok) {
+        return (await res.json()) as TimelineData;
+      }
+    } catch {
+      // Fallback
+    }
+  }
   try {
     return await readJsonFile<TimelineData>("public/replay/timeline.json");
   } catch {
@@ -249,20 +278,30 @@ export async function getTimelineData(): Promise<TimelineData> {
 }
 
 export async function getDecisions(): Promise<DecisionRecord[]> {
-  return await readJsonFile<DecisionRecord[]>("public/fixtures/decisions.sample.json");
+  return await fetchFromApiOrFallback<DecisionRecord[]>("/decisions", "public/fixtures/decisions.sample.json");
 }
 
 export async function getDecisionById(id: string): Promise<DecisionRecord | null> {
+  if (DATA_MODE === "live" && API_BASE) {
+    try {
+      const res = await fetch(`${API_BASE.replace(/\/+$/, "")}/decision/${id}`, { cache: "no-store" });
+      if (res.ok) {
+        return (await res.json()) as DecisionRecord;
+      }
+    } catch {
+      // Fallback to local
+    }
+  }
   const decisions = await getDecisions();
   return decisions.find((d) => d.decision_id === id) || null;
 }
 
 export async function getDecisionsIndex(): Promise<DecisionIndexItem[]> {
-  return await readJsonFile<DecisionIndexItem[]>("public/fixtures/decisions.index.json");
+  return await fetchFromApiOrFallback<DecisionIndexItem[]>("/decisions/index", "public/fixtures/decisions.index.json");
 }
 
 export async function getEvaluationData(): Promise<EvaluationData> {
-  return await readJsonFile<EvaluationData>("public/fixtures/evaluation.summary.json");
+  return await fetchFromApiOrFallback<EvaluationData>("/evaluation", "public/fixtures/evaluation.summary.json");
 }
 
 export async function getCalibrationData(): Promise<CalibrationData> {

@@ -146,8 +146,8 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
 
   // Cumulative / Fleet-level metrics computed from run timeline
   const totalNudgesSent = useMemo(() => {
-    if (initialTimeline.summary?.total_nudges_sent) {
-      return initialTimeline.summary.total_nudges_sent;
+    if (initialTimeline.summary?.total_nudges_sent != null) {
+      return Number(initialTimeline.summary.total_nudges_sent);
     }
     return timesteps.reduce((acc, t) => acc + (t.nudges_delivered || 0), 0);
   }, [initialTimeline.summary, timesteps]);
