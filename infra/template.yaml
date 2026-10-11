@@ -11,7 +11,7 @@ Parameters:
     Description: Deployment stage name
   BedrockModelId:
     Type: String
-    Default: "apac.amazon.nova-micro-v1:0"
+    Default: "us.amazon.nova-micro-v1:0"
     Description: Amazon Bedrock foundation model ID for nudge language phrasing
   EnableBedrock:
     Type: String
@@ -189,7 +189,6 @@ Resources:
       Handler: services.reward_update.handler
       CodeUri: ../build/lambda/
       Description: Single-writer LinTS posterior learner
-      ReservedConcurrentExecutions: 1
       Events:
         RewardQueueEvent:
           Type: SQS
