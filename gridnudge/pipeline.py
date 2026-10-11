@@ -52,6 +52,8 @@ def decide_batch(
     bandit: Optional[LinTS] = None,
     render_llm: bool = False,
     apply_allocation: bool = True,
+    allowed_plan_types: Optional[List[str]] = None,
+    disable_fatigue_features: bool = False,
 ) -> List[DecisionRecord]:
     """Execute batched inference across candidate EVs plugged in at current simulation timestep.
 
@@ -114,6 +116,9 @@ def decide_batch(
             trip_ctx = dict(trip_raw) if isinstance(trip_raw, dict) else {}
             ctx_raw = c.get("context")
             user_state = dict(stored_users.get(user_id, ctx_raw if isinstance(ctx_raw, dict) else {}))
+            if disable_fatigue_features:
+                user_state["fatigue"] = 0.0
+                user_state["nudges_today"] = 0
 
             # 1. Perception (M3)
             soc = float(ev_ctx.get("current_soc", ev_ctx.get("soc", 0.5)))
@@ -151,6 +156,8 @@ def decide_batch(
                 commute_distance_km=dist_km,
                 ambient_temp_c=ambient_temp_c,
             )
+            if allowed_plan_types is not None:
+                all_plans = [p for p in all_plans if p.type in allowed_plan_types or p.type == "default"]
 
             # 3. Safety Filter #1 (M5)
             safe_plans: List[Plan] = []
@@ -517,6 +524,8 @@ def create_pipeline_policy(
     bandit: Optional[LinTS] = None,
     run_id: str = "b4_gridnudge",
     apply_allocation: bool = True,
+    allowed_plan_types: Optional[List[str]] = None,
+    disable_fatigue_features: bool = False,
 ) -> Callable[[Any], List[Dict[str, Any]]]:
     """Create a digital twin compatible policy callback for B4 GridNudge.
 
@@ -594,6 +603,8 @@ def create_pipeline_policy(
             bandit=bandit,
             render_llm=False,
             apply_allocation=apply_allocation,
+            allowed_plan_types=allowed_plan_types,
+            disable_fatigue_features=disable_fatigue_features,
         )
 
         # Convert active decisions to format required by world.apply_decisions()

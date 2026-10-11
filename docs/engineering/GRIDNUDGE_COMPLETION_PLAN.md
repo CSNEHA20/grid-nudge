@@ -352,13 +352,13 @@ Script (3 minutes): problem → idea ("ML decides, LLM phrases") → inject Heat
 ## 13. Ordered checklist (copy into `docs/BUILD_LOG.md` as you go)
 
 **Stage A (truth + learning loop)**
-- [ ] A1 per-session slow_charge cap; per-plan `kwh_shifted_from_peak`
-- [ ] A2 policy wrapper uses planner `delay_hours`/`cost_saving_inr`; no hard-coded 3.5/65/12/30
-- [ ] A3 reward realigned and normalized; weights frozen
-- [ ] A4 warm-start, tuning on dev seeds, ablations (`B4a`, `B4b`, Oracle)
-- [ ] A5 B1 ≠ B2; B3 is a plain bandit
-- [ ] A6 uplift metric fixed; real stranded-trip measurement + test that can fail
-- [ ] A7 benchmark on dev seeds → final run on untouched seeds → gate decision
+- [x] A1 per-session slow_charge cap; per-plan `kwh_shifted_from_peak`
+- [x] A2 policy wrapper uses planner `delay_hours`/`cost_saving_inr`; no hard-coded 3.5/65/12/30
+- [x] A3 reward realigned and normalized; weights frozen
+- [x] A4 warm-start, tuning on dev seeds, ablations (`B4a`, `B4b`, Oracle)
+- [x] A5 B1 ≠ B2; B3 is a plain bandit
+- [x] A6 uplift metric fixed; real stranded-trip measurement + test that can fail
+- [x] A7 benchmark on dev seeds → final run on untouched seeds → gate decision
 
 **Stage B (truth in the UI)**
 - [ ] B1 remove all hard-coded demo numbers

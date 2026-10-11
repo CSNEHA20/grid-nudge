@@ -100,8 +100,107 @@ def create_policy_b4(
     return create_pipeline_policy(store=store, bandit=bandit, run_id=run_id, apply_allocation=True)
 
 
+def create_policy_b4a(
+    seed: int = 42,
+    run_id: str = "b4a_delay_only",
+) -> Any:
+    """B4a: Ablation policy restricted to delay plans only."""
+    from gridnudge.pipeline import create_pipeline_policy
+    from gridnudge.persuasion.lints import LinTS
+    from gridnudge.state import InMemoryStore
+
+    store = InMemoryStore()
+    bandit = LinTS(seed=seed)
+    return create_pipeline_policy(
+        store=store,
+        bandit=bandit,
+        run_id=run_id,
+        apply_allocation=True,
+        allowed_plan_types=["delay"],
+    )
+
+
+def create_policy_b4b(
+    seed: int = 42,
+    run_id: str = "b4b_no_fatigue",
+) -> Any:
+    """B4b: Ablation policy without fatigue features."""
+    from gridnudge.pipeline import create_pipeline_policy
+    from gridnudge.persuasion.lints import LinTS
+    from gridnudge.state import InMemoryStore
+
+    store = InMemoryStore()
+    bandit = LinTS(seed=seed)
+    return create_pipeline_policy(
+        store=store,
+        bandit=bandit,
+        run_id=run_id,
+        apply_allocation=True,
+        disable_fatigue_features=True,
+    )
+
+
+def create_policy_oracle(
+    seed: int = 42,
+) -> Any:
+    """Oracle: Twin-informed theoretical upper bound policy.
+
+    Knows the hidden archetype response model and selects the optimal persuasion frame
+    and delay plan for safe candidates to maximize peak shaving without inducing opt-outs.
+    """
+    def oracle_policy_fn(world: World) -> List[Dict[str, Any]]:
+        state = world.grid_state()
+        if not state.get("is_peak_window", False):
+            return []
+
+        candidates = world.candidates()
+        decisions: List[Dict[str, Any]] = []
+
+        optimal_frames = {
+            "commuter_frugal": "cost",
+            "commuter_green": "green",
+            "cab_driver": "reassurance",
+            "erratic_flex": "convenience",
+        }
+
+        max_nudges_per_step = max(1, int(len(candidates) * 0.40))
+        nudge_count = 0
+
+        for c in candidates:
+            dep_step = c.get("departure_step", -1)
+            too_soon = (
+                dep_step is not None
+                and dep_step > world.current_step
+                and (dep_step - world.current_step) * (world.step_minutes / 60.0) < 5.0
+            )
+
+            if c.get("nudges_today", 0) >= 1 or c.get("soc", 0.0) < 0.25 or too_soon or c.get("opted_out", False):
+                continue
+
+            if nudge_count >= max_nudges_per_step:
+                break
+
+            archetype = c.get("archetype", "commuter_frugal")
+            best_frame = optimal_frames.get(archetype, "cost")
+
+            decisions.append({
+                "decision_id": f"oracle_s{world.current_step}_u{c['user_id']}",
+                "user_id": c["user_id"],
+                "plan": {"type": "delay"},
+                "frame": best_frame,
+                "timing": "at_plug_in",
+                "savings_inr": 65.0,
+                "delay_hours": 3.5,
+            })
+            nudge_count += 1
+
+        return decisions
+
+    return oracle_policy_fn
+
+
 def get_policy_by_name(name: str, seed: int = 42) -> Any:
-    """Resolve policy runner callable by policy name (B0, B1, B2, B3, B4)."""
+    """Resolve policy runner callable by policy name (B0, B1, B2, B3, B4, B4a, B4b, Oracle)."""
     clean_name = name.upper().strip()
     if clean_name in ("B0", "B0_UNCONTROLLED"):
         return policy_b0
@@ -113,8 +212,14 @@ def get_policy_by_name(name: str, seed: int = 42) -> Any:
         return create_policy_b3(seed=seed)
     elif clean_name in ("B4", "B4_GRIDNUDGE"):
         return create_policy_b4(seed=seed)
+    elif clean_name in ("B4A", "B4A_DELAY_ONLY"):
+        return create_policy_b4a(seed=seed)
+    elif clean_name in ("B4B", "B4B_NO_FATIGUE"):
+        return create_policy_b4b(seed=seed)
+    elif clean_name in ("ORACLE", "ORACLE_UPPER_BOUND"):
+        return create_policy_oracle(seed=seed)
     else:
-        raise ValueError(f"Unknown policy: '{name}'. Supported policies: B0, B1, B2, B3, B4.")
+        raise ValueError(f"Unknown policy: '{name}'. Supported policies: B0, B1, B2, B3, B4, B4a, B4b, Oracle.")
 
 
 def run_baseline_comparison(

@@ -517,3 +517,22 @@
   - All completion plan items from C1 through C12 satisfied.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — Stage A: Truth & Closed-Loop Bandit Learning Loop (Stage A / M2, M6, M9, M11)
+
+- **Phase:** Stage A / Completion Plan (§4 A1 - A7)
+- **Goal:** Verify and enforce closed-loop bandit convergence (A1-A7): per-session slow_charge cap, physical kwh_shifted_from_peak calculation, planner-driven policy parameters, normalized causal rewards with fatigue/frequency penalties, bandit toy-world regret minimization and silence learning, distinct baseline policies (B1 != B2), physical departure-based stranded trip measurements, ablation policies (B4a, B4b, Oracle), and multi-seed benchmarking.
+- **Files Created/Modified:**
+  - `gridnudge/pipeline.py`: Added `allowed_plan_types` and `disable_fatigue_features` parameters to `decide_batch` and `create_pipeline_policy`.
+  - `eval/baselines.py`: Implemented `create_policy_b4a`, `create_policy_b4b`, and `create_policy_oracle` with name resolution in `get_policy_by_name`.
+  - `gridnudge/persuasion/lints.py`: Added active nudge fatigue and frequency penalty priors to LinTS precision and bias statistics.
+  - `tests/test_persuasion.py`: Added `test_bandit_toy_world_learns_cost_for_price_sensitive_and_none_for_routine` proving regret minimization and learned silence.
+  - `tests/test_ablations.py`: Created test suite for policy ablations (B4a, B4b, Oracle).
+  - `docs/engineering/GRIDNUDGE_COMPLETION_PLAN.md`: Marked Stage A checklist items [x] A1 - A7.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - Full test suite: 135/135 tests passing (0 errors).
+  - Closed-loop bandit regret trends downward and learns optimal frame (`cost`) for price-sensitive users and silence (`none`) for routine/fatigued users.
+  - Ablations B4a (delay only), B4b (no fatigue), and Oracle verified operational.
+- **Known Issues / Gaps:** None.
+
+

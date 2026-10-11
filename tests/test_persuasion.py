@@ -180,3 +180,101 @@ class TestPersuasionEngine:
             opted_out=True,
         )
         assert good_reward > bad_reward
+
+    def test_bandit_toy_world_learns_cost_for_price_sensitive_and_none_for_routine(self, safe_plans):
+        """Acceptance test: Bandit chooses delay+cost for price-sensitive users and 'none' for routine-locked users, and regret decreases."""
+        bandit = LinTS(seed=42)
+
+        price_sensitive_user = {
+            "user_id": "u_frugal_01",
+            "ev": {"current_soc": 0.45, "battery_kwh": 40.0, "charger_kw": 7.4},
+            "trip": {"commute_km": 30.0},
+            "context": {"archetype": "commuter_frugal", "fatigue": 0.0, "nudges_today": 0},
+        }
+
+        routine_locked_user = {
+            "user_id": "u_routine_01",
+            "ev": {"current_soc": 0.50, "battery_kwh": 40.0, "charger_kw": 7.4},
+            "trip": {"commute_km": 30.0},
+            "context": {"archetype": "routine_locked", "fatigue": 2.0, "nudges_today": 1},
+        }
+
+        oracle_r_frugal = compute_causal_reward(
+            kwh_shifted=15.0, savings_inr=65.0, grid_value=1.5, battery_stress_delta=-0.05, fatigue_score=0.1
+        )
+        oracle_r_routine = 0.0
+
+        regret_early = 0.0
+        regret_late = 0.0
+
+        n_rounds = 40
+        for r_idx in range(n_rounds):
+            p_frugal, phi_frugal, _ = select_persuasion_action(
+                user_id=price_sensitive_user["user_id"],
+                ev_context=price_sensitive_user["ev"],
+                user_state=price_sensitive_user["context"],
+                safe_plans=safe_plans,
+                bandit=bandit,
+                hour_of_day=19.0,
+                grid_stress=0.85,
+            )
+
+            if p_frugal.chosen_plan == "plan_delay_01" and p_frugal.frame == "cost":
+                rew_frugal = oracle_r_frugal
+            elif p_frugal.frame == "none":
+                rew_frugal = 0.0
+            else:
+                rew_frugal = 0.1
+
+            p_routine, phi_routine, _ = select_persuasion_action(
+                user_id=routine_locked_user["user_id"],
+                ev_context=routine_locked_user["ev"],
+                user_state=routine_locked_user["context"],
+                safe_plans=safe_plans,
+                bandit=bandit,
+                hour_of_day=19.0,
+                grid_stress=0.85,
+            )
+
+            if p_routine.frame == "none":
+                rew_routine = 0.0
+            else:
+                rew_routine = -0.4
+
+            regret = (oracle_r_frugal - rew_frugal) + (oracle_r_routine - rew_routine)
+            if r_idx < 10:
+                regret_early += regret
+            elif r_idx >= n_rounds - 10:
+                regret_late += regret
+
+            bandit.update(
+                np.vstack([phi_frugal, phi_routine]),
+                np.array([rew_frugal, rew_routine]),
+            )
+
+        assert regret_late <= regret_early
+
+        p_final_frugal, _, _ = select_persuasion_action(
+            user_id=price_sensitive_user["user_id"],
+            ev_context=price_sensitive_user["ev"],
+            user_state=price_sensitive_user["context"],
+            safe_plans=safe_plans,
+            bandit=bandit,
+            hour_of_day=19.0,
+            grid_stress=0.85,
+            epsilon=0.0,
+        )
+        assert p_final_frugal.chosen_plan == "plan_delay_01"
+        assert p_final_frugal.frame == "cost"
+
+        p_final_routine, _, _ = select_persuasion_action(
+            user_id=routine_locked_user["user_id"],
+            ev_context=routine_locked_user["ev"],
+            user_state=routine_locked_user["context"],
+            safe_plans=safe_plans,
+            bandit=bandit,
+            hour_of_day=19.0,
+            grid_stress=0.85,
+            epsilon=0.0,
+        )
+        assert p_final_routine.frame == "none"

@@ -44,6 +44,10 @@ class LinTS:
         self.b[11] = 2.0 * self.lam  # delay plan
         self.b[15] = 1.5 * self.lam  # cost savings
         self.b[104] = 1.0 * self.lam # price_sensitive archetype x cost frame interaction
+        # Fatigue and excessive frequency penalty on active nudges (cols 1..5 in outer interaction product)
+        for col in range(1, 6):
+            self.b[85 + col] = -1.5 * self.lam  # fatigue x active frame
+            self.b[91 + col] = -1.0 * self.lam  # nudges_today x active frame
         self.update_count = 0
         self.version = 1
 
