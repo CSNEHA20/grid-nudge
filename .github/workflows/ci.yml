@@ -2,7 +2,7 @@ name: ci
 on: [pull_request, push]
 
 jobs:
-  checks:
+  python-checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,3 +29,18 @@ jobs:
       - name: Run tests
         run: |
           pytest -q
+
+  dashboard-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: dashboard/package-lock.json
+      - run: npm ci
+      - run: npm run build

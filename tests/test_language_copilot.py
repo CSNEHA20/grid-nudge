@@ -82,6 +82,17 @@ class TestMessageRendering:
         assert lang_res.source == "none"
         assert lang_res.verified is True
 
+    def test_multilingual_template_rendering(self):
+        """Templates render accurately in English, Hindi, and Tamil with named placeholders."""
+        from gridnudge.language.templates import render_template
+        facts = {"saving_inr": "50", "start_time": "23:00", "window": "11:00-15:00", "journey_conf": "94"}
+        msg_en = render_template(facts, frame="cost", lang="en")
+        msg_hi = render_template(facts, frame="cost", lang="hi")
+        msg_ta = render_template(facts, frame="cost", lang="ta")
+        assert "50" in msg_en and "23:00" in msg_en
+        assert "50" in msg_hi and "23:00" in msg_hi
+        assert "50" in msg_ta and "23:00" in msg_ta
+
 
 class TestCopilotTools:
     """Tests for M8c Operator Copilot tools."""

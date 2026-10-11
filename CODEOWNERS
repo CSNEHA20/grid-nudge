@@ -1,14 +1,14 @@
 # Code ownership single source of truth
 # Format: path pattern @owner
 
-* @vishal
-/contracts/ @vishal @sneha
-/dashboard/ @sneha
-/data/scripts/ @sneha
-/data/raw/SOURCES.md @sneha
-/data/ASSUMPTIONS.md @sneha
-/config/tariffs.yaml @sneha
-/gridnudge/language/templates.py @sneha
-/README.md @sneha
-/docs/ @sneha
-/docs/engineering/ @vishal
+* @Vishallakshmikanthan
+/contracts/ @Vishallakshmikanthan @CSNEHA20
+/dashboard/ @CSNEHA20
+/data/scripts/ @CSNEHA20
+/data/raw/SOURCES.md @CSNEHA20
+/data/ASSUMPTIONS.md @CSNEHA20
+/config/tariffs.yaml @CSNEHA20
+/gridnudge/language/templates.py @CSNEHA20
+/README.md @CSNEHA20
+/docs/ @CSNEHA20
+/docs/engineering/ @Vishallakshmikanthan

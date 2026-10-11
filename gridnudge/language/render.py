@@ -17,30 +17,15 @@ from gridnudge.language.verify import verify_nudge_text
 
 logger = logging.getLogger(__name__)
 
+from gridnudge.language.templates import render_template, TEMPLATES
+
 # Fallback deterministic templates (permanent fallback per AGENTS.md Kill Rules Section 12)
-DEFAULT_TEMPLATES = {
-    "cost": "Charge at {start_time} tonight to save \u20b9{saving_inr} during off-peak hours.",
-    "green": "Shift charging to {window} to utilize clean daytime solar power.",
-    "battery": "Charging at {start_time} maintains lower battery temperatures and reduces stress.",
-    "convenience": "Charging scheduled at {start_time} to ensure battery readiness before morning.",
-    "reassurance": "Departure confidence is {journey_conf}% for scheduled morning commute.",
-}
+DEFAULT_TEMPLATES = TEMPLATES["en"]
 
 
-def _render_deterministic_template(facts: Dict[str, Any], frame: str) -> str:
+def _render_deterministic_template(facts: Dict[str, Any], frame: str, lang: str = "en") -> str:
     """Render deterministic fallback template using structured facts."""
-    template_str = DEFAULT_TEMPLATES.get(frame, DEFAULT_TEMPLATES["cost"])
-
-    # Safe substitution
-    try:
-        msg = template_str.format(**facts)
-    except KeyError:
-        # Construct plain safe format if keys differ
-        saving = facts.get("saving_inr", "50")
-        t_start = facts.get("start_time", "23:00")
-        msg = f"Scheduled charging at {t_start} saves \u20b9{saving}."
-
-    return msg
+    return render_template(facts=facts, frame=frame, lang=lang)
 
 
 def render_bedrock_message(

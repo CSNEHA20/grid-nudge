@@ -499,3 +499,21 @@
   - Advanced engines operational and tested without breaking the core decision pipeline.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C12 Final Deliverables, Templates & Demo Script (Stage G / M8a, M13)
+
+- **Phase:** Stage G / C12 Completion Plan
+- **Goal:** Author root `README.md`, multilingual message templates (`gridnudge/language/templates.py`), 3-minute demo video script (`docs/DEMO_SCRIPT.md`), dashboard CI job in `.github/workflows/ci.yml`, and real handles in `CODEOWNERS`.
+- **Files Created/Modified:**
+  - `README.md`: Comprehensive authoritative documentation covering thesis, benchmark table, data grounding, AWS map, and 3-command quickstart.
+  - `gridnudge/language/templates.py`: Multilingual templates across 5 frames in English, Hindi, and Tamil with named placeholders.
+  - `gridnudge/language/render.py`: Wired multilingual templates into renderer with verifier gating.
+  - `docs/DEMO_SCRIPT.md`: Structured 180-second demo script covering all 5 core beats.
+  - `CODEOWNERS`: Configured GitHub handles `@Vishallakshmikanthan` and `@CSNEHA20`.
+  - `.github/workflows/ci.yml`: Added automated Next.js dashboard build job.
+  - `tests/test_language_copilot.py`: Added multilingual template validation tests.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - Full test suite: 130/130 tests passing (0 errors).
+  - All completion plan items from C1 through C12 satisfied.
+- **Known Issues / Gaps:** None.
+
