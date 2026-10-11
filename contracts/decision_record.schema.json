@@ -571,6 +571,12 @@
       "$ref": "#/$defs/Outcome",
       "description": "Realized outcome from simulator or telematics"
     },
+    "context": {
+      "default": {},
+      "description": "Operational candidate context (shiftable_peak_kwh, archetype, fatigue, etc.)",
+      "title": "Context",
+      "type": "object"
+    },
     "fail_silent": {
       "default": false,
       "description": "True if an error caused graceful fallback to silence",

@@ -251,6 +251,10 @@ class DecisionRecord(BaseModel):
         default_factory=Outcome,
         description="Realized outcome from simulator or telematics",
     )
+    context: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Operational candidate context (shiftable_peak_kwh, archetype, fatigue, etc.)",
+    )
     fail_silent: bool = Field(
         default=False,
         description="True if an error caused graceful fallback to silence",

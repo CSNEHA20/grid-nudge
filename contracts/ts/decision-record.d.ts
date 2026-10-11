@@ -97,6 +97,7 @@ export interface DecisionRecord {
   allocation: Allocation;
   language?: Language;
   outcome?: Outcome;
+  context?: Record<string, any>;
   fail_silent?: boolean;
   error?: string | null;
 }
