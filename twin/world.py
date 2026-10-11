@@ -534,3 +534,8 @@ class World:
             self.all_outcomes.append(rec)
         self.pending_outcomes = []
         return closed
+
+    def get_provenance(self) -> Dict[str, str]:
+        """Return dataset provenance metadata for auditability."""
+        from twin.data_loader import get_data_provenance
+        return get_data_provenance()

@@ -74,11 +74,30 @@ class StationNetwork:
         count: int = 15,
         connectors_per_station: int = 6,
         connector_kw: float = 50.0,
+        use_processed_data: bool = True,
     ):
-        self.stations: Dict[int, PublicStation] = {
-            i: PublicStation(i, connectors=connectors_per_station, connector_kw=connector_kw)
-            for i in range(count)
-        }
+        stations_df = None
+        if use_processed_data:
+            try:
+                from twin.data_loader import load_stations_delhi
+                stations_df = load_stations_delhi()
+            except Exception:
+                stations_df = None
+
+        if stations_df is not None and not stations_df.empty:
+            self.stations: Dict[int, PublicStation] = {
+                int(i): PublicStation(
+                    int(i),
+                    connectors=int(row["connectors"]),
+                    connector_kw=float(row["kw"]),
+                )
+                for i, row in stations_df.iterrows()
+            }
+        else:
+            self.stations = {
+                i: PublicStation(i, connectors=connectors_per_station, connector_kw=connector_kw)
+                for i in range(count)
+            }
 
     def update_outages(self, offline_ids: Set[int]) -> None:
         """Update outage statuses for stations."""

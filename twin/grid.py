@@ -15,6 +15,7 @@ class GridFeeder:
         solar_peak_mw: float = 4.0,
         solar_peak_hour: float = 13.0,
         tariffs_config: Optional[Dict[str, Any]] = None,
+        use_processed_data: bool = True,
     ):
         self.capacity_mw = capacity_mw
         self.base_peak_mw = base_peak_mw
@@ -22,13 +23,22 @@ class GridFeeder:
         self.solar_peak_mw = solar_peak_mw
         self.solar_peak_hour = solar_peak_hour
         self.tariffs_config = tariffs_config or {}
+        self.grid_df = None
+        if use_processed_data:
+            try:
+                from twin.data_loader import load_grid_series
+                self.grid_df = load_grid_series()
+            except Exception:
+                self.grid_df = None
 
     def get_base_load_mw(self, hour_of_day: float, load_multiplier: float = 1.0) -> float:
-        """Compute Delhi diurnal non-EV base load in MW.
+        """Compute Delhi diurnal non-EV base load in MW."""
+        if self.grid_df is not None and not self.grid_df.empty:
+            hour_idx = int(hour_of_day) % len(self.grid_df)
+            norm = float(self.grid_df["demand_norm"].iloc[hour_idx])
+            base_load = self.base_offpeak_mw + norm * (self.base_peak_mw - self.base_offpeak_mw)
+            return float(base_load * load_multiplier)
 
-        Mimics real Delhi Discom load shape with minimum around 04:30 and
-        pronounced evening peak around 20:30.
-        """
         # Multi-harmonic representation of Delhi urban demand
         t_rad = (hour_of_day / 24.0) * 2.0 * math.pi
         h1 = -math.cos(t_rad - 0.5)  # Daily wave with peak in evening
@@ -45,6 +55,12 @@ class GridFeeder:
         """Compute solar PV generation in MW."""
         if hour_of_day < 6.0 or hour_of_day > 18.5:
             return 0.0
+
+        if self.grid_df is not None and not self.grid_df.empty:
+            hour_idx = int(hour_of_day) % len(self.grid_df)
+            solar_norm = float(self.grid_df["solar_norm"].iloc[hour_idx])
+            gen = self.solar_peak_mw * solar_norm
+            return float(max(0.0, gen * solar_multiplier))
 
         # Gaussian solar generation curve centered at peak hour (~13:00)
         sigma = 2.4

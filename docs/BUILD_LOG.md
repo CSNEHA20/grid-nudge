@@ -437,3 +437,23 @@
   - Safety invariant: 0 attributable stranded trips verified by physical measurement.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C8 Grounding Dataset Fetchers & Data Loader (Stage C / M1)
+
+- **Phase:** Stage C / C8 Completion Plan
+- **Goal:** Build dataset fetchers with `--synthetic` fallbacks (`fetch_weather.py`, `fetch_grid.py`, `fetch_sessions.py`, `fetch_stations.py`), `twin/data_loader.py` module, and wire into twin stations, grid, and world with auditable provenance metadata.
+- **Files Created/Modified:**
+  - `data/scripts/fetch_weather.py`: Created fetcher generating `weather_delhi.parquet`.
+  - `data/scripts/fetch_grid.py`: Created fetcher generating `grid_series.parquet`.
+  - `data/scripts/fetch_sessions.py`: Created fetcher generating `sessions_profile.parquet`.
+  - `data/scripts/fetch_stations.py`: Created fetcher generating `stations_delhi.parquet`.
+  - `twin/data_loader.py`: Created module loading processed datasets with fallback and provenance tracking.
+  - `twin/stations.py`: Wired Delhi station loader into `StationNetwork`.
+  - `twin/grid.py`: Wired Grid-India series loader into `GridFeeder`.
+  - `twin/world.py`: Added `get_provenance` method to `World`.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - `python data/scripts/validate.py` passes all schema checks for all 4 parquet files and `tariffs.yaml`.
+  - `pytest tests/test_twin.py` passing (15/15).
+  - Dataset provenance auditable via `world.get_provenance()`.
+- **Known Issues / Gaps:** None.
+
