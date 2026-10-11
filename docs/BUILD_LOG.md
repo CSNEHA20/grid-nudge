@@ -535,4 +535,23 @@
   - Ablations B4a (delay only), B4b (no fatigue), and Oracle verified operational.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — Stage B: Truthful Dashboard & Ungrounded Literal Elimination (Stage B / M12, M8c)
+
+- **Phase:** Stage B / Completion Plan (§5 B1 - B4)
+- **Goal:** Eliminate fabricated demo numbers and hardcoded literals across dashboard components, ensure Operator Copilot answers trace strictly to simulation run telemetry and precomputed verified tools, derive fixtures directly from simulation results (`results/summary.csv`, `results/replay/timeline.json`), export replay to `dashboard/public/replay/timeline.json`, and establish automated tests preventing demo literals.
+- **Files Created/Modified:**
+  - `eval/make_replay.py`: Updated to export and copy deterministic replay timeline directly to `dashboard/public/replay/timeline.json`.
+  - `eval/make_fixtures.py`: Generated truthful fixtures matching verified simulation runs.
+  - `tests/test_no_demo_literals.py`: Expanded build test to recursively check all `dashboard/src` code files for banned demo literals and enforce provenance `Simulation` for public replay files.
+  - `docs/engineering/GRIDNUDGE_COMPLETION_PLAN.md`: Marked Stage B checklist items [x] B1 - B4.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - `pytest tests/test_no_demo_literals.py`: Passing (2/2).
+  - Full test suite: 135/135 tests passing (0 errors).
+  - `npm run lint`: Passing with 0 errors/warnings.
+  - `npm run build`: Production build succeeded across all 16 static/dynamic routes.
+  - Zero fabricated demo numbers in UI source; all metrics grounded in verified simulation outputs.
+- **Known Issues / Gaps:** None.
+
+
 

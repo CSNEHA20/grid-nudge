@@ -11,17 +11,17 @@ import re
 import pytest
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DASHBOARD_COMPONENTS_DIR = ROOT_DIR / "dashboard" / "src" / "components"
+DASHBOARD_SRC_DIR = ROOT_DIR / "dashboard" / "src"
 FIXTURES_DIR = ROOT_DIR / "fixtures"
 RESULTS_DIR = ROOT_DIR / "results"
+PUBLIC_REPLAY_FILE = ROOT_DIR / "dashboard" / "public" / "replay" / "timeline.json"
 
 
-def test_no_banned_demo_literals_in_dashboard_components():
-    """Ensure components do not contain ungrounded demo literals."""
-    if not DASHBOARD_COMPONENTS_DIR.exists():
-        pytest.skip("Dashboard components directory not found")
+def test_no_banned_demo_literals_in_dashboard_source():
+    """Ensure dashboard source files do not contain ungrounded demo literals."""
+    if not DASHBOARD_SRC_DIR.exists():
+        pytest.skip("Dashboard src directory not found")
 
-    # Banned literals identified in C2 audit
     banned_patterns = [
         (re.compile(r"\b14\.2\b"), "14.2 (unverified peak MW / reduction literal)"),
         (re.compile(r"broadcastPct\s*=\s*118"), "broadcastPct = 118 (hardcoded 118% stress)"),
@@ -30,12 +30,12 @@ def test_no_banned_demo_literals_in_dashboard_components():
     ]
 
     violations = []
-    for tsx_file in DASHBOARD_COMPONENTS_DIR.glob("*.tsx"):
-        content = tsx_file.read_text(encoding="utf-8")
+    for code_file in DASHBOARD_SRC_DIR.rglob("*.[tj]sx"):
+        content = code_file.read_text(encoding="utf-8")
         for pattern, desc in banned_patterns:
             matches = list(pattern.finditer(content))
             if matches:
-                violations.append(f"{tsx_file.name}: found {desc} ({len(matches)} matches)")
+                violations.append(f"{code_file.relative_to(ROOT_DIR)}: found {desc} ({len(matches)} matches)")
 
     assert not violations, f"Banned demo literals detected:\n" + "\n".join(violations)
 
@@ -60,3 +60,8 @@ def test_replay_and_eval_fixtures_provenance():
         with open(replay_file, "r", encoding="utf-8") as f:
             replay_data = json.load(f)
         assert replay_data.get("provenance") == "Simulation"
+
+    assert PUBLIC_REPLAY_FILE.exists(), "dashboard/public/replay/timeline.json must exist"
+    with open(PUBLIC_REPLAY_FILE, "r", encoding="utf-8") as f:
+        pub_replay_data = json.load(f)
+    assert pub_replay_data.get("provenance") == "Simulation"

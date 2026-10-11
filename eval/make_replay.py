@@ -136,4 +136,11 @@ def generate_replay_timeline(
 
 
 if __name__ == "__main__":
-    generate_replay_timeline()
+    payload = generate_replay_timeline()
+    root = Path(__file__).resolve().parent.parent
+    dash_replay = root / "dashboard" / "public" / "replay" / "timeline.json"
+    if dash_replay.parent.parent.exists():
+        dash_replay.parent.mkdir(parents=True, exist_ok=True)
+        with open(dash_replay, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2)
+        print(f"Exported replay timeline to {dash_replay}")

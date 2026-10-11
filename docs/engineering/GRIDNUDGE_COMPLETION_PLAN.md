@@ -361,10 +361,10 @@ Script (3 minutes): problem → idea ("ML decides, LLM phrases") → inject Heat
 - [x] A7 benchmark on dev seeds → final run on untouched seeds → gate decision
 
 **Stage B (truth in the UI)**
-- [ ] B1 remove all hard-coded demo numbers
-- [ ] B2 replace canned copilot claims
-- [ ] B3 fixtures derived from `results/`
-- [ ] B4 build check for demo literals; `npm run build`; dashboard CI
+- [x] B1 remove all hard-coded demo numbers
+- [x] B2 replace canned copilot claims
+- [x] B3 fixtures derived from `results/`
+- [x] B4 build check for demo literals; `npm run build`; dashboard CI
 
 **Stage C (data)**
 - [ ] C1 five fetch scripts with `--synthetic` fallbacks; sources logged
