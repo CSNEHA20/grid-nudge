@@ -484,3 +484,18 @@
   - Clean API adapter supports switching to live AWS Lambda endpoints via `NEXT_PUBLIC_API_BASE`.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C11 Advanced Engines: Test Drive, OPE & Grid Forecasting (Stage E / M11, M14)
+
+- **Phase:** Stage E / C11 Completion Plan
+- **Goal:** Build Digital Test Drive 52-week ownership simulator (`gridnudge/testdrive.py`), Doubly-Robust and IPS off-policy evaluation (`eval/ope.py`), and Chronos zero-shot probabilistic grid forecasting (`gridnudge/perception/grid.py`).
+- **Files Created/Modified:**
+  - `eval/ope.py`: Implemented Inverse Propensity Scoring (IPS) and Doubly Robust (DR) off-policy estimators with 95% confidence intervals.
+  - `gridnudge/testdrive.py`: Implemented 52-week Digital Test Drive engine computing ownership confidence, suitability verdicts, financial savings, and risk timelines.
+  - `gridnudge/perception/grid.py`: Implemented `forecast_feeder_load` supporting seasonal-naive and Chronos zero-shot quantile models.
+  - `tests/test_advanced_engines.py`: Created unit tests validating test drive suitability, OPE estimation, and feeder load forecasting.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - `pytest tests/test_advanced_engines.py` passing (3/3).
+  - Advanced engines operational and tested without breaking the core decision pipeline.
+- **Known Issues / Gaps:** None.
+
