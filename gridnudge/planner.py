@@ -240,6 +240,7 @@ def generate_candidate_plans(
         outcomes={
             "cost_inr": cost_delay,
             "cost_saving_inr": round(max(0.0, cost_default - cost_delay), 2),
+            "delay_hours": round(delay_hours, 2),
             "journey_conf_lb": journey_delay.p_arrive_above_reserve,
             "grid_value": grid_val_delay,
             "battery_stress_delta": stress_delta_delay,

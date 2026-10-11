@@ -398,3 +398,16 @@
   - Charger power preserved across multiple simulation rounds without permanent degradation.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C5 Policy Wrapper Dynamic Plan Extraction Fix (Stage A2)
+
+- **Phase:** Stage A / C5 Completion Plan
+- **Goal:** Ensure policy wrapper (`create_pipeline_policy`) passes planner-derived `delay_hours`, `cost_saving_inr`, and plan types through to simulation without hardcoded constants.
+- **Files Modified:**
+  - `gridnudge/planner.py`: Recorded `delay_hours` directly in `Plan.outcomes` for delay plans.
+  - `gridnudge/pipeline.py`: Extracted `delay_hours` and `cost_saving_inr` directly from planner outcomes in `create_pipeline_policy`.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - Test passing (`test_applied_decision_extracts_plan_delay_and_savings`).
+  - Decisions applied to digital twin accurately reflect individualized planner outputs.
+- **Known Issues / Gaps:** None.
+

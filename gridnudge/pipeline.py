@@ -610,11 +610,14 @@ def create_pipeline_policy(
                     plan_dict = chosen_p.model_dump()
                     savings = float(chosen_p.outcomes.get("cost_saving_inr", 65.0))
                     if chosen_p.type == "delay":
-                        try:
-                            start_dt = datetime.fromisoformat(chosen_p.start.replace("Z", "+00:00"))
-                            delay_hrs = max(0.5, (start_dt - world.current_time).total_seconds() / 3600.0)
-                        except Exception:
-                            delay_hrs = 3.5
+                        if "delay_hours" in chosen_p.outcomes:
+                            delay_hrs = float(chosen_p.outcomes["delay_hours"])
+                        else:
+                            try:
+                                start_dt = datetime.fromisoformat(chosen_p.start.replace("Z", "+00:00"))
+                                delay_hrs = max(0.5, (start_dt - world.current_time).total_seconds() / 3600.0)
+                            except Exception:
+                                delay_hrs = 3.5
                     else:
                         delay_hrs = 0.0
                 else:
