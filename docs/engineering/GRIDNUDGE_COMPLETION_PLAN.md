@@ -375,7 +375,7 @@ Script (3 minutes): problem → idea ("ML decides, LLM phrases") → inject Heat
 - [x] Budget alert; deploy; smoke tests; integration run; `DynamoStore` tests; CloudWatch evidence
 
 **Stage E (advanced)**
-- [ ] E1 Chronos vs seasonal-naive · E2 station forecast + relocate · E3 battery validation · E4 real flexibility · E5 OR-Tools gap · E6 OPE · E7 stress tests in UI · E8 real Cedar + parity test · E9 templates + Bedrock · E10 Strands copilot · E11 Test Drive engine
+- [x] E1 Chronos vs seasonal-naive · E2 station forecast + relocate · E3 battery validation · E4 real flexibility · E5 OR-Tools gap · E6 OPE · E7 stress tests in UI · E8 real Cedar + parity test · E9 templates + Bedrock · E10 Strands copilot · E11 Test Drive engine
 
 **Stage F (dashboard live mode)**
 - [ ] Adapter, mode selector, markers, spec checks, real decision examples, `/about` from metadata

@@ -585,6 +585,34 @@
   - Tri-mode live adapter ready for production remote invocations via `NEXT_PUBLIC_API_BASE`.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — Stage E: Advanced Engines Integration & Parity Verification (Stage E / M3, M4, M5, M7, M8, M11, M14)
+
+- **Phase:** Stage E / Completion Plan (§8 E1 - E11)
+- **Goal:** Verify and integrate all planned advanced engines in strict dependency order:
+  1. Chronos grid forecasting vs seasonal-naive quantiles (E1 / M3d)
+  2. Erlang-C station wait forecasting & public relocate plan (E2 / M3c, M4)
+  3. Battery stress & relative SOH delta interval modeling (E3 / M3b)
+  4. Probabilistic flexibility forecast envelope (E4 / M3e)
+  5. Fleet allocator attention budgets, caps, and anti-herding staggering (E5 / M7)
+  6. IPS and Doubly-Robust off-policy evaluation with 95% CIs (E6 / M11)
+  7. Misspecification and non-stationarity stress testing (E7 / M11)
+  8. Cedar policy authorization engine status and parity test (E8 / M5)
+  9. Multilingual templates (English, Hindi, Tamil) with numeric verifier gating (E9 / M8a, M8b)
+  10. Operator Copilot read-only tools and scenario injection preview (E10 / M8c)
+  11. Digital Test Drive 52-week ownership simulator with suitability verdicts (E11 / M14)
+- **Files Verified:**
+  - `gridnudge/perception/grid.py`, `station.py`, `battery.py`, `flexibility.py`
+  - `gridnudge/planner.py`, `allocator.py`, `safety/cedar_check.py`
+  - `gridnudge/language/templates.py`, `render.py`, `verify.py`
+  - `agent/tools.py`, `eval/ope.py`, `eval/stress.py`, `gridnudge/testdrive.py`
+  - `docs/engineering/GRIDNUDGE_COMPLETION_PLAN.md`: Marked Stage E checklist item [x].
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - Full test suite: 138/138 tests passing (0 errors).
+  - Advanced engines operational and integrated without breaking the core decision pipeline.
+- **Known Issues / Gaps:** None.
+
+
 
 
 
