@@ -106,7 +106,7 @@ Per AGENTS.md Rule 1.1 and Rule 8, we state data sources and modeling boundaries
 
 ---
 
-## 4. AWS Serverless Architecture
+## 4. AWS Serverless Architecture & Live Deployment
 
 GridNudge is architected with a local-first Python decision engine wrapped by a thin serverless AWS Lambda and API Gateway deployment (`infra/template.yaml`):
 
@@ -131,9 +131,37 @@ GridNudge is architected with a local-first Python decision engine wrapped by a 
                          +-------------------+
                          | Lambda            |
                          | RewardUpdateFn    |
-                         | (ReservedConcurr=1|
+                         | (Single-Writer)   |
                          +-------------------+
 ```
+
+### Live Production Stack (`gridnudge-prod`, Region: `us-east-1`)
+
+The stack is deployed and operational on AWS:
+
+| Resource | Identity / URL | Description |
+|---|---|---|
+| **HTTP API Gateway** | [`https://4n9hg5tpcf.execute-api.us-east-1.amazonaws.com/prod`](https://4n9hg5tpcf.execute-api.us-east-1.amazonaws.com/prod) | Live public REST decision endpoint |
+| **User State Table** | `gridnudge-user-state-prod` | DynamoDB on-demand per-user fatigue & history |
+| **Model State Table** | `gridnudge-model-state-prod` | DynamoDB LinTS matrix posterior with OCC |
+| **Decisions Table** | `gridnudge-decisions-prod` | DynamoDB immutable decision audit log |
+| **Reward FIFO Queue** | `gridnudge-rewards-prod.fifo` | SQS FIFO single-writer reward learning queue |
+| **S3 Audit Bucket** | `gridnudge-logs-583365238271-us-east-1-prod` | S3 batch and decision audit log bucket |
+
+### Live Endpoints
+- `POST /decide` — Batch decision pipeline orchestrator
+- `GET /decisions/{id}` — Fetch individual decision audit record
+- `POST /outcomes` — User charging outcome ingestion & enqueued to SQS FIFO
+- `GET /metrics` — Aggregate time series and fleet statistics query
+- `POST /explain` — Deterministic natural language decision explanation
+- `POST /events` — Dynamic grid/weather event injection
+
+### Validate Live AWS Stack (Smoke Test)
+```bash
+export API="https://4n9hg5tpcf.execute-api.us-east-1.amazonaws.com/prod"
+python scripts/smoke_aws.py
+```
+*(Tests batch `/decide`, `/decisions/{id}`, `/outcomes`, `/metrics`, and `/explain` live end-to-end).*
 
 ---
 
