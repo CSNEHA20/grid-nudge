@@ -411,3 +411,16 @@
   - Decisions applied to digital twin accurately reflect individualized planner outputs.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C6 Distinct Baseline Policies (Stage A5)
+
+- **Phase:** Stage A / C6 Completion Plan
+- **Goal:** Ensure B1 (broadcast delay), B2 (safe rule-based with reserve and departure deadline check and 1-nudge/day cap), and B3 (bandit without allocator) are distinct and properly tracked.
+- **Files Modified:**
+  - `eval/baselines.py`: Distinct B2 safe planner and updated `run_baseline_comparison` to evaluate B0, B1, and B2 side-by-side.
+  - `tests/test_twin.py`: Confirmed test `test_baselines_b1_and_b2_are_distinct` proves B1 != B2 in nudge volume and peak reduction.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - Unit test passing (`test_baselines_b1_and_b2_are_distinct`).
+  - Scoreboard accurately represents distinct behavioral policies.
+- **Known Issues / Gaps:** None.
+

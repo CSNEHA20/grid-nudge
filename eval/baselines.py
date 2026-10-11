@@ -132,9 +132,14 @@ def run_baseline_comparison(
     w1 = World(seed=seed, n_users=n_users)
     res_b1 = run_simulation(world=w1, n_steps=n_steps, policy_fn=policy_b1)
 
+    # Run B2 with identical seed
+    w2 = World(seed=seed, n_users=n_users)
+    res_b2 = run_simulation(world=w2, n_steps=n_steps, policy_fn=policy_b2)
+
     results = {
         "B0_uncontrolled": res_b0["metrics"],
         "B1_rule_based": res_b1["metrics"],
+        "B2_safe_planner": res_b2["metrics"],
     }
 
     if include_b4:
