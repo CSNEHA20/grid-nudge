@@ -317,3 +317,32 @@ def test_mean_uplift_nonzero_on_nudged_outcomes():
     m = compute_run_metrics(res)
     assert m["mean_uplift_per_nudge"] > 0.0, "mean_uplift_per_nudge must not be 0.00"
 
+
+def test_slow_charge_does_not_permanently_halve_charger_kw():
+    """Adopting slow_charge must only cap the active session and preserve user's nominal_charger_kw."""
+    w = World(seed=42, n_users=10)
+    user = w.fleet.users[0]
+    initial_nominal = float(user.nominal_charger_kw)
+
+    # Force plug in and apply slow charge decision
+    user.plugged = True
+    user.charging = True
+    user.active_plan = None
+    w.apply_decisions([{
+        "user_id": 0,
+        "plan": {"type": "slow_charge"},
+        "frame": "green",
+    }])
+
+    # nominal_charger_kw remains unchanged
+    assert user.nominal_charger_kw == initial_nominal
+    # session cap is applied
+    if user.session_had_adopted_nudge:
+        assert user.charger_kw_cap == max(2.0, initial_nominal * 0.5)
+
+    # After session departure/unplug
+    user.departure_step = w.current_step
+    w._update_schedules_and_arrivals()
+    assert user.charger_kw == initial_nominal
+    assert user.charger_kw_cap is None
+

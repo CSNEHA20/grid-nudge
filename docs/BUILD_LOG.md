@@ -384,3 +384,17 @@
   - Bandit incentivized to choose `delay` and `cost` framing for peak reduction.
 - **Known Issues / Gaps:** None.
 
+## 2026-10-11 — C4 Twin Slow-Charge Mutation Bug Fix (Stage A1)
+
+- **Phase:** Stage A / C4 Completion Plan
+- **Goal:** Prevent slow_charge adoption from permanently halving user charger_kw across subsequent sessions.
+- **Files Modified:**
+  - `twin/users.py`: Added explicit `session_had_adopted_nudge: bool = False` on `EVUser`; ensured candidates always report nominal charger power `nominal_charger_kw`.
+  - `twin/world.py`: Restored user charger power to `nominal_charger_kw` and applied session cap `charger_kw_cap` without mutating baseline `charger_kw`; restored caps upon departure.
+  - `tests/test_twin.py`: Added unit test `test_slow_charge_does_not_permanently_halve_charger_kw`.
+  - `docs/BUILD_LOG.md`: Logged milestone completion.
+- **Result:**
+  - Unit test passing (`test_slow_charge_does_not_permanently_halve_charger_kw`).
+  - Charger power preserved across multiple simulation rounds without permanent degradation.
+- **Known Issues / Gaps:** None.
+

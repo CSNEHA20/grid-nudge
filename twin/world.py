@@ -162,7 +162,9 @@ class World:
 
         # Calculate current fleet EV charging power in MW
         ev_kw_total = sum(
-            u.charger_kw for u in self.fleet.users if u.plugged and u.charging
+            (u.charger_kw_cap if u.charger_kw_cap is not None else u.charger_kw)
+            for u in self.fleet.users
+            if u.plugged and u.charging
         )
         ev_load_mw = ev_kw_total / 1000.0
 
@@ -249,7 +251,7 @@ class World:
             elif adopted and plan_type == "slow_charge":
                 nominal_kw = user.nominal_charger_kw if user.nominal_charger_kw is not None else user.charger_kw
                 user.charger_kw_cap = max(2.0, nominal_kw * 0.5)
-                user.charger_kw = user.charger_kw_cap
+                user.charger_kw = nominal_kw
                 user.active_plan = {"type": "slow_charge", "charger_kw_cap": user.charger_kw_cap}
                 user.session_had_adopted_nudge = True
             elif is_nudged and not adopted and not decision_id.startswith("b1_"):

@@ -35,6 +35,7 @@ class EVUser:
     nudges_today: int = 0
     active_plan: Optional[Dict[str, Any]] = None
     delay_until_step: Optional[int] = None
+    session_had_adopted_nudge: bool = False
 
     def __post_init__(self) -> None:
         if self.nominal_charger_kw is None:
@@ -129,7 +130,7 @@ class FleetManager:
                 "archetype": u.archetype,
                 "soc": round(u.soc, 3),
                 "battery_kwh": u.battery_kwh,
-                "charger_kw": u.charger_kw,
+                "charger_kw": u.nominal_charger_kw if u.nominal_charger_kw is not None else u.charger_kw,
                 "commute_km": u.commute_km,
                 "has_home_charging": u.has_home_charging,
                 "plug_in_step": u.plug_in_step,
