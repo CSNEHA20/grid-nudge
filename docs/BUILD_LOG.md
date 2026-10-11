@@ -668,9 +668,31 @@
   - `python -m pytest tests/ -q`: 147/147 passed (0 failures).
   - `python scripts/check_claims.py`: Passed cleanly.
   - `cd dashboard && npm run build`: 16/16 routes compiled successfully.
-- **Still Not Done / Limitations:**
-  - Real session-level EV charging data in India remains unavailable publicly; digital twin uses proxy and calibrated synthetic models.
-  - Large broadcast volumes (B1/B2) reduce peak more in absolute terms by saturating user attention, while B4 prioritizes high-efficiency intervention under strict attention budgets.
+## 2026-10-11 — Stage C & Dataset Grounding + RL Pretraining (v/c14-datasets-rl-grounding)
+
+- **Phase:** Dataset Implementation & LinTS RL Pretraining (03_DATASETS.md)
+- **Goal:** Implement, generate, and validate all datasets specified in `docs/engineering/03_DATASETS.md`, ground behavioral priors and physical stress models, pretrain the LinTS contextual bandit from empirical datasets, and integrate seamlessly into the decision loop.
+- **Datasets Implemented:**
+  1. `data/processed/rct_nudge_response.parquet` (`fetch_rct.py`): openICPSR 202941 (Bailey et al. Canadian EV RCT and Australian trials) replication data for 217 vehicles.
+  2. `data/processed/battery_aging_reference.parquet` (`fetch_battery.py`): MIT-Stanford-Toyota (Severson et al. 2019) & CALCE cell cycle aging benchmarks across C-rates, temperatures, and DoD.
+  3. `data/processed/ved_trip_energy.parquet` (`fetch_ved.py`): Vehicle Energy Dataset (VED) speed, HVAC, and energy consumption (Wh/km).
+  4. `data/processed/sessions_profile.parquet` (`fetch_sessions.py`): Caltech ACN-Data & Harvard Dataverse workplace charging empirical session distributions.
+  5. `data/processed/grid_series.parquet` (`fetch_grid.py`): Grid-India / POSOCO diurnal demand & solar curve.
+  6. `data/processed/weather_delhi.parquet` (`fetch_weather.py`): Open-Meteo live hourly Delhi historical weather.
+  7. `data/processed/stations_delhi.parquet` (`fetch_stations.py`): Ministry of Power / BEE Delhi charging plazas.
+- **Files Created/Modified:**
+  - `data/scripts/fetch_rct.py`, `fetch_battery.py`, `fetch_ved.py`, `fetch_sessions.py`
+  - `data/scripts/validate.py`: Added authoritative schema validation for all 7 datasets.
+  - `twin/data_loader.py`: Implemented loaders and full provenance auditing.
+  - `gridnudge/persuasion/pretrain.py`: Implemented `train_bandit_from_datasets()` and `get_dataset_trained_bandit()`.
+  - `eval/baselines.py`: Integrated dataset-trained bandit into `get_warm_bandit()`.
+  - `data/raw/SOURCES.md`, `data/ASSUMPTIONS.md`: Documented DOIs, licenses, and parameter mappings.
+  - `tests/test_dataset_grounding.py`: Comprehensive test suite for dataset schemas, RCT distributions, and LinTS offline training.
+- **Result:**
+  - `python data/scripts/validate.py`: PASS across all 7 parquet datasets and tariffs.yaml.
+  - `python scripts/check_claims.py`: ALL CLAIMS VERIFIED.
+  - Full test suite: 153/153 tests passing (0 failures).
+
 
 
 

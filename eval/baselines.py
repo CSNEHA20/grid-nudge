@@ -126,13 +126,13 @@ _WARM_BANDIT_STATE: Optional[Dict[str, Any]] = None
 
 
 def get_warm_bandit(seed: int = 42) -> Any:
-    """Return a LinTS bandit warm-started on development seeds >= 100."""
+    """Return a LinTS bandit warm-started on grounded datasets and development seeds >= 100."""
     global _WARM_BANDIT_STATE
     from gridnudge.persuasion.lints import LinTS
+    from gridnudge.persuasion.pretrain import get_dataset_trained_bandit
 
     if _WARM_BANDIT_STATE is None:
-        from gridnudge.persuasion.pretrain import pretrain_bandit
-        b = pretrain_bandit(dev_seeds=[101, 102], n_users=400, days=2, epsilon=0.20)
+        b = get_dataset_trained_bandit(seed=seed)
         _WARM_BANDIT_STATE = b.get_state()
 
     bandit = LinTS(seed=seed)

@@ -265,6 +265,82 @@ def validate_tariffs_yaml(path: Path) -> None:
             )
 
 
+def validate_rct_nudge_response(path: Path) -> None:
+    """Validate data/processed/rct_nudge_response.parquet."""
+    name = "rct_nudge_response.parquet"
+    if not path.exists():
+        raise ValidationError(f"[{name}] File not found at {path}")
+
+    df = pd.read_parquet(path)
+    if df.empty:
+        raise ValidationError(f"[{name}] Dataset is empty")
+
+    required = [
+        "user_id", "vehicle_id", "treatment_group", "pre_trial_peak_kwh",
+        "post_trial_peak_kwh", "off_peak_share_pre", "off_peak_share_post",
+        "peak_reduction_pct", "adopted_shift", "shifted_kwh", "incentive_val"
+    ]
+    validate_dataframe_columns(df, required, name)
+    validate_no_nulls(df, required, name)
+
+    valid_groups = {"financial_incentive", "moral_suasion", "control"}
+    actual_groups = set(df["treatment_group"].unique())
+    if not actual_groups.issubset(valid_groups):
+        raise ValidationError(f"[{name}] Invalid treatment groups: {actual_groups - valid_groups}")
+
+
+def validate_battery_aging_reference(path: Path) -> None:
+    """Validate data/processed/battery_aging_reference.parquet."""
+    name = "battery_aging_reference.parquet"
+    if not path.exists():
+        raise ValidationError(f"[{name}] File not found at {path}")
+
+    df = pd.read_parquet(path)
+    if df.empty:
+        raise ValidationError(f"[{name}] Dataset is empty")
+
+    required = [
+        "sample_id", "cycle_number", "c_rate", "temperature_c",
+        "dod", "capacity_retention_pct", "resistance_growth_pct", "stress_index"
+    ]
+    validate_dataframe_columns(df, required, name)
+    validate_no_nulls(df, required, name)
+
+    for col in ["c_rate", "temperature_c", "dod", "capacity_retention_pct", "resistance_growth_pct", "stress_index"]:
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            raise ValidationError(f"[{name}] Column '{col}' must be numeric")
+
+    stress_min, stress_max = float(df["stress_index"].min()), float(df["stress_index"].max())
+    if stress_min < -1e-5 or stress_max > 1.0 + 1e-5:
+        raise ValidationError(f"[{name}] Column 'stress_index' must be in [0, 1], found [{stress_min}, {stress_max}]")
+
+
+def validate_ved_trip_energy(path: Path) -> None:
+    """Validate data/processed/ved_trip_energy.parquet."""
+    name = "ved_trip_energy.parquet"
+    if not path.exists():
+        raise ValidationError(f"[{name}] File not found at {path}")
+
+    df = pd.read_parquet(path)
+    if df.empty:
+        raise ValidationError(f"[{name}] Dataset is empty")
+
+    required = [
+        "trip_id", "distance_km", "speed_kmh", "temp_c",
+        "hvac_kw", "traffic_factor", "elevation_gain_m", "wh_per_km"
+    ]
+    validate_dataframe_columns(df, required, name)
+    validate_no_nulls(df, required, name)
+
+    for col in ["distance_km", "speed_kmh", "temp_c", "hvac_kw", "traffic_factor", "elevation_gain_m", "wh_per_km"]:
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            raise ValidationError(f"[{name}] Column '{col}' must be numeric")
+
+    wh_min = float(df["wh_per_km"].min())
+    if wh_min <= 0.0:
+        raise ValidationError(f"[{name}] Column 'wh_per_km' must be strictly positive, min is {wh_min}")
+
+
 def validate_all(
     processed_dir: Path = PROCESSED_DIR,
     tariffs_path: Path = TARIFFS_PATH,
@@ -280,6 +356,9 @@ def validate_all(
         ("weather_delhi.parquet", lambda: validate_weather_delhi(processed_dir / "weather_delhi.parquet")),
         ("sessions_profile.parquet", lambda: validate_sessions_profile(processed_dir / "sessions_profile.parquet")),
         ("stations_delhi.parquet", lambda: validate_stations_delhi(processed_dir / "stations_delhi.parquet")),
+        ("rct_nudge_response.parquet", lambda: validate_rct_nudge_response(processed_dir / "rct_nudge_response.parquet")),
+        ("battery_aging_reference.parquet", lambda: validate_battery_aging_reference(processed_dir / "battery_aging_reference.parquet")),
+        ("ved_trip_energy.parquet", lambda: validate_ved_trip_energy(processed_dir / "ved_trip_energy.parquet")),
         ("tariffs.yaml", lambda: validate_tariffs_yaml(tariffs_path)),
     ]
 

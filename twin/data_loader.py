@@ -63,6 +63,42 @@ def load_stations_delhi(path: Optional[Path] = None) -> Optional[pd.DataFrame]:
     return None
 
 
+def load_rct_nudge_response(path: Optional[Path] = None) -> Optional[pd.DataFrame]:
+    """Load empirical RCT nudge response and uplift replication dataset."""
+    target = path or (PROCESSED_DIR / "rct_nudge_response.parquet")
+    if target.exists():
+        try:
+            df = pd.read_parquet(target)
+            return df
+        except Exception as e:
+            logger.warning("Failed to load RCT nudge dataset from %s: %s. Using synthetic model.", target, e)
+    return None
+
+
+def load_battery_aging_reference(path: Optional[Path] = None) -> Optional[pd.DataFrame]:
+    """Load empirical cell battery aging, C-rate, and DoD degradation benchmark."""
+    target = path or (PROCESSED_DIR / "battery_aging_reference.parquet")
+    if target.exists():
+        try:
+            df = pd.read_parquet(target)
+            return df
+        except Exception as e:
+            logger.warning("Failed to load battery benchmark dataset from %s: %s. Using synthetic model.", target, e)
+    return None
+
+
+def load_ved_trip_energy(path: Optional[Path] = None) -> Optional[pd.DataFrame]:
+    """Load Vehicle Energy Dataset (VED) speed, HVAC, and energy consumption profiles."""
+    target = path or (PROCESSED_DIR / "ved_trip_energy.parquet")
+    if target.exists():
+        try:
+            df = pd.read_parquet(target)
+            return df
+        except Exception as e:
+            logger.warning("Failed to load VED trip energy dataset from %s: %s. Using synthetic model.", target, e)
+    return None
+
+
 def get_data_provenance() -> Dict[str, str]:
     """Return provenance mapping for each dataset used in the simulation run."""
     return {
@@ -70,5 +106,9 @@ def get_data_provenance() -> Dict[str, str]:
         "grid_series": "Processed (Grid-India / POSOCO)" if (PROCESSED_DIR / "grid_series.parquet").exists() else "Calibrated Synthetic",
         "sessions_profile": "Processed (ACN-Data / Dataverse)" if (PROCESSED_DIR / "sessions_profile.parquet").exists() else "Calibrated Synthetic",
         "stations_delhi": "Processed (BEE / Ministry of Power)" if (PROCESSED_DIR / "stations_delhi.parquet").exists() else "Calibrated Synthetic",
+        "rct_nudge_response": "Processed (openICPSR 202941 / Bailey et al.)" if (PROCESSED_DIR / "rct_nudge_response.parquet").exists() else "Calibrated Synthetic",
+        "battery_aging_reference": "Processed (MIT-Stanford-Toyota Severson / CALCE)" if (PROCESSED_DIR / "battery_aging_reference.parquet").exists() else "Calibrated Synthetic",
+        "ved_trip_energy": "Processed (Vehicle Energy Dataset / eVED)" if (PROCESSED_DIR / "ved_trip_energy.parquet").exists() else "Calibrated Synthetic",
         "tariffs": "DERC Delhi ToU Order (config/tariffs.yaml)",
     }
+

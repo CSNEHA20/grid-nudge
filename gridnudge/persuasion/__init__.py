@@ -15,7 +15,11 @@ from gridnudge.persuasion.features import (
     extract_context_features,
 )
 from gridnudge.persuasion.lints import LinTS
-from gridnudge.persuasion.pretrain import pretrain_bandit
+from gridnudge.persuasion.pretrain import (
+    get_dataset_trained_bandit,
+    pretrain_bandit,
+    train_bandit_from_datasets,
+)
 from gridnudge.persuasion.uplift import (
     compute_causal_reward,
     enumerate_candidate_actions,
@@ -32,6 +36,8 @@ __all__ = [
     "build_feature_vector",
     "LinTS",
     "pretrain_bandit",
+    "train_bandit_from_datasets",
+    "get_dataset_trained_bandit",
     "update_archetype_posterior",
     "decay_user_fatigue",
     "record_user_interaction",

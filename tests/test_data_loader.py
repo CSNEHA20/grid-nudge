@@ -15,6 +15,9 @@ from twin.data_loader import (
     load_grid_series,
     load_sessions_profile,
     load_stations_delhi,
+    load_rct_nudge_response,
+    load_battery_aging_reference,
+    load_ved_trip_energy,
 )
 from twin.world import World
 
@@ -41,6 +44,22 @@ def test_data_loaders_load_processed_parquets_if_present():
         assert isinstance(stations, pd.DataFrame)
         assert "station_id" in stations.columns
 
+    rct = load_rct_nudge_response()
+    if rct is not None:
+        assert isinstance(rct, pd.DataFrame)
+        assert "treatment_group" in rct.columns
+        assert "adopted_shift" in rct.columns
+
+    battery = load_battery_aging_reference()
+    if battery is not None:
+        assert isinstance(battery, pd.DataFrame)
+        assert "stress_index" in battery.columns
+
+    ved = load_ved_trip_energy()
+    if ved is not None:
+        assert isinstance(ved, pd.DataFrame)
+        assert "wh_per_km" in ved.columns
+
 
 def test_data_loaders_fallback_gracefully_when_file_missing():
     """Loaders must return None and log warning when given non-existent paths."""
@@ -49,6 +68,9 @@ def test_data_loaders_fallback_gracefully_when_file_missing():
     assert load_grid_series(missing_path) is None
     assert load_sessions_profile(missing_path) is None
     assert load_stations_delhi(missing_path) is None
+    assert load_rct_nudge_response(missing_path) is None
+    assert load_battery_aging_reference(missing_path) is None
+    assert load_ved_trip_energy(missing_path) is None
 
 
 def test_world_provenance_metadata():
@@ -61,3 +83,7 @@ def test_world_provenance_metadata():
     assert "stations_delhi" in prov
     assert "tariffs" in prov
     assert "sessions_profile" in prov
+    assert "rct_nudge_response" in prov
+    assert "battery_aging_reference" in prov
+    assert "ved_trip_energy" in prov
+
