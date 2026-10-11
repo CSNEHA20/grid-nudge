@@ -54,6 +54,7 @@ def decide_batch(
     apply_allocation: bool = True,
     allowed_plan_types: Optional[List[str]] = None,
     disable_fatigue_features: bool = False,
+    budget_pct: float = 0.08,
 ) -> List[DecisionRecord]:
     """Execute batched inference across candidate EVs plugged in at current simulation timestep.
 
@@ -116,6 +117,33 @@ def decide_batch(
             trip_ctx = dict(trip_raw) if isinstance(trip_raw, dict) else {}
             ctx_raw = c.get("context")
             user_state = dict(stored_users.get(user_id, ctx_raw if isinstance(ctx_raw, dict) else {}))
+            candidate_context = dict(ctx_raw) if isinstance(ctx_raw, dict) else {}
+
+            # Read or compute shiftable energy during evening peak (18:00 - 22:00)
+            if "shiftable_peak_kwh" in candidate_context:
+                shiftable_kwh = float(candidate_context["shiftable_peak_kwh"])
+                overlaps_flag = float(candidate_context.get("overlaps_peak", 1.0 if shiftable_kwh > 0 else 0.0))
+            elif "shiftable_peak_kwh" in ev_ctx:
+                shiftable_kwh = float(ev_ctx["shiftable_peak_kwh"])
+                overlaps_flag = float(ev_ctx.get("overlaps_peak", 1.0 if shiftable_kwh > 0 else 0.0))
+            else:
+                soc_val = float(ev_ctx.get("current_soc", ev_ctx.get("soc", 0.5)))
+                batt_val = float(ev_ctx.get("battery_kwh", 40.0))
+                tgt_val = float(ev_ctx.get("target_soc", 0.90))
+                kw_val = float(ev_ctx.get("charger_kw", 7.4))
+                dep_hrs_val = float(trip_ctx.get("hours_until_departure", 8.0))
+                needed_kwh = max(0.0, (tgt_val - soc_val) * batt_val)
+                o_start = max(float(hour_of_day), 18.0)
+                o_end = min(float(hour_of_day) + dep_hrs_val, 22.0)
+                o_hours = max(0.0, o_end - o_start)
+                shiftable_kwh = max(0.0, min(needed_kwh, kw_val * o_hours))
+                overlaps_flag = 1.0 if (o_hours > 0.0 and shiftable_kwh > 0.0) else 0.0
+
+            user_state["shiftable_peak_kwh"] = shiftable_kwh
+            user_state["overlaps_peak"] = overlaps_flag
+            candidate_context["shiftable_peak_kwh"] = shiftable_kwh
+            candidate_context["overlaps_peak"] = overlaps_flag
+
             if disable_fatigue_features:
                 user_state["fatigue"] = 0.0
                 user_state["nudges_today"] = 0
@@ -219,6 +247,7 @@ def decide_batch(
                 "plan": chosen_plan_obj,
                 "user_state": user_state,
                 "ev_context": ev_ctx,
+                "shiftable_peak_kwh": float(user_state.get("shiftable_peak_kwh", 0.5)),
             }
             candidate_records.append(alloc_cand)
 
@@ -227,6 +256,7 @@ def decide_batch(
                 "user_id": user_id,
                 "ev_ctx": ev_ctx,
                 "user_state": user_state,
+                "context": candidate_context,
                 "journey_view": journey_view,
                 "battery_view": battery_view,
                 "station_view": station_view,
@@ -278,6 +308,7 @@ def decide_batch(
                     candidate_records=candidate_records,
                     total_plugged_count=max(total_plugged, 1),
                     sim_time_iso=sim_time_iso,
+                    budget_pct=budget_pct,
                     feeder_capacity_mw=capacity_mw,
                     base_load_mw=float(grid_fc.get("base_offpeak_mw", 5.5)),
                 )
@@ -393,6 +424,7 @@ def decide_batch(
             allocation=alloc,
             language=lang_rec,
             outcome=Outcome(),
+            context=res.get("context", {}),
             fail_silent=False,
             error=None,
         )
@@ -482,7 +514,7 @@ def process_outcomes(
 
             context_x = extract_context_features(
                 ev_context=ev_ctx,
-                user_state={},
+                user_state=dec_dict.get("context", {}),
                 hour_of_day=hour_of_day,
                 grid_stress=0.75,
             )
@@ -526,6 +558,7 @@ def create_pipeline_policy(
     apply_allocation: bool = True,
     allowed_plan_types: Optional[List[str]] = None,
     disable_fatigue_features: bool = False,
+    budget_pct: float = 0.08,
 ) -> Callable[[Any], List[Dict[str, Any]]]:
     """Create a digital twin compatible policy callback for B4 GridNudge.
 
@@ -561,12 +594,27 @@ def create_pipeline_policy(
                 if departure_step is not None
                 else 8.0
             )
+            # Energy default plan would draw during 18:00 - 22:00 peak window
+            soc = float(c["soc"])
+            target_soc = float(c.get("target_soc", 0.90))
+            batt_kwh = float(c["battery_kwh"])
+            charger_kw = float(c["charger_kw"])
+            energy_needed = max(0.0, (target_soc - soc) * batt_kwh)
+            overlap_start = max(world.hour_of_day, 18.0)
+            overlap_end = min(world.hour_of_day + hours_dep, 22.0)
+            overlap_hours = max(0.0, overlap_end - overlap_start)
+            shiftable_peak_kwh = max(0.0, min(energy_needed, charger_kw * overlap_hours))
+            overlaps_peak = 1.0 if (overlap_hours > 0.0 and shiftable_peak_kwh > 0.0) else 0.0
+
             cand_payload.append({
                 "user_id": c["user_id"],
                 "ev": {
                     "battery_kwh": c["battery_kwh"],
                     "current_soc": c["soc"],
                     "charger_kw": c["charger_kw"],
+                    "target_soc": target_soc,
+                    "shiftable_peak_kwh": round(shiftable_peak_kwh, 3),
+                    "overlaps_peak": overlaps_peak,
                 },
                 "trip": {
                     "commute_km": float(c.get("commute_km", 38.0)),
@@ -578,6 +626,8 @@ def create_pipeline_policy(
                     "fatigue": c["fatigue"],
                     "last_frame": c.get("last_frame", "none"),
                     "nudges_today": c.get("nudges_today", 0),
+                    "shiftable_peak_kwh": round(shiftable_peak_kwh, 3),
+                    "overlaps_peak": overlaps_peak,
                 },
             })
 
@@ -605,6 +655,7 @@ def create_pipeline_policy(
             apply_allocation=apply_allocation,
             allowed_plan_types=allowed_plan_types,
             disable_fatigue_features=disable_fatigue_features,
+            budget_pct=budget_pct,
         )
 
         # Convert active decisions to format required by world.apply_decisions()

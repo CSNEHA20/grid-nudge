@@ -263,3 +263,42 @@ class TestFailSilent:
         assert res.fail_silent is True
         assert "buggy_pipeline_component crashed" in res.error
         assert res.persuasion.frame == "none"
+
+
+class TestStrandedTripSafety:
+    """Tests for physical journey safety and attributable stranded trips."""
+
+    def test_safe_policy_maintains_zero_stranded_trips(self):
+        """B4 safe policy must result in exactly 0 attributable stranded trips."""
+        from eval.baselines import create_policy_b4
+        from twin.runner import run_simulation
+        from twin.world import World
+
+        world = World(seed=42, n_users=200)
+        pol = create_policy_b4(seed=42)
+        res = run_simulation(world=world, n_steps=96, policy_fn=pol)
+        assert res["metrics"]["stranded_attributable"] == 0
+        assert world.stranded_attributable_count == 0
+
+    def test_unsafe_plan_makes_stranded_trips_non_zero(self):
+        """Forcing unsafe delay plans on low-reserve users causes attributable stranded trips > 0."""
+        from twin.world import World
+
+        world = World(seed=42, n_users=50)
+        u = world.fleet.users[0]
+        u.plugged = True
+        u.soc = 0.05
+        u.departure_step = 5
+        # Unsafe policy offers high incentive to delay low-SOC user past departure
+        world.apply_decisions([{
+            "decision_id": "d_unsafe_01",
+            "user_id": u.user_id,
+            "plan": {"type": "delay"},
+            "frame": "cost",
+            "savings_inr": 500.0,
+            "delay_hours": 8.0,
+        }])
+        world.current_step = 5
+        world.step()
+        assert world.stranded_attributable_count > 0
+
