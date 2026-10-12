@@ -36,10 +36,10 @@ export function AboutView({
       {/* Header */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-slate-400">
+          <span className="text-sm font-mono text-slate-400">
             Transparency Register · Full Auditability
           </span>
-          <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span className="text-xs uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             AGENTS.md Rule 1.1 Honesty
           </span>
         </div>
@@ -65,7 +65,7 @@ export function AboutView({
             key={tab.id}
             type="button"
             onClick={() => setActiveTab(tab.id as "real_vs_sim" | "sources" | "assumptions" | "policies" | "architecture")}
-            className={`px-4 py-2 rounded-full text-xs font-semibold transition ${
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
               activeTab === tab.id
                 ? "bg-amber-500 text-navy-950 shadow-md"
                 : "text-slate-300 hover:text-white hover:bg-white/5"
@@ -83,7 +83,7 @@ export function AboutView({
             <h2 className="text-xl font-bold text-white tracking-tight">
               Honest Data Hierarchy: Real vs. Simulated
             </h2>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-sm text-slate-300 mt-1">
               Per AGENTS.md Rule 1.1 and Rule 8, we distinguish observed ground truth from synthetic assumptions.
             </p>
           </div>
@@ -91,11 +91,11 @@ export function AboutView({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Real Column */}
             <div className="p-5 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 space-y-3">
-              <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm uppercase">
+              <div className="flex items-center gap-2 text-emerald-400 font-bold text-base uppercase">
                 <ShieldCheck className="w-4 h-4" />
                 What is Real in GridNudge
               </div>
-              <ul className="text-xs text-slate-200 space-y-2.5 list-disc list-inside">
+              <ul className="text-sm text-slate-200 space-y-2.5 list-disc list-inside">
                 <li>
                   <strong>Decision Pipeline Architecture:</strong> Strict separation of Physics Planner, Dual Safety Gates, and LinTS Persuasion Bandit.
                 </li>
@@ -116,11 +116,11 @@ export function AboutView({
 
             {/* Simulated Column */}
             <div className="p-5 rounded-2xl bg-amber-950/30 border border-amber-500/30 space-y-3">
-              <div className="flex items-center gap-2 text-amber-400 font-bold text-sm uppercase">
+              <div className="flex items-center gap-2 text-amber-400 font-bold text-base uppercase">
                 <Sliders className="w-4 h-4" />
                 What is Simulated / Assumed
               </div>
-              <ul className="text-xs text-slate-200 space-y-2.5 list-disc list-inside">
+              <ul className="text-sm text-slate-200 space-y-2.5 list-disc list-inside">
                 <li>
                   <strong>Indian EV User Charging Sessions:</strong> Synthesized because granular Indian session-level telematic data is not publicly published.
                 </li>
@@ -149,7 +149,7 @@ export function AboutView({
             <h2 className="text-xl font-bold text-white tracking-tight">
               Data Sources Register (docs/engineering/03_DATASETS.md)
             </h2>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-sm text-slate-300 mt-1">
               Public datasets utilized to ground simulation parameters, vehicle physics, and grid load curves.
             </p>
           </div>
@@ -162,19 +162,19 @@ export function AboutView({
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-bold text-white">{src.name}</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-amber-300 border border-white/10">
+                    <span className="text-base font-bold text-white">{src.name}</span>
+                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-white/5 text-amber-300 border border-white/10">
                       {src.tier}
                     </span>
                   </div>
-                  <span className="text-[11px] font-mono text-slate-400 block mt-0.5">
+                  <span className="text-sm font-mono text-slate-400 block mt-0.5">
                     Category: {src.category}
                   </span>
-                  <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                  <p className="text-sm text-slate-300 mt-2 leading-relaxed">
                     {src.description}
                   </p>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-sm font-mono text-slate-400">
                   <span>Usage: {src.usage_in_gridnudge}</span>
                 </div>
               </div>
@@ -191,7 +191,7 @@ export function AboutView({
               <h2 className="text-xl font-bold text-white tracking-tight">
                 Assumptions Register (data/ASSUMPTIONS.md)
               </h2>
-              <p className="text-xs text-slate-300 mt-1">
+              <p className="text-sm text-slate-300 mt-1">
                 Every synthetic or assumed parameter, rationale, and grounding methodology.
               </p>
             </div>
@@ -202,14 +202,14 @@ export function AboutView({
                 value={assumptionSearch}
                 onChange={(e) => setAssumptionSearch(e.target.value)}
                 placeholder="Search parameter..."
-                className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-navy-900 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400"
+                className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-navy-900 border border-white/15 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-amber-400"
               />
             </div>
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-white/10">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-navy-900/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-white/10">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-navy-900/80 text-sm uppercase tracking-wider text-slate-400 border-b border-white/10">
                 <tr>
                   <th className="p-3.5">Category</th>
                   <th className="p-3.5">Parameter</th>
@@ -227,13 +227,13 @@ export function AboutView({
                     <td className="p-3.5 font-semibold text-white whitespace-nowrap">
                       {a.parameter}
                     </td>
-                    <td className="p-3.5 text-slate-300 font-mono text-[11px]">
+                    <td className="p-3.5 text-slate-300 font-mono text-sm">
                       {a.assumed_value}
                     </td>
                     <td className="p-3.5 text-slate-300 leading-relaxed min-w-[200px]">
                       {a.rationale}
                     </td>
-                    <td className="p-3.5 text-slate-400 text-[11px] min-w-[180px]">
+                    <td className="p-3.5 text-slate-400 text-sm min-w-[180px]">
                       {a.grounding_method}
                     </td>
                   </tr>
@@ -251,7 +251,7 @@ export function AboutView({
             <h2 className="text-xl font-bold text-white tracking-tight">
               Safety Gate Policy in Plain Language (AWS Cedar)
             </h2>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-sm text-slate-300 mt-1">
               Declarative security and safety policies evaluated before any persuasion nudge is authorized.
             </p>
           </div>
@@ -264,22 +264,22 @@ export function AboutView({
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-bold text-cyan-300 font-mono">
+                    <span className="text-base font-bold text-cyan-300 font-mono">
                       {p.name}
                     </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                       {p.category}
                     </span>
                   </div>
-                  <p className="text-xs text-white mt-2 leading-relaxed">
+                  <p className="text-sm text-white mt-2 leading-relaxed">
                     {p.plain_language}
                   </p>
                 </div>
                 <div className="mt-3 pt-2.5 border-t border-white/5">
-                  <span className="text-[10px] uppercase font-mono text-slate-400 block mb-1">
+                  <span className="text-xs uppercase font-mono text-slate-400 block mb-1">
                     Formal Cedar Statement:
                   </span>
-                  <pre className="p-2.5 rounded bg-black/40 text-[10px] font-mono text-emerald-400 whitespace-pre-wrap">
+                  <pre className="p-2.5 rounded bg-black/40 text-xs font-mono text-emerald-400 whitespace-pre-wrap">
                     {p.cedar_statement}
                   </pre>
                 </div>
@@ -296,7 +296,7 @@ export function AboutView({
             <h2 className="text-xl font-bold text-white tracking-tight">
               Spine Architecture & AWS Serverless Deployment Map
             </h2>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-sm text-slate-300 mt-1">
               Plan → Persuade → Learn closed loop and AWS cloud infrastructure.
             </p>
           </div>
@@ -304,11 +304,11 @@ export function AboutView({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* The Spine Architecture */}
             <div className="p-5 rounded-2xl bg-navy-900/60 border border-white/10 space-y-4">
-              <div className="flex items-center gap-2 text-amber-400 font-bold text-sm uppercase">
+              <div className="flex items-center gap-2 text-amber-400 font-bold text-base uppercase">
                 <Layers className="w-4 h-4" />
                 The Golden Architecture Spine
               </div>
-              <div className="space-y-2 text-xs font-mono">
+              <div className="space-y-2 text-sm font-mono">
                 {[
                   "1. Digital Twin (2,000 EVs, Delhi Zone 7 Feeder, Weather, Shocks)",
                   "2. Perception (Calibrated Journey Conf, Battery Stress, Wait ETA)",
@@ -333,32 +333,32 @@ export function AboutView({
 
             {/* AWS Cloud Architecture */}
             <div className="p-5 rounded-2xl bg-navy-900/60 border border-white/10 space-y-4">
-              <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm uppercase">
+              <div className="flex items-center gap-2 text-cyan-400 font-bold text-base uppercase">
                 <Cloud className="w-4 h-4" />
                 AWS Serverless Implementation (AWS SAM)
               </div>
-              <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
+              <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
                 <div className="p-3 rounded-xl bg-black/30 border border-white/5 space-y-1">
                   <div className="font-bold text-white">API Gateway & Lambda Decide:</div>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-sm text-slate-400">
                     Exposes <code>POST /decide</code> invoking the pure local pipeline packaged as a thin Lambda adapter.
                   </p>
                 </div>
                 <div className="p-3 rounded-xl bg-black/30 border border-white/5 space-y-1">
                   <div className="font-bold text-white">DynamoDB On-Demand:</div>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-sm text-slate-400">
                     Stores DecisionRecords, active user fatigue states, and bandit posterior matrices.
                   </p>
                 </div>
                 <div className="p-3 rounded-xl bg-black/30 border border-white/5 space-y-1">
                   <div className="font-bold text-white">SQS FIFO & Reward Update:</div>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-sm text-slate-400">
                     Guarantees single-writer LinTS posterior matrix updates with <code>ReservedConcurrentExecutions = 1</code>.
                   </p>
                 </div>
                 <div className="p-3 rounded-xl bg-black/30 border border-white/5 space-y-1">
                   <div className="font-bold text-white">S3 Telemetry Lake & CloudWatch:</div>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-sm text-slate-400">
                     Stores timestamped replay trajectories and logs safety veto counters.
                   </p>
                 </div>
@@ -369,7 +369,7 @@ export function AboutView({
       )}
 
       {/* Build Info Card */}
-      <div className="p-5 rounded-3xl glass-panel flex flex-wrap items-center justify-between gap-4 text-xs font-mono border border-white/10">
+      <div className="p-5 rounded-3xl glass-panel flex flex-wrap items-center justify-between gap-4 text-sm font-mono border border-white/10">
         <div>
           Build: <strong className="text-white">v2.0.0-release</strong> · Commit:{" "}
           <strong className="text-white">git-sha-7c9f82</strong> · Build Date:{" "}

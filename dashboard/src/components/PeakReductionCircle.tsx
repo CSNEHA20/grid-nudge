@@ -53,7 +53,7 @@ export function PeakReductionCircle({
       </button>
 
       {showTooltip && (
-        <div className="absolute top-10 right-4 z-30 w-56 p-2.5 rounded-xl bg-navy-900/95 border border-slate-700 text-[11px] text-slate-200 shadow-xl backdrop-blur-md">
+        <div className="absolute top-10 right-4 z-30 w-56 p-2.5 rounded-xl bg-navy-900/95 border border-slate-700 text-sm text-slate-200 shadow-xl backdrop-blur-md">
           <p className="font-semibold text-nudge-gold mb-1">Peak Load Reduction %</p>
           <p className="text-slate-300 leading-relaxed">
             {METRIC_GLOSSARY.peakReduction}
@@ -63,7 +63,7 @@ export function PeakReductionCircle({
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center text-center">
-        <span className="text-[11px] uppercase tracking-wider text-slate-300 font-semibold mb-0.5">
+        <span className="text-sm uppercase tracking-wider text-slate-300 font-semibold mb-0.5">
           Peak reduction
         </span>
 
@@ -76,7 +76,7 @@ export function PeakReductionCircle({
           <button
             type="button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-navy-800/80 hover:bg-navy-700/80 border border-slate-700/60 text-[11px] font-medium text-slate-300 hover:text-white transition"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-navy-800/80 hover:bg-navy-700/80 border border-slate-700/60 text-sm font-medium text-slate-300 hover:text-white transition"
           >
             <span>vs {currentOption.label}</span>
             <ChevronDown className="w-3 h-3 text-slate-400" />
@@ -92,21 +92,21 @@ export function PeakReductionCircle({
                     setSelectedPolicy(opt.key);
                     setIsDropdownOpen(false);
                   }}
-                  className={`w-full px-3 py-1.5 text-left text-xs flex items-center justify-between transition ${
+                  className={`w-full px-3 py-1.5 text-left text-sm flex items-center justify-between transition ${
                     opt.key === selectedPolicy
                       ? "bg-amber-500/20 text-nudge-gold font-semibold"
                       : "text-slate-300 hover:bg-white/5 hover:text-white"
                   }`}
                 >
                   <span>{opt.label}</span>
-                  <span className="font-mono text-[11px]">-{opt.reductionPct}%</span>
+                  <span className="font-mono text-sm">-{opt.reductionPct}%</span>
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        <span className="text-[10px] text-slate-400 font-mono mt-1.5">
+        <span className="text-xs text-slate-400 font-mono mt-1.5">
           {seedCount} seeds · Simulation
         </span>
       </div>

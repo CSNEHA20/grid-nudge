@@ -72,7 +72,7 @@ export function LiveDecisionTicker({
     <div className="w-full flex items-center gap-3 px-4 py-2 rounded-2xl glass-panel overflow-x-auto scrollbar-none border border-slate-700/60 shadow-md">
       <div className="flex items-center gap-2 pr-3 border-r border-slate-700/70 shrink-0">
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span className="text-xs uppercase font-mono font-bold text-slate-300 tracking-wider">
+        <span className="text-sm uppercase font-mono font-bold text-slate-300 tracking-wider">
           Decision Stream
         </span>
       </div>
@@ -97,21 +97,21 @@ export function LiveDecisionTicker({
             <Link
               key={`${item.id}-${item.time}`}
               href={`/decision/${item.id}`}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-navy-900/70 hover:bg-navy-800/90 border border-slate-700/40 hover:border-slate-500 transition shrink-0 group text-xs"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-navy-900/70 hover:bg-navy-800/90 border border-slate-700/40 hover:border-slate-500 transition shrink-0 group text-sm"
             >
-              <span className="font-mono text-slate-400 text-[11px]">{item.time}</span>
+              <span className="font-mono text-slate-400 text-sm">{item.time}</span>
               <span className="font-mono font-semibold text-slate-200 group-hover:text-white">
                 {item.userId}
               </span>
 
               <span
-                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono uppercase font-bold border ${badgeClass}`}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono uppercase font-bold border ${badgeClass}`}
               >
                 {icon}
                 {item.status}
               </span>
 
-              <span className="text-[11px] text-slate-400 group-hover:text-slate-300 truncate max-w-[200px]">
+              <span className="text-sm text-slate-400 group-hover:text-slate-300 truncate max-w-[200px]">
                 {item.summary}
               </span>
             </Link>

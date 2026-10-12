@@ -343,3 +343,18 @@ class TestDynamoStoreMocked:
 
         monkeypatch.setenv("USE_DYNAMO_STORE", "1")
         assert isinstance(get_default_store(), DynamoStore)
+
+    def test_client_policy_runs_simulation(self):
+        """Twin simulation runs end-to-end powered by GridNudgeClient service adapter."""
+        from services.client import create_client_policy
+        from twin.runner import run_simulation
+        from twin.world import World
+
+        client = GridNudgeClient()
+        pol = create_client_policy(client, run_id="test_client_run")
+        world = World(seed=42, n_users=50)
+        res = run_simulation(world=world, n_steps=24, policy_fn=pol)
+        assert res is not None
+        assert "peak_feeder_load_mw" in res["metrics"]
+        assert res["metrics"]["steps_simulated"] == 24
+

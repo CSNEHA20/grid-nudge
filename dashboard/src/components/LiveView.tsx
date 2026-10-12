@@ -236,13 +236,13 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
         </button>
 
         {/* Current Sim Clock Chip */}
-        <div className="px-5 py-2 rounded-full bg-navy-800/90 border border-slate-700/60 font-mono text-sm font-bold text-white tracking-wider shadow-sm flex items-center gap-2">
+        <div className="px-5 py-2 rounded-full bg-navy-800/90 border border-slate-700/60 font-mono text-base font-bold text-white tracking-wider shadow-sm flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span>{formattedTime} IST</span>
         </div>
 
         {/* Simulated Date Chip */}
-        <div className="px-5 py-2 rounded-full bg-navy-800/90 border border-slate-700/60 text-sm font-medium text-slate-200 shadow-sm">
+        <div className="px-5 py-2 rounded-full bg-navy-800/90 border border-slate-700/60 text-base font-medium text-slate-200 shadow-sm">
           Sat, 10 Oct · Sim
         </div>
 
@@ -270,14 +270,14 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
               else if (playbackSpeed === 4) setPlaybackSpeed(16);
               else setPlaybackSpeed(1);
             }}
-            className="px-2 py-0.5 rounded-md bg-navy-800 hover:bg-navy-700 text-[10px] font-mono font-bold text-amber-300 border border-slate-700 transition"
+            className="px-2 py-0.5 rounded-md bg-navy-800 hover:bg-navy-700 text-xs font-mono font-bold text-amber-300 border border-slate-700 transition"
             title="Toggle playback speed (1×, 4×, 16×)"
           >
             {playbackSpeed}×
           </button>
 
           {/* Timeline Range Slider */}
-          <span className="text-[11px] font-mono text-slate-400 shrink-0">
+          <span className="text-sm font-mono text-slate-400 shrink-0">
             Step {currentStepIndex}/95
           </span>
 
@@ -292,7 +292,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
           />
 
           <span
-            className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
+            className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
               currentStep.is_peak_window
                 ? "bg-orange-500/20 text-orange-300 border border-orange-500/30"
                 : "bg-slate-800 text-slate-400"
@@ -306,7 +306,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
             <button
               type="button"
               onClick={jumpToPeak}
-              className="px-2 py-0.5 rounded text-[10px] bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-white transition"
+              className="px-2 py-0.5 rounded text-xs bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-white transition"
               title="Jump to peak evening window (18:45)"
             >
               Peak
@@ -314,7 +314,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
             <button
               type="button"
               onClick={jumpToVeto}
-              className="px-2 py-0.5 rounded text-[10px] bg-navy-800 hover:bg-navy-700 text-sky-300 hover:text-white transition"
+              className="px-2 py-0.5 rounded text-xs bg-navy-800 hover:bg-navy-700 text-sky-300 hover:text-white transition"
               title="Jump to first safety veto (19:15)"
             >
               First Veto
@@ -322,7 +322,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
             <button
               type="button"
               onClick={jumpToEvent}
-              className="px-2 py-0.5 rounded text-[10px] bg-navy-800 hover:bg-navy-700 text-orange-300 hover:text-white transition"
+              className="px-2 py-0.5 rounded text-xs bg-navy-800 hover:bg-navy-700 text-orange-300 hover:text-white transition"
               title="Jump to heatwave event start (14:00)"
             >
               Event
@@ -361,14 +361,14 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
               className="w-full flex items-center justify-between p-2.5 rounded-full bg-navy-800/90 border border-slate-700/60 hover:border-slate-500 transition group shadow-md"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-orange-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-orange-600 text-white font-bold text-sm flex items-center justify-center shadow-sm">
                   VS
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="text-xs font-semibold text-slate-100">
+                  <span className="text-sm font-semibold text-slate-100">
                     {mode} · {scenario}
                   </span>
-                  <span className="text-[10px] font-mono text-slate-400">
+                  <span className="text-xs font-mono text-slate-400">
                     Delhi 2,000 EVs · Seed 42
                   </span>
                 </div>
@@ -378,7 +378,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
 
             {isScenarioDropdownOpen && (
               <div className="absolute left-0 right-0 top-full mt-2 rounded-2xl bg-navy-900/95 border border-slate-700 shadow-2xl backdrop-blur-md overflow-hidden z-30 p-2 space-y-1">
-                <div className="px-3 py-1 text-[10px] uppercase font-mono text-slate-400 border-b border-slate-800">
+                <div className="px-3 py-1 text-xs uppercase font-mono text-slate-400 border-b border-slate-800">
                   Execution Mode
                 </div>
                 <div className="grid grid-cols-3 gap-1 p-1">
@@ -387,7 +387,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
                       key={m}
                       type="button"
                       onClick={() => setMode(m)}
-                      className={`py-1 text-xs rounded-lg font-medium transition ${
+                      className={`py-1 text-sm rounded-lg font-medium transition ${
                         mode === m
                           ? "bg-amber-500/20 text-nudge-gold font-bold"
                           : "text-slate-400 hover:bg-white/5 hover:text-white"
@@ -398,7 +398,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
                   ))}
                 </div>
 
-                <div className="px-3 py-1 text-[10px] uppercase font-mono text-slate-400 border-b border-slate-800 mt-2">
+                <div className="px-3 py-1 text-xs uppercase font-mono text-slate-400 border-b border-slate-800 mt-2">
                   Stress Scenario Track
                 </div>
                 {[
@@ -414,7 +414,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
                       handleSelectEvent(sc.event);
                       setIsScenarioDropdownOpen(false);
                     }}
-                    className={`w-full px-3 py-2 text-left text-xs rounded-xl flex items-center justify-between transition ${
+                    className={`w-full px-3 py-2 text-left text-sm rounded-xl flex items-center justify-between transition ${
                       scenario === sc.name
                         ? "bg-amber-500/20 text-nudge-gold font-bold"
                         : "text-slate-300 hover:bg-white/5 hover:text-white"
@@ -422,7 +422,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
                   >
                     <span>{sc.name}</span>
                     {scenario === sc.name && (
-                      <span className="text-[10px] font-mono text-amber-400">ACTIVE</span>
+                      <span className="text-xs font-mono text-amber-400">ACTIVE</span>
                     )}
                   </button>
                 ))}
@@ -438,7 +438,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
             {/* Feeder Zone Pill */}
             <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-navy-800/90 border border-slate-700/60 shadow-md">
               <span className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
-              <span className="text-xs sm:text-sm font-semibold text-slate-100">
+              <span className="text-sm sm:text-base font-semibold text-slate-100">
                 Feeder zone 7 · Delhi Substation
               </span>
             </div>
@@ -449,7 +449,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
                 type="button"
                 onClick={() => setHeroView("ring")}
                 aria-label="Concentric Gauge Ring view"
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold transition ${
                   heroView === "ring"
                     ? "bg-[#253952] text-white shadow-sm"
                     : "text-slate-400 hover:text-white"
@@ -463,7 +463,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
                 type="button"
                 onClick={() => setHeroView("timeline")}
                 aria-label="24h Timeline Chart view"
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold transition ${
                   heroView === "timeline"
                     ? "bg-[#253952] text-white shadow-sm"
                     : "text-slate-400 hover:text-white"
@@ -524,11 +524,11 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
               }`}
             >
               <span className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
-              <span className="text-xs sm:text-sm font-medium text-slate-200">
+              <span className="text-sm sm:text-base font-medium text-slate-200">
                 Broadcast {broadcastPct}%
               </span>
               {broadcastPct > 100 && (
-                <span className="text-[10px] font-mono text-red-400 font-bold">
+                <span className="text-xs font-mono text-red-400 font-bold">
                   (+{broadcastPct - 100}% OVERSHOOT)
                 </span>
               )}
@@ -547,10 +547,10 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
               }`}
             >
               <span className="w-3 h-3 rounded-full bg-nudge-gold shadow-[0_0_8px_rgba(250,204,21,0.6)]" />
-              <span className="text-xs sm:text-sm font-semibold text-white">
+              <span className="text-sm sm:text-base font-semibold text-white">
                 GridNudge {gridnudgePct}%
               </span>
-              <span className="text-[10px] font-mono text-emerald-400 font-bold">
+              <span className="text-xs font-mono text-emerald-400 font-bold">
                 (SAFE)
               </span>
             </button>
@@ -559,7 +559,7 @@ export function LiveView({ initialTimeline }: LiveViewProps) {
               <button
                 type="button"
                 onClick={() => setIsolatedSeries("all")}
-                className="text-[11px] text-slate-400 hover:text-white underline ml-1"
+                className="text-sm text-slate-400 hover:text-white underline ml-1"
               >
                 Reset
               </button>

@@ -26,13 +26,13 @@ def compute_allocation_priority(
     if persuasion.frame == "none" or plan is None:
         return 0.0
 
-    uplift = max(persuasion.uplift_mean, 0.05 if persuasion.explored else 0.0)
+    uplift = max(persuasion.uplift_mean, 0.08 if persuasion.explored else 0.02)
     if uplift <= 0.0:
         return 0.0
 
     shiftable = max(float(shiftable_peak_kwh), 0.5)
     grid_val = max(0.1, abs(float(plan.outcomes.get("grid_value", 1.0))))
-    # Priority scaled by shiftable energy and grid value
+    # Priority scaled by uplift, shiftable energy, and grid value
     priority = uplift * shiftable * grid_val
     return float(priority)
 

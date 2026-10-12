@@ -54,7 +54,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Link
           href="/live"
-          className="inline-flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-white transition"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Live Fleet Overview
@@ -80,7 +80,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
                 key={d.decision_id}
                 type="button"
                 onClick={() => setSelectedId(d.decision_id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-mono transition ${
+                className={`px-3 py-1.5 rounded-full text-sm font-mono transition ${
                   isCurrent
                     ? "bg-[#253952] text-white font-bold shadow-sm"
                     : "text-slate-400 hover:text-slate-200"
@@ -97,27 +97,27 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono text-slate-400">
+            <span className="text-sm font-mono text-slate-400">
               Decision {currentDecision.decision_id} · {currentDecision.user_id} ·{" "}
               {currentDecision.sim_time.replace("2026-10-10T", "").slice(0, 5)} sim
             </span>
             {isVetoed && (
-              <span className="text-[11px] font-bold font-mono px-2.5 py-0.5 rounded-full bg-cyan-400/15 text-cyan-300 border border-cyan-400/30">
+              <span className="text-sm font-bold font-mono px-2.5 py-0.5 rounded-full bg-cyan-400/15 text-cyan-300 border border-cyan-400/30">
                 SAFETY VETO
               </span>
             )}
             {isSilence && (
-              <span className="text-[11px] font-bold font-mono px-2.5 py-0.5 rounded-full bg-slate-700 text-slate-300 border border-slate-600">
+              <span className="text-sm font-bold font-mono px-2.5 py-0.5 rounded-full bg-slate-700 text-slate-300 border border-slate-600">
                 LEARNED SILENCE
               </span>
             )}
             {isFailSilent && (
-              <span className="text-[11px] font-bold font-mono px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30">
+              <span className="text-sm font-bold font-mono px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30">
                 FAIL-SILENT (SAFE DEFAULT)
               </span>
             )}
             {!isVetoed && !isSilence && !isFailSilent && (
-              <span className="text-[11px] font-bold font-mono px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+              <span className="text-sm font-bold font-mono px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
                 NUDGE APPROVED & SENT
               </span>
             )}
@@ -127,7 +127,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
           <button
             type="button"
             onClick={() => setShowExplanation(!showExplanation)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-xs text-amber-300 font-medium transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-sm text-amber-300 font-medium transition"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Explain Decision</span>
@@ -155,7 +155,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
         </p>
 
         {showExplanation && (
-          <div className="p-4 rounded-2xl bg-navy-900/90 border border-amber-500/30 text-xs text-slate-200 mt-2 space-y-2 animate-in fade-in">
+          <div className="p-4 rounded-2xl bg-navy-900/90 border border-amber-500/30 text-sm text-slate-200 mt-2 space-y-2 animate-in fade-in">
             <div className="font-bold text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
               <Info className="w-4 h-4" />
               Auditable Pipeline Explanation (Pure Structured Facts)
@@ -185,10 +185,10 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
         <div className="p-6 rounded-3xl glass-panel flex flex-col justify-between min-h-[300px]">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
+              <span className="text-sm uppercase tracking-wider font-semibold text-slate-400">
                 1 · Perception
               </span>
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="text-xs uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 Calibrated
               </span>
             </div>
@@ -203,14 +203,14 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
               >
                 {Math.round((currentDecision.journey?.p_arrive_above_reserve || 0.82) * 100)}%
               </span>
-              <span className="text-xs text-slate-400 font-mono">
+              <span className="text-sm text-slate-400 font-mono">
                 P(arrival SOC &ge; 10%)
               </span>
             </div>
 
             {/* Mini SOC Trajectory Chart representation */}
             <div className="mt-4 p-3 rounded-2xl bg-black/30 border border-white/5 space-y-2">
-              <div className="flex items-center justify-between text-[11px] text-slate-300">
+              <div className="flex items-center justify-between text-sm text-slate-300">
                 <span>SOC Trajectory vs Reserve</span>
                 <span className="font-mono text-amber-300">Target 90%</span>
               </div>
@@ -230,7 +230,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
                   title="Predicted arrival SOC q50"
                 />
               </div>
-              <div className="flex justify-between text-[10px] font-mono text-slate-400">
+              <div className="flex justify-between text-xs font-mono text-slate-400">
                 <span>0%</span>
                 <span className="text-rose-300">10% (Reserve Line)</span>
                 <span>q50: {Math.round((currentDecision.journey?.arrival_soc_q50 || 0.36) * 100)}%</span>
@@ -239,7 +239,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
             </div>
           </div>
 
-          <div className="space-y-1 pt-3 text-xs font-mono text-slate-300 border-t border-slate-700/50">
+          <div className="space-y-1 pt-3 text-sm font-mono text-slate-300 border-t border-slate-700/50">
             <div>
               Arrival SOC:{" "}
               {currentDecision.journey
@@ -266,7 +266,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
         {/* Card 2: 2 · CANDIDATE PLANS */}
         <div className="p-6 rounded-3xl glass-panel flex flex-col justify-between min-h-[300px]">
           <div>
-            <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
+            <span className="text-sm uppercase tracking-wider font-semibold text-slate-400">
               2 · Candidate plans
             </span>
 
@@ -292,11 +292,11 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold font-mono">
+                        <span className="text-sm font-bold font-mono">
                           {p.plan_id} · {p.type}
                         </span>
                         <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          className={`px-2 py-0.5 rounded text-xs font-bold ${
                             isPlanVetoed
                               ? "bg-cyan-400/20 text-cyan-300"
                               : isPlanChosen
@@ -307,7 +307,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
                           {isPlanVetoed ? "VETOED" : isPlanChosen ? "CHOSEN" : "SAFE"}
                         </span>
                       </div>
-                      <div className="mt-1 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                      <div className="mt-1 flex items-center justify-between text-sm font-mono text-slate-400">
                         <span>
                           Cost: ₹{outcomes.cost_inr !== undefined ? outcomes.cost_inr.toFixed(0) : "—"}
                         </span>
@@ -331,12 +331,12 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
                   );
                 })
               ) : (
-                <div className="text-xs text-slate-400 p-4">No candidate plans generated.</div>
+                <div className="text-sm text-slate-400 p-4">No candidate plans generated.</div>
               )}
             </div>
           </div>
 
-          <div className="pt-3 text-[11px] text-slate-400 border-t border-slate-700/50">
+          <div className="pt-3 text-sm text-slate-400 border-t border-slate-700/50">
             Plans evaluated under physics simulator prior to persuasion bandit.
           </div>
         </div>
@@ -353,31 +353,31 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider font-bold text-cyan-300">
+              <span className="text-sm uppercase tracking-wider font-bold text-cyan-300">
                 3 · Safety gate
               </span>
               <ShieldAlert className="w-4 h-4 text-cyan-400" />
             </div>
 
             {/* Inset veto or verdict reason box */}
-            <div className="mt-3 p-3 rounded-xl bg-navy-950/90 border border-cyan-500/30 text-xs font-mono text-cyan-200 break-words">
+            <div className="mt-3 p-3 rounded-xl bg-navy-950/90 border border-cyan-500/30 text-sm font-mono text-cyan-200 break-words">
               {isVetoed ? (
                 <>
-                  <div className="text-[10px] text-cyan-400 uppercase font-bold mb-1">
+                  <div className="text-xs text-cyan-400 uppercase font-bold mb-1">
                     [SAFETY VETO ENGAGED]
                   </div>
                   {vetoReason}
                 </>
               ) : isFailSilent ? (
                 <>
-                  <div className="text-[10px] text-rose-400 uppercase font-bold mb-1">
+                  <div className="text-xs text-rose-400 uppercase font-bold mb-1">
                     [FAIL-SILENT TRIGGERED]
                   </div>
                   {currentDecision.error || "Execution fault; safe default: no nudge sent."}
                 </>
               ) : (
                 <>
-                  <div className="text-[10px] text-emerald-400 uppercase font-bold mb-1">
+                  <div className="text-xs text-emerald-400 uppercase font-bold mb-1">
                     [ALL INVARIANTS PASS]
                   </div>
                   Journey confidence lower bound &ge; 90% reserve.
@@ -385,7 +385,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
               )}
             </div>
 
-            <div className="mt-4 space-y-2 text-xs">
+            <div className="mt-4 space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-slate-300 font-medium">Physical Invariants</span>
                 <span className="font-bold text-nudge-yellow">
@@ -417,7 +417,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
             </div>
           </div>
 
-          <div className="pt-3 text-[11px] text-slate-400 border-t border-slate-700/50 flex items-center justify-between">
+          <div className="pt-3 text-sm text-slate-400 border-t border-slate-700/50 flex items-center justify-between">
             <span>Rule: journey_conf_lb &ge; 0.90</span>
             <Link href="/about#policies" className="text-cyan-300 hover:underline">
               View Cedar Rules
@@ -428,7 +428,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
         {/* Card 4: 4 · PERSUASION */}
         <div className="p-6 rounded-3xl glass-panel flex flex-col justify-between min-h-[300px]">
           <div>
-            <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
+            <span className="text-sm uppercase tracking-wider font-semibold text-slate-400">
               4 · Persuasion
             </span>
 
@@ -438,12 +438,12 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
                   ? "none (Learned Silence)"
                   : `${currentDecision.persuasion?.frame || "cost"} frame`}
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-sm text-slate-400 mt-0.5">
                 Timing: {currentDecision.persuasion?.timing || "at_plug_in"}
               </p>
             </div>
 
-            <div className="mt-4 space-y-2 text-xs text-slate-300 font-mono">
+            <div className="mt-4 space-y-2 text-sm text-slate-300 font-mono">
               <div className="p-2.5 rounded-xl bg-navy-900/60 border border-white/5 space-y-1">
                 <div className="flex justify-between">
                   <span>Expected Uplift:</span>
@@ -453,7 +453,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
                       : "+0.11 kWh"}
                   </span>
                 </div>
-                <div className="flex justify-between text-[11px] text-slate-400">
+                <div className="flex justify-between text-sm text-slate-400">
                   <span>Uplift p10:</span>
                   <span>
                     {currentDecision.persuasion?.uplift_p10 !== undefined
@@ -478,7 +478,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
             </div>
           </div>
 
-          <div className="pt-3 text-[11px] text-slate-400 border-t border-slate-700/50">
+          <div className="pt-3 text-sm text-slate-400 border-t border-slate-700/50">
             Linear Thompson Sampling with first-class none arm.
           </div>
         </div>
@@ -486,7 +486,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
         {/* Card 5: 5 · ALLOCATION */}
         <div className="p-6 rounded-3xl glass-panel flex flex-col justify-between min-h-[300px]">
           <div>
-            <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
+            <span className="text-sm uppercase tracking-wider font-semibold text-slate-400">
               5 · Allocation
             </span>
 
@@ -494,12 +494,12 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
               <span className="text-5xl font-black text-white tracking-tight">
                 {currentDecision.allocation?.slot || "22:15"}
               </span>
-              <p className="text-sm text-slate-300 font-medium mt-1">
+              <p className="text-base text-slate-300 font-medium mt-1">
                 staggered charging slot
               </p>
             </div>
 
-            <div className="mt-4 p-3 rounded-2xl bg-navy-900/60 border border-white/5 space-y-1.5 text-xs font-mono">
+            <div className="mt-4 p-3 rounded-2xl bg-navy-900/60 border border-white/5 space-y-1.5 text-sm font-mono">
               <div className="flex justify-between text-slate-300">
                 <span>Shadow Price:</span>
                 <span className="text-amber-300">
@@ -521,7 +521,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
             </div>
           </div>
 
-          <div className="pt-3 text-[11px] text-slate-400 border-t border-slate-700/50">
+          <div className="pt-3 text-sm text-slate-400 border-t border-slate-700/50">
             Anti-herding staggering prevents rebound peak on Delhi Zone 7 feeder.
           </div>
         </div>
@@ -530,28 +530,28 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
         <div className="p-6 rounded-3xl glass-panel flex flex-col justify-between min-h-[300px]">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
+              <span className="text-sm uppercase tracking-wider font-semibold text-slate-400">
                 6 · Message & Verification
               </span>
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="text-xs font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 Numbers Verified
               </span>
             </div>
 
             {/* White speech bubble */}
-            <div className="mt-3 p-4 rounded-2xl bg-white text-navy-950 shadow-xl font-medium text-sm leading-relaxed">
+            <div className="mt-3 p-4 rounded-2xl bg-white text-navy-950 shadow-xl font-medium text-base leading-relaxed">
               {currentDecision.language?.message ? (
                 `“${currentDecision.language.message}”`
               ) : isVetoed ? (
-                <span className="text-slate-500 italic">
+                <span className="text-slate-400 italic">
                   [No message generated: safety invariant vetoed plan before communication stage]
                 </span>
               ) : isSilence ? (
-                <span className="text-slate-500 italic">
+                <span className="text-slate-400 italic">
                   [No message generated: bandit chose &apos;none&apos; arm (learned silence)]
                 </span>
               ) : isFailSilent ? (
-                <span className="text-slate-500 italic">
+                <span className="text-slate-400 italic">
                   [No message generated: fail-silent safe default applied]
                 </span>
               ) : (
@@ -561,13 +561,13 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
 
             {/* Facts Used Chips (§5.2) */}
             <div className="mt-3 flex flex-wrap items-center gap-1.5">
-              <span className="text-[10px] uppercase font-mono text-slate-400">
+              <span className="text-xs uppercase font-mono text-slate-400">
                 Facts payload:
               </span>
               {Object.entries(factsUsed).map(([k, v]) => (
                 <span
                   key={k}
-                  className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-amber-300"
+                  className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-xs font-mono text-amber-300"
                 >
                   {k}: {String(v)}
                 </span>
@@ -575,7 +575,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
             </div>
           </div>
 
-          <div className="pt-3 flex items-center justify-between text-xs text-slate-400 border-t border-slate-700/50">
+          <div className="pt-3 flex items-center justify-between text-sm text-slate-400 border-t border-slate-700/50">
             <span className="font-mono">
               Source: {currentDecision.language?.source || "template"} · LLM never decides
             </span>
@@ -588,12 +588,12 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
         {/* Outcome Card */}
         <div className="p-5 rounded-3xl glass-panel flex flex-col justify-between">
-          <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
+          <span className="text-sm uppercase tracking-wider font-semibold text-slate-400">
             Observed Outcome & Causal Reward
           </span>
           <div className="grid grid-cols-4 gap-2 mt-3 text-center">
             <div className="p-3 rounded-2xl bg-navy-900/60 border border-white/5">
-              <span className="text-[10px] uppercase text-slate-400 block">Adopted</span>
+              <span className="text-xs uppercase text-slate-400 block">Adopted</span>
               <span className="text-base font-bold text-white">
                 {currentDecision.outcome?.adopted === null
                   ? "—"
@@ -603,19 +603,19 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
               </span>
             </div>
             <div className="p-3 rounded-2xl bg-navy-900/60 border border-white/5">
-              <span className="text-[10px] uppercase text-slate-400 block">Shifted</span>
+              <span className="text-xs uppercase text-slate-400 block">Shifted</span>
               <span className="text-base font-bold text-amber-300">
                 {currentDecision.outcome?.kwh_shifted?.toFixed(1) || "0.0"} kWh
               </span>
             </div>
             <div className="p-3 rounded-2xl bg-navy-900/60 border border-white/5">
-              <span className="text-[10px] uppercase text-slate-400 block">Savings</span>
+              <span className="text-xs uppercase text-slate-400 block">Savings</span>
               <span className="text-base font-bold text-white">
                 ₹{currentDecision.outcome?.adopted ? "38" : "0"}
               </span>
             </div>
             <div className="p-3 rounded-2xl bg-navy-900/60 border border-white/5">
-              <span className="text-[10px] uppercase text-slate-400 block">Reward</span>
+              <span className="text-xs uppercase text-slate-400 block">Reward</span>
               <span className="text-base font-bold text-emerald-400">
                 {currentDecision.outcome?.reward?.toFixed(1) || "0.0"}
               </span>
@@ -625,7 +625,7 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
 
         {/* User Fatigue History */}
         <div className="p-5 rounded-3xl glass-panel flex flex-col justify-between">
-          <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
+          <span className="text-sm uppercase tracking-wider font-semibold text-slate-400">
             User Fatigue History & Habituation State
           </span>
           <div className="flex items-center justify-between gap-4 mt-3">
@@ -634,15 +634,15 @@ export function DecisionView({ decisions = [], initialId }: DecisionViewProps) {
                 0.24
               </div>
               <div>
-                <span className="text-xs font-semibold text-white block">
+                <span className="text-sm font-semibold text-white block">
                   Fatigue Index (Half-life 3 days)
                 </span>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-sm text-slate-400">
                   Last nudge sent: 2 days ago · Cap remaining: 2
                 </span>
               </div>
             </div>
-            <span className="text-xs font-mono px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+            <span className="text-sm font-mono px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
               Low Fatigue
             </span>
           </div>

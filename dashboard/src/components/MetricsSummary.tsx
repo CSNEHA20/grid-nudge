@@ -26,7 +26,7 @@ export function MetricsSummary({
     <div className="relative flex flex-col items-center text-center p-4 rounded-2xl glass-panel">
       {/* Header with info tooltip */}
       <div className="flex items-center gap-1.5 mb-0.5">
-        <span className="text-xs uppercase tracking-wider text-slate-300 font-semibold">
+        <span className="text-sm uppercase tracking-wider text-slate-300 font-semibold">
           Nudges / user / day
         </span>
         <button
@@ -41,7 +41,7 @@ export function MetricsSummary({
       </div>
 
       {activeTooltip === "nudges" && (
-        <div className="absolute top-10 z-30 w-52 p-2 rounded-lg bg-navy-900/95 border border-slate-700 text-[11px] text-slate-200 shadow-xl backdrop-blur-md">
+        <div className="absolute top-10 z-30 w-52 p-2 rounded-lg bg-navy-900/95 border border-slate-700 text-sm text-slate-200 shadow-xl backdrop-blur-md">
           {METRIC_GLOSSARY.nudgesPerUserDay}
         </div>
       )}
@@ -51,7 +51,7 @@ export function MetricsSummary({
         <span className="text-4xl font-extrabold text-white tracking-tight">
           {nudgesPerUser.toFixed(1)}
         </span>
-        <span className="text-xs font-mono text-slate-400">
+        <span className="text-sm font-mono text-slate-400">
           vs {broadcastNudges.toFixed(1)} broadcast
         </span>
       </div>
@@ -67,7 +67,7 @@ export function MetricsSummary({
           <span className="text-xl font-bold text-white group-hover:text-sky-300 tracking-tight transition">
             {vetoedCount}
           </span>
-          <span className="text-[10px] uppercase font-semibold text-slate-400 group-hover:text-slate-200 mt-0.5 transition">
+          <span className="text-xs uppercase font-semibold text-slate-400 group-hover:text-slate-200 mt-0.5 transition">
             vetoed
           </span>
         </Link>
@@ -81,7 +81,7 @@ export function MetricsSummary({
           <span className="text-xl font-bold text-white group-hover:text-nudge-gold tracking-tight transition">
             {silentPct}%
           </span>
-          <span className="text-[10px] uppercase font-semibold text-slate-400 group-hover:text-slate-200 mt-0.5 transition">
+          <span className="text-xs uppercase font-semibold text-slate-400 group-hover:text-slate-200 mt-0.5 transition">
             silent
           </span>
         </Link>
@@ -94,7 +94,7 @@ export function MetricsSummary({
           <span className="text-xl font-bold text-nudge-gold tracking-tight drop-shadow-sm">
             {strandedCount}
           </span>
-          <span className="text-[10px] uppercase font-semibold text-amber-300/90 mt-0.5">
+          <span className="text-xs uppercase font-semibold text-amber-300/90 mt-0.5">
             stranded
           </span>
         </div>

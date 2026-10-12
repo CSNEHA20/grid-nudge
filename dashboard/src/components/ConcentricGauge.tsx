@@ -170,7 +170,7 @@ export function ConcentricGauge({
       <div className="relative z-10 flex flex-col items-center justify-center text-center">
         {hoveredSeries === "broadcast" ? (
           <div className="animate-in fade-in duration-150">
-            <span className="text-[11px] uppercase tracking-wider text-orange-400 font-semibold mb-0.5 block">
+            <span className="text-sm uppercase tracking-wider text-orange-400 font-semibold mb-0.5 block">
               Broadcast Baseline
             </span>
             <div className="flex items-baseline justify-center">
@@ -179,13 +179,13 @@ export function ConcentricGauge({
               </span>
               <span className="text-2xl font-bold text-orange-400 ml-0.5">%</span>
             </div>
-            <span className="text-xs text-orange-300 font-mono mt-1 block">
+            <span className="text-sm text-orange-300 font-mono mt-1 block">
               {broadcastMw} MW / {capacityMw} MW ({hasOvershoot ? "Overshoot!" : "Safe"})
             </span>
           </div>
         ) : hoveredSeries === "gridnudge" ? (
           <div className="animate-in fade-in duration-150">
-            <span className="text-[11px] uppercase tracking-wider text-nudge-gold font-semibold mb-0.5 block">
+            <span className="text-sm uppercase tracking-wider text-nudge-gold font-semibold mb-0.5 block">
               GridNudge Staggered
             </span>
             <div className="flex items-baseline justify-center">
@@ -194,13 +194,13 @@ export function ConcentricGauge({
               </span>
               <span className="text-2xl font-bold text-nudge-gold ml-0.5">%</span>
             </div>
-            <span className="text-xs text-amber-200 font-mono mt-1 block">
+            <span className="text-sm text-amber-200 font-mono mt-1 block">
               {gridnudgeMw} MW / {capacityMw} MW (Within bounds)
             </span>
           </div>
         ) : (
           <div>
-            <span className="text-xs uppercase tracking-wider text-slate-300 font-medium mb-0.5 block">
+            <span className="text-sm uppercase tracking-wider text-slate-300 font-medium mb-0.5 block">
               Feeder load
             </span>
             <div className="flex items-baseline justify-center">
@@ -209,7 +209,7 @@ export function ConcentricGauge({
               </span>
               <span className="text-3xl font-bold text-nudge-gold ml-0.5">%</span>
             </div>
-            <span className="text-xs text-slate-400 font-medium mt-1 block">
+            <span className="text-sm text-slate-400 font-medium mt-1 block">
               of capacity at peak
             </span>
           </div>

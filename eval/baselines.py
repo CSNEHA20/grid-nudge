@@ -5,7 +5,7 @@ B1: Simple rule-based shifting (nudge every plugged EV during peak to delay).
 B2: Safe rule-based planner (nudge only when SOC >= 25% to preserve reserve).
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from twin.runner import run_simulation
 from twin.world import World
 

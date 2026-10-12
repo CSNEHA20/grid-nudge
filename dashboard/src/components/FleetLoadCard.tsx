@@ -28,11 +28,11 @@ export function FleetLoadCard({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-slate-300 group-hover:text-nudge-gold transition" />
-          <span className="text-sm font-semibold text-slate-200 tracking-tight">
+          <span className="text-base font-semibold text-slate-200 tracking-tight">
             Fleet load
           </span>
         </div>
-        <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-navy-900/80 text-slate-400 group-hover:text-amber-300 transition">
+        <span className="text-xs uppercase font-mono px-2 py-0.5 rounded bg-navy-900/80 text-slate-400 group-hover:text-amber-300 transition">
           Waveform
         </span>
       </div>
@@ -60,7 +60,7 @@ export function FleetLoadCard({
         <span className="text-3xl font-extrabold text-white tracking-tight">
           {currentMw.toFixed(1)}
         </span>
-        <span className="text-xs text-slate-300 font-medium">
+        <span className="text-sm text-slate-300 font-medium">
           MW now · {timeToPeak}
         </span>
       </div>

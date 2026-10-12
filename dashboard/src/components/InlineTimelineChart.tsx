@@ -76,7 +76,7 @@ export function InlineTimelineChart({
     <div className="w-full flex flex-col items-center">
       {activeEvent !== "none" && (
         <div className="w-full flex justify-end px-3 mb-1">
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-orange-500/15 text-orange-300 border border-orange-500/30 uppercase font-bold">
+          <span className="text-xs font-mono px-2 py-0.5 rounded bg-orange-500/15 text-orange-300 border border-orange-500/30 uppercase font-bold">
             Scenario Event: {activeEvent.replace("_", " ")}
           </span>
         </div>
@@ -140,11 +140,11 @@ export function InlineTimelineChart({
                   const data = payload[0].payload;
                   const overshoot = data.baseline > data.capacity;
                   return (
-                    <div className="p-3 rounded-xl bg-navy-950/95 border border-slate-700/80 backdrop-blur-md shadow-2xl text-xs space-y-1.5 z-40">
+                    <div className="p-3 rounded-xl bg-navy-950/95 border border-slate-700/80 backdrop-blur-md shadow-2xl text-sm space-y-1.5 z-40">
                       <div className="flex items-center justify-between gap-4 font-mono pb-1 border-b border-slate-800">
                         <span className="font-bold text-white">{data.time} IST</span>
                         <span
-                          className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
+                          className={`text-xs uppercase font-bold px-1.5 py-0.5 rounded ${
                             data.isPeak
                               ? "bg-red-500/20 text-red-300"
                               : "bg-slate-800 text-slate-400"
@@ -158,7 +158,7 @@ export function InlineTimelineChart({
                         <span>Broadcast Baseline:</span>
                         <span className="font-mono font-bold">
                           {data.baseline} MW{" "}
-                          <span className="text-[10px]">
+                          <span className="text-xs">
                             ({Math.round((data.baseline / data.capacity) * 100)}%)
                           </span>
                         </span>
@@ -168,23 +168,23 @@ export function InlineTimelineChart({
                         <span>GridNudge Safe:</span>
                         <span className="font-mono font-bold">
                           {data.gridnudge} MW{" "}
-                          <span className="text-[10px]">
+                          <span className="text-xs">
                             ({Math.round((data.gridnudge / data.capacity) * 100)}%)
                           </span>
                         </span>
                       </div>
 
-                      <div className="flex justify-between items-center text-slate-400 text-[11px]">
+                      <div className="flex justify-between items-center text-slate-400 text-sm">
                         <span>Feeder Capacity:</span>
                         <span className="font-mono">{data.capacity} MW</span>
                       </div>
 
-                      <div className="flex justify-between items-center text-sky-300 text-[11px]">
+                      <div className="flex justify-between items-center text-sky-300 text-sm">
                         <span>Solar Gen:</span>
                         <span className="font-mono">{data.solarGen} MW ({data.solarPct}%)</span>
                       </div>
 
-                      <div className="flex justify-between items-center text-slate-300 text-[11px] pt-1 border-t border-slate-800/80">
+                      <div className="flex justify-between items-center text-slate-300 text-sm pt-1 border-t border-slate-800/80">
                         <span>Tariff Slot:</span>
                         <span className="font-mono uppercase font-semibold text-amber-400">
                           {data.tariff}
@@ -192,7 +192,7 @@ export function InlineTimelineChart({
                       </div>
 
                       {overshoot && (
-                        <div className="text-[10px] text-red-400 font-semibold pt-0.5">
+                        <div className="text-xs text-red-400 font-semibold pt-0.5">
                           ⚠ Feeder Limit Violated (+{(data.baseline - data.capacity).toFixed(1)} MW)
                         </div>
                       )}
@@ -287,14 +287,14 @@ export function InlineTimelineChart({
 
       {/* Tariff Strip Bar along the bottom per spec §5.1 L1 */}
       <div className="w-full mt-2 pt-2 border-t border-slate-800">
-        <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1 px-1">
+        <div className="flex items-center justify-between text-xs text-slate-400 mb-1 px-1">
           <span className="font-semibold uppercase tracking-wider text-slate-300">
             Tariff Bands (₹/kWh)
           </span>
           <span className="font-mono">Delhi EV Tariff Schedule</span>
         </div>
 
-        <div className="w-full h-4 rounded-md overflow-hidden flex border border-slate-700/60 text-[9px] font-mono font-bold text-center leading-4 select-none">
+        <div className="w-full h-4 rounded-md overflow-hidden flex border border-slate-700/60 text-xs font-mono font-bold text-center leading-4 select-none">
           {/* 00:00 - 06:00: Off-Peak (25% of 24h) */}
           <div
             className="h-full bg-emerald-600/30 text-emerald-300 border-r border-emerald-500/20"

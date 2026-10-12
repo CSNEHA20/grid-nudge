@@ -28,7 +28,7 @@ export function AttentionBudget({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-slate-300" />
-          <span className="text-sm font-semibold text-slate-200 tracking-tight">
+          <span className="text-base font-semibold text-slate-200 tracking-tight">
             Attention budget
           </span>
         </div>
@@ -45,15 +45,15 @@ export function AttentionBudget({
       </div>
 
       {showTooltip && (
-        <div className="absolute top-10 right-4 z-30 w-56 p-2 rounded-lg bg-navy-900/95 border border-slate-700 text-[11px] text-slate-200 shadow-xl backdrop-blur-md">
+        <div className="absolute top-10 right-4 z-30 w-56 p-2 rounded-lg bg-navy-900/95 border border-slate-700 text-sm text-slate-200 shadow-xl backdrop-blur-md">
           <p className="font-semibold text-nudge-gold mb-1">Attention Budget & Shadow Price</p>
           <p className="mb-1">{METRIC_GLOSSARY.attentionBudgetUsed}</p>
-          <p className="text-slate-400 font-mono text-[10px]">{METRIC_GLOSSARY.shadowPrice}</p>
+          <p className="text-slate-400 font-mono text-xs">{METRIC_GLOSSARY.shadowPrice}</p>
         </div>
       )}
 
       {/* Numerical markers & Shadow Price */}
-      <div className="flex justify-between items-center text-[11px] font-mono text-slate-400 mb-1.5 px-0.5">
+      <div className="flex justify-between items-center text-sm font-mono text-slate-400 mb-1.5 px-0.5">
         <span>0%</span>
         <span
           className={`font-semibold ${
@@ -91,14 +91,14 @@ export function AttentionBudget({
       </div>
 
       {/* Sub-footer: Shadow Price & Budget Rule */}
-      <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-800 text-[11px]">
+      <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-800 text-sm">
         <div className="flex items-center gap-1 text-slate-300">
           <span className="text-slate-400">Shadow price:</span>
           <span className="font-mono font-semibold text-nudge-gold">
             ₹{shadowPrice.toFixed(1)}/nudge
           </span>
         </div>
-        <span className="text-[10px] text-slate-400 truncate max-w-[130px]" title={rule}>
+        <span className="text-xs text-slate-400 truncate max-w-[130px]" title={rule}>
           {rule}
         </span>
       </div>

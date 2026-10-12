@@ -164,7 +164,7 @@ export function FloatingDock({
         href={`/decision/${latestVetoId}`}
         aria-label="View latest safety veto decision"
         title="View latest safety veto decision card"
-        className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-[11px] font-mono text-cyan-300 transition"
+        className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-sm font-mono text-cyan-300 transition"
       >
         <ShieldAlert className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
         <span className="truncate max-w-[210px]">{latestVetoReason}</span>

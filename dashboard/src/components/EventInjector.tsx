@@ -162,14 +162,14 @@ export function EventInjector({
 
       {/* Label & Active Event Badge */}
       <div className="flex items-center gap-2 mt-2">
-        <span className="text-xs text-slate-400 font-medium">
+        <span className="text-sm text-slate-400 font-medium">
           Inject event
         </span>
         {activeEvent !== "none" && (
           <button
             type="button"
             onClick={() => onSelectEvent("none")}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40 text-[10px] font-mono hover:bg-orange-500/30 transition"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40 text-xs font-mono hover:bg-orange-500/30 transition"
           >
             <span>{activeEvent.replace("_", " ").toUpperCase()} ACTIVE</span>
             <X className="w-2.5 h-2.5 ml-0.5" />
@@ -183,7 +183,7 @@ export function EventInjector({
           <div className="w-full max-w-sm rounded-2xl glass-panel p-5 border border-slate-700/80 shadow-2xl">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                <span className="text-xs uppercase font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30">
                   Scenario Injection
                 </span>
                 <h3 className="text-base font-bold text-white mt-1.5">
@@ -200,12 +200,12 @@ export function EventInjector({
               </button>
             </div>
 
-            <p className="text-xs text-slate-300 mb-4 leading-relaxed">
+            <p className="text-sm text-slate-300 mb-4 leading-relaxed">
               {EVENT_CONFIGS[pendingEvent].description}
             </p>
 
             {/* Parameters list */}
-            <div className="rounded-xl bg-navy-900/90 border border-slate-700/60 p-3 mb-4 space-y-1.5 text-xs">
+            <div className="rounded-xl bg-navy-900/90 border border-slate-700/60 p-3 mb-4 space-y-1.5 text-sm">
               {Object.entries(EVENT_CONFIGS[pendingEvent].params).map(([k, v]) => (
                 <div key={k} className="flex justify-between items-center">
                   <span className="text-slate-400">{k}</span>
@@ -219,14 +219,14 @@ export function EventInjector({
               <button
                 type="button"
                 onClick={() => setPendingEvent(null)}
-                className="flex-1 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 text-xs font-semibold transition"
+                className="flex-1 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 text-sm font-semibold transition"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirm}
-                className="flex-1 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md"
+                className="flex-1 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-sm font-bold transition flex items-center justify-center gap-1.5 shadow-md"
               >
                 <Check className="w-3.5 h-3.5" />
                 Inject Event

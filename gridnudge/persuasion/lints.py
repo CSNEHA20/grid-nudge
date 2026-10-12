@@ -65,8 +65,9 @@ class LinTS:
         A_inv = np.linalg.pinv(self.A)
         mu = A_inv @ self.b
 
-        # Symmetrize and regularize covariance matrix for Cholesky
-        cov = self.v**2 * A_inv
+        # Adaptive exploration: schedule decays with updates from initial exploration to exploitation
+        effective_v = max(0.04, self.v * (0.9995 ** min(self.update_count, 1000)))
+        cov = effective_v**2 * A_inv
         cov = 0.5 * (cov + cov.T) + 1e-7 * np.eye(self.d)
 
         try:
@@ -118,11 +119,33 @@ class LinTS:
 
     def load_state(self, state: Dict[str, Any]) -> None:
         """Restore model parameters from stored state."""
-        self.d = int(state.get("d", self.d))
+        stored_d = state.get("d")
+        if stored_d is not None and int(stored_d) != self.d:
+            raise ValueError(
+                f"Stored state dimension d={stored_d} does not match bandit dimension d={self.d}"
+            )
+
+        A_raw = state.get("A")
+        b_raw = state.get("b")
+        if A_raw is None or b_raw is None:
+            raise ValueError("Bandit state missing required 'A' or 'b' fields.")
+
+        A_arr = np.array(A_raw, dtype=float)
+        b_arr = np.array(b_raw, dtype=float)
+
+        if A_arr.shape != (self.d, self.d):
+            raise ValueError(
+                f"Stored A matrix shape {A_arr.shape} does not match expected ({self.d}, {self.d})"
+            )
+        if b_arr.shape != (self.d,):
+            raise ValueError(
+                f"Stored b vector shape {b_arr.shape} does not match expected ({self.d},)"
+            )
+
         self.lam = float(state.get("lam", self.lam))
         self.v = float(state.get("v", self.v))
         self.gamma = float(state.get("gamma", self.gamma))
-        self.A = np.array(state.get("A"), dtype=float)
-        self.b = np.array(state.get("b"), dtype=float)
+        self.A = A_arr
+        self.b = b_arr
         self.update_count = int(state.get("update_count", 0))
         self.version = int(state.get("version", 1))

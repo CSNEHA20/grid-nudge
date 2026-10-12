@@ -693,6 +693,49 @@
   - `python scripts/check_claims.py`: ALL CLAIMS VERIFIED.
   - Full test suite: 153/153 tests passing (0 failures).
 
+## 2026-10-11 — Stage 1-4 Gap-Fill Resolution & Fresh-Clone Verification (v/fresh-clone-green)
+
+- **Phase:** Gap-Fill Resolution (`GRIDNUDGE_GAP_FILL_PLAN.md`)
+- **Goal:** Ensure fresh-clone reproducibility, fix typing imports, declare `pyarrow` dependency, implement LinTS dimension safety guards with pipeline fallback, automate CI dataset preparation, add module import smoke tests and anti-leakage audit tests.
+- **Files Created/Modified:**
+  - `eval/baselines.py`: Added missing `Optional` typing import.
+  - `data/scripts/fetch_weather.py`: Added top-level `Any, Dict, Tuple` imports and clean fallback execution.
+  - `pyproject.toml`: Added `pyarrow>=14.0.0` to project dependencies.
+  - `gridnudge/persuasion/lints.py`: Added strict dimension safety verification in `LinTS.load_state` (`A.shape == (d, d)` and `b.shape == (d,)`).
+  - `gridnudge/pipeline.py`: Added graceful try/except fallback to fresh LinTS bandit in `decide_batch` and `process_outcomes` on dimension mismatch or corrupted state.
+  - `config/benchmark.yaml`: Created authoritative unified benchmark configuration.
+  - `scripts/prepare_data.sh`, `scripts/prepare_data.py`: Added automated dataset generation and validation runner.
+  - `scripts/verify_all.sh`, `scripts/verify_all.py`: Added master verification suite (data generation, tests, claim audit, ownership check, Next.js build).
+  - `.github/workflows/ci.yml`: Added `bash scripts/prepare_data.sh` and `python scripts/check_claims.py`.
+  - `tests/test_dimension_guard.py`: Created unit tests for dimension mismatch rejection and pipeline graceful recovery (5 tests).
+  - `tests/test_imports.py`: Created import smoke test for all 46 core packages and submodules.
+  - `tests/test_no_leakage.py`: Created AST leakage audit tests confirming zero imports or references to `twin.behavior_hidden` or `behavior_assumed.yaml` in learner and data generation scripts (3 tests).
+- **Real Verification Output:**
+  - `scripts/verify_all.py`: All 5 steps completed with exit code 0.
+  - `python -m pytest -q`: **208 passed, 0 failures**.
+  - `python scripts/check_claims.py`: ALL CLAIMS VERIFIED.
+  - `python scripts/check_ownership.py`: 0 violations.
+  - `npm run build`: 16/16 routes compiled successfully.
+- **Known Issues / Gaps:** None.
+
+## 2026-10-12 — Stage H: Dashboard 3D Experience, UI Readability & Final Sync
+- **Phase:** P4/P5 Dashboard Polish & Pre-Submission Clean Sync
+- **Files Created/Modified:**
+  - `dashboard/src/components/EVScene3D.tsx`: Created interactive 3D electric vehicle and charging pillar scene with perspective tilt, glowing energy pulses, and zero third-party dependencies.
+  - `dashboard/src/components/BackgroundBackdrop.tsx`: Mounted EVScene3D across all dashboard pages with balanced glassmorphic translucency.
+  - `dashboard/public/ev-hero.jpg`: Integrated photorealistic high-definition EV charging station hero backdrop.
+  - `dashboard/src/app/globals.css`: Enhanced panel opacity, backdrop blur, and text contrast.
+  - `dashboard/src/components/*.tsx`: Scaled text size and contrast across all dashboard views (Live, Decisions, Evaluation, Twin, Flexibility, Test Drive, About) for presentation readability.
+  - `docs/DEMO_SCRIPT.md`: Formatted authoritative 3-minute video voiceover script strictly aligned with `calibration.json` ECE claims (1.01%).
+- **Verification Output:**
+  - `python -m pytest -q`: **208 passed, 0 failures**.
+  - `npx tsc --noEmit`: 0 TypeScript errors.
+  - `python scripts/check_claims.py`: ALL CLAIMS VERIFIED.
+  - `python scripts/check_ownership.py`: 0 violations.
+- **Known Issues / Gaps:** None.
+
+
+
 
 
 

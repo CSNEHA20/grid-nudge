@@ -32,7 +32,7 @@ export function ConfidenceRings({
     <div className="relative flex items-center justify-around gap-4 p-4 rounded-2xl glass-panel">
       {/* Tooltip display */}
       {activeTooltip && (
-        <div className="absolute -top-16 left-4 right-4 z-30 p-2.5 rounded-xl bg-navy-900/95 border border-slate-700 text-[11px] text-slate-200 shadow-xl backdrop-blur-md">
+        <div className="absolute -top-16 left-4 right-4 z-30 p-2.5 rounded-xl bg-navy-900/95 border border-slate-700 text-sm text-slate-200 shadow-xl backdrop-blur-md">
           {activeTooltip === "journey" ? (
             <div>
               <span className="font-semibold text-sky-400 block mb-0.5">Fleet Journey Confidence</span>
@@ -77,7 +77,7 @@ export function ConfidenceRings({
           type="button"
           onMouseEnter={() => setActiveTooltip("journey")}
           onMouseLeave={() => setActiveTooltip(null)}
-          className="flex items-center gap-1 text-xs text-slate-400 hover:text-sky-300 font-medium mt-1 transition"
+          className="flex items-center gap-1 text-sm text-slate-400 hover:text-sky-300 font-medium mt-1 transition"
         >
           <span>Journey</span>
           <Info className="w-3 h-3" />
@@ -122,7 +122,7 @@ export function ConfidenceRings({
           type="button"
           onMouseEnter={() => setActiveTooltip("charging")}
           onMouseLeave={() => setActiveTooltip(null)}
-          className="flex items-center gap-1 text-xs text-slate-400 hover:text-nudge-gold font-medium mt-1 transition"
+          className="flex items-center gap-1 text-sm text-slate-400 hover:text-nudge-gold font-medium mt-1 transition"
         >
           <span>Charging</span>
           <Info className="w-3 h-3" />

@@ -7,6 +7,7 @@ import json
 import logging
 from pathlib import Path
 import urllib.request
+from typing import Any, Dict, Tuple
 import numpy as np
 import pandas as pd
 
@@ -132,5 +133,4 @@ def main():
 
 
 if __name__ == "__main__":
-    from typing import Dict, Tuple
     main()

@@ -91,7 +91,14 @@ def decide_batch(
         model_dict = store.get_model("lints_persuasion")
         bandit = LinTS(seed=42)
         if model_dict and "A" in model_dict:
-            bandit.load_state(model_dict)
+            try:
+                bandit.load_state(model_dict)
+            except Exception as ex:
+                logger.warning(
+                    "Stored bandit state incompatible or corrupted (%s); starting fresh LinTS bandit.",
+                    ex,
+                )
+                bandit = LinTS(seed=42)
 
     # Pre-fetch user states for all candidate users
     user_ids = [str(c.get("user_id")) for c in candidates if c.get("user_id") is not None]
@@ -459,7 +466,14 @@ def process_outcomes(
         model_dict = store.get_model("lints_persuasion")
         bandit = LinTS(seed=42)
         if model_dict and "A" in model_dict:
-            bandit.load_state(model_dict)
+            try:
+                bandit.load_state(model_dict)
+            except Exception as ex:
+                logger.warning(
+                    "Stored bandit state incompatible or corrupted in learn_outcomes (%s); starting fresh LinTS bandit.",
+                    ex,
+                )
+                bandit = LinTS(seed=42)
 
     updated_records: List[Dict[str, Any]] = []
     phi_batch: List[np.ndarray] = []

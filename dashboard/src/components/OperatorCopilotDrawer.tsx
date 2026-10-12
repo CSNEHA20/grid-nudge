@@ -122,11 +122,11 @@ export function OperatorCopilotDrawer({
                 className="text-lg font-bold text-white flex items-center gap-2"
               >
                 Operator Copilot
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="text-xs uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   Read-Only Verified
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-sm text-slate-400">
                 Decision explainability & structured scenario injection
               </p>
             </div>
@@ -144,7 +144,7 @@ export function OperatorCopilotDrawer({
         {/* Suggested Prompts Strip */}
         {copilotData?.suggested_questions && (
           <div className="p-4 bg-navy-900/40 border-b border-white/5 flex flex-col gap-2">
-            <span className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider">
+            <span className="text-sm uppercase font-semibold text-slate-400 tracking-wider">
               Suggested Questions:
             </span>
             <div className="flex flex-wrap gap-2">
@@ -153,7 +153,7 @@ export function OperatorCopilotDrawer({
                   key={i}
                   type="button"
                   onClick={() => handleSend(q)}
-                  className="text-xs text-left px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-amber-300 transition"
+                  className="text-sm text-left px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-amber-300 transition"
                 >
                   {q}
                 </button>
@@ -172,7 +172,7 @@ export function OperatorCopilotDrawer({
               }`}
             >
               <div
-                className={`max-w-[88%] rounded-2xl p-4 text-sm leading-relaxed ${
+                className={`max-w-[88%] rounded-2xl p-4 text-base leading-relaxed ${
                   m.sender === "user"
                     ? "bg-amber-500/20 border border-amber-500/30 text-white"
                     : "bg-navy-800/80 border border-white/10 text-slate-200"
@@ -183,7 +183,7 @@ export function OperatorCopilotDrawer({
                 {/* Citations Chips */}
                 {m.citations && m.citations.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-white/10 flex flex-wrap items-center gap-1.5">
-                    <span className="text-[10px] uppercase font-mono text-slate-400 mr-1">
+                    <span className="text-xs uppercase font-mono text-slate-400 mr-1">
                       Citations:
                     </span>
                     {m.citations.map((c, cIdx) => (
@@ -196,7 +196,7 @@ export function OperatorCopilotDrawer({
                             ? "/about#policies"
                             : "/evaluation"
                         }
-                        className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-amber-400/10 text-amber-300 border border-amber-400/20 hover:bg-amber-400/20 transition"
+                        className="inline-flex items-center gap-1 text-sm font-mono px-2 py-0.5 rounded-md bg-amber-400/10 text-amber-300 border border-amber-400/20 hover:bg-amber-400/20 transition"
                       >
                         {c.label}
                         <ExternalLink className="w-2.5 h-2.5" />
@@ -208,11 +208,11 @@ export function OperatorCopilotDrawer({
                 {/* Structured Scenario Preview */}
                 {m.scenario_preview && (
                   <div className="mt-4 p-4 rounded-xl bg-navy-950/90 border border-amber-500/30 flex flex-col gap-3">
-                    <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
+                    <div className="flex items-center gap-2 text-amber-400 font-bold text-sm uppercase tracking-wide">
                       <Zap className="w-4 h-4" />
                       {m.scenario_preview.title}
                     </div>
-                    <div className="space-y-1.5 text-xs text-slate-300">
+                    <div className="space-y-1.5 text-sm text-slate-300">
                       {m.scenario_preview.events.map((e, eIdx) => (
                         <div
                           key={eIdx}
@@ -227,12 +227,12 @@ export function OperatorCopilotDrawer({
                         </div>
                       ))}
                     </div>
-                    <p className="text-xs text-slate-400 italic">
+                    <p className="text-sm text-slate-400 italic">
                       {m.scenario_preview.projected_impact}
                     </p>
                     <div className="flex items-center justify-end pt-1">
                       {injectedScenarios[m.scenario_preview.title] ? (
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                        <div className="flex items-center gap-1.5 text-sm font-semibold text-emerald-400 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                           <CheckCircle2 className="w-4 h-4" />
                           Scenario Injected into Twin
                         </div>
@@ -242,7 +242,7 @@ export function OperatorCopilotDrawer({
                           onClick={() =>
                             handleConfirmScenario(m.scenario_preview!.title)
                           }
-                          className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-navy-950 font-bold text-xs shadow-md transition"
+                          className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-navy-950 font-bold text-sm shadow-md transition"
                         >
                           Confirm & Inject Scenario
                         </button>
@@ -253,11 +253,11 @@ export function OperatorCopilotDrawer({
 
                 {/* Collapsible Tools Used Trace */}
                 {m.tools_used && m.tools_used.length > 0 && (
-                  <div className="mt-2 pt-2 text-xs">
+                  <div className="mt-2 pt-2 text-sm">
                     <button
                       type="button"
                       onClick={() => toggleTools(idx)}
-                      className="flex items-center gap-1 text-[11px] font-mono text-slate-400 hover:text-slate-300"
+                      className="flex items-center gap-1 text-sm font-mono text-slate-400 hover:text-slate-300"
                     >
                       {expandedTools[idx] ? (
                         <ChevronDown className="w-3.5 h-3.5" />
@@ -267,7 +267,7 @@ export function OperatorCopilotDrawer({
                       <span>Tools used ({m.tools_used.length})</span>
                     </button>
                     {expandedTools[idx] && (
-                      <div className="mt-1.5 p-2 rounded bg-black/30 font-mono text-[10px] text-emerald-400 space-y-1">
+                      <div className="mt-1.5 p-2 rounded bg-black/30 font-mono text-xs text-emerald-400 space-y-1">
                         {m.tools_used.map((tool, tIdx) => (
                           <div key={tIdx} className="truncate">
                             &gt; {tool}
@@ -296,7 +296,7 @@ export function OperatorCopilotDrawer({
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
               placeholder="Ask why a plan was vetoed, or inspect metrics..."
-              className="flex-1 px-4 py-2.5 rounded-full bg-white/5 border border-white/15 focus:border-amber-400/60 focus:outline-none text-sm text-white placeholder:text-slate-500"
+              className="flex-1 px-4 py-2.5 rounded-full bg-white/5 border border-white/15 focus:border-amber-400/60 focus:outline-none text-base text-white placeholder:text-slate-400"
             />
             <button
               type="submit"

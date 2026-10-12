@@ -26,9 +26,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .[dev]
 
+      - name: Prepare datasets
+        run: |
+          bash scripts/prepare_data.sh
+
       - name: Run tests
         run: |
           pytest -q
+
+      - name: Audit claims
+        run: |
+          python scripts/check_claims.py
 
   dashboard-build:
     runs-on: ubuntu-latest

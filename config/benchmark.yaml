@@ -1,0 +1,34 @@
+# GridNudge Unified Benchmark Configuration
+# Authoritative configuration for all published policy evaluations (eval.run and eval.pareto)
+
+benchmark:
+  fleet_size: 2000
+  step_minutes: 15
+  steps_per_day: 96
+  simulation_days: 1
+  total_steps: 96
+  scenario: "heatwave"
+  feeder_capacity_mw: 12.0
+  nudge_budget_pct: 0.08
+  max_daily_nudges: 3
+
+seeds:
+  - 42
+  - 101
+  - 202
+  - 303
+  - 404
+
+pareto_sweep:
+  budget_levels:
+    - 0.03
+    - 0.05
+    - 0.08
+    - 0.12
+    - 0.18
+  broadcast_caps:
+    - 0.20
+    - 0.40
+    - 0.60
+    - 0.80
+    - 1.00

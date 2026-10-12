@@ -81,3 +81,24 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
 }
+
+/* See-through panels so the 3D EV background stays visible */
+.glass-panel,
+.glass-panel-interactive,
+.glass-inset,
+[class*="bg-navy-9"]:not(body),
+[class*="bg-navy-8"]:not(body) {
+  background-color: rgba(9, 14, 23, 0.5) !important;
+  -webkit-backdrop-filter: blur(3px) !important;
+  backdrop-filter: blur(3px) !important;
+}
+body > main,
+main {
+  background: transparent !important;
+}
+body {
+  background-attachment: fixed;
+}
+
+.readable-panel { background-color: rgba(9, 14, 23, 0.62) !important; }
+

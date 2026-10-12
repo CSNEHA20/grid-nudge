@@ -62,8 +62,8 @@ export function AlertsPopover({
       <div className="flex items-center justify-between pb-3 border-b border-slate-800">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-          <h4 className="text-sm font-bold text-white tracking-tight">System Alerts</h4>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-navy-800 text-slate-300 border border-slate-700">
+          <h4 className="text-base font-bold text-white tracking-tight">System Alerts</h4>
+          <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-navy-800 text-slate-300 border border-slate-700">
             {alerts.length} unread
           </span>
         </div>
@@ -105,26 +105,26 @@ export function AlertsPopover({
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-0.5">
-                  <span className="text-xs font-semibold text-white group-hover:text-amber-200 transition truncate">
+                  <span className="text-sm font-semibold text-white group-hover:text-amber-200 transition truncate">
                     {alert.title}
                   </span>
-                  <span className="text-[10px] font-mono text-slate-400 shrink-0">
+                  <span className="text-xs font-mono text-slate-400 shrink-0">
                     {alert.time}
                   </span>
                 </div>
 
-                <p className="text-[11px] text-slate-300 leading-snug line-clamp-2">
+                <p className="text-sm text-slate-300 leading-snug line-clamp-2">
                   {alert.detail}
                 </p>
 
                 <div className="mt-1.5 flex items-center gap-2">
                   <span
-                    className={`text-[9px] uppercase font-mono font-bold px-1.5 py-0.5 rounded border ${badgeClass}`}
+                    className={`text-xs uppercase font-mono font-bold px-1.5 py-0.5 rounded border ${badgeClass}`}
                   >
                     {alert.type}
                   </span>
                   {alert.link && (
-                    <span className="text-[10px] text-sky-400 group-hover:underline">
+                    <span className="text-xs text-sky-400 group-hover:underline">
                       View details →
                     </span>
                   )}

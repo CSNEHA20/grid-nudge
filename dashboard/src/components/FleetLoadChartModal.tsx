@@ -59,17 +59,17 @@ export function FleetLoadChartModal({
         <div className="flex items-start justify-between mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-mono uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span className="text-sm font-mono uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
                 Simulation · Delhi Substation Feeder 7
               </span>
-              <span className="text-xs text-slate-400">
+              <span className="text-sm text-slate-400">
                 Heatwave Stress Scenario (2,000 EVs)
               </span>
             </div>
             <h2 className="text-2xl font-bold text-white tracking-tight">
               24-Hour Fleet Load & Peak Shifting Profile
             </h2>
-            <p className="text-sm text-slate-300 mt-0.5">
+            <p className="text-base text-slate-300 mt-0.5">
               Comparison between uncontrolled baseline charging and GridNudge safety-gated uplift allocation.
             </p>
           </div>
@@ -85,7 +85,7 @@ export function FleetLoadChartModal({
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap items-center gap-6 mb-4 px-2 text-xs">
+        <div className="flex flex-wrap items-center gap-6 mb-4 px-2 text-sm">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-orange-500" />
             <span className="text-slate-300 font-medium">Uncontrolled Broadcast Baseline</span>
@@ -145,7 +145,7 @@ export function FleetLoadChartModal({
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="p-3 rounded-xl bg-navy-950/95 border border-slate-700/80 shadow-xl text-xs space-y-1">
+                      <div className="p-3 rounded-xl bg-navy-950/95 border border-slate-700/80 shadow-xl text-sm space-y-1">
                         <div className="font-bold text-white mb-1">{label}</div>
                         <div className="text-orange-400 font-medium">
                           Baseline Load: {data.baseline} MW ({data.baselineStress}% capacity)
@@ -182,14 +182,14 @@ export function FleetLoadChartModal({
         </div>
 
         {/* Footer note */}
-        <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+        <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-sm text-slate-400">
           <div className="flex items-center gap-1.5">
-            <Info className="w-4 h-4 text-slate-500" />
+            <Info className="w-4 h-4 text-slate-400" />
             <span>
               Peak is shaved by staggering EV charging across the overnight solar/wind window (22:30–05:30) while respecting travel safety.
             </span>
           </div>
-          <span className="font-mono text-slate-500">Seed 42 · CRN Synchronized</span>
+          <span className="font-mono text-slate-400">Seed 42 · CRN Synchronized</span>
         </div>
       </div>
     </div>

@@ -67,10 +67,10 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono text-slate-400">
+            <span className="text-sm font-mono text-slate-400">
               Multi-Seed Controlled Evaluation · Common Random Numbers
             </span>
-            <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span className="text-xs uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               SIMULATION · VERIFIED
             </span>
           </div>
@@ -88,7 +88,7 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
           <select
             value={selectedScenario}
             onChange={(e) => setSelectedScenario(e.target.value)}
-            className="px-3.5 py-2 rounded-xl bg-navy-900 border border-white/15 text-xs text-white focus:outline-none focus:border-amber-400"
+            className="px-3.5 py-2 rounded-xl bg-navy-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
           >
             <option value="heatwave">Scenario: Heatwave (10 seeds)</option>
             <option value="solar_drop">Scenario: Solar Drop (10 seeds)</option>
@@ -99,7 +99,7 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
           <button
             type="button"
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-xs text-slate-200 font-medium transition shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-sm text-slate-200 font-medium transition shadow-sm"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export CSV</span>
@@ -111,58 +111,58 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Card 1: Stranded by nudges */}
         <div className="p-5 rounded-3xl glass-panel flex flex-col justify-between border-b-2 border-b-nudge-gold">
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-sm text-slate-400 font-medium">
             Stranded by nudges (target 0)
           </span>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-5xl font-black text-nudge-yellow tracking-tight">
               0
             </span>
-            <span className="text-xs font-mono text-emerald-400">PASSED</span>
+            <span className="text-sm font-mono text-emerald-400">PASSED</span>
           </div>
-          <span className="text-[11px] text-slate-400 mt-1">Zero unfulfilled departures</span>
+          <span className="text-sm text-slate-400 mt-1">Zero unfulfilled departures</span>
         </div>
 
         {/* Card 2: Uplift / nudge */}
         <div className="p-5 rounded-3xl glass-panel flex flex-col justify-between">
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-sm text-slate-400 font-medium">
             Uplift per nudge (kWh caused)
           </span>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-5xl font-black text-white tracking-tight">
               0.21
             </span>
-            <span className="text-xs font-mono text-amber-300">kWh/msg</span>
+            <span className="text-sm font-mono text-amber-300">kWh/msg</span>
           </div>
-          <span className="text-[11px] text-slate-400 mt-1">Twin oracle: 0.23 kWh</span>
+          <span className="text-sm text-slate-400 mt-1">Twin oracle: 0.23 kWh</span>
         </div>
 
         {/* Card 3: Calibration err. */}
         <div className="p-5 rounded-3xl glass-panel flex flex-col justify-between">
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-sm text-slate-400 font-medium">
             Calibration error (ECE)
           </span>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-5xl font-black text-white tracking-tight">
               2.1%
             </span>
-            <span className="text-xs font-mono text-emerald-400">&lt; 5% goal</span>
+            <span className="text-sm font-mono text-emerald-400">&lt; 5% goal</span>
           </div>
-          <span className="text-[11px] text-slate-400 mt-1">Held-out simulated trips</span>
+          <span className="text-sm text-slate-400 mt-1">Held-out simulated trips</span>
         </div>
 
         {/* Card 4: Uplift est. err. */}
         <div className="p-5 rounded-3xl glass-panel flex flex-col justify-between">
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-sm text-slate-400 font-medium">
             Uplift estimation error
           </span>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-5xl font-black text-white tracking-tight">
               0.03
             </span>
-            <span className="text-xs font-mono text-slate-400">MAE</span>
+            <span className="text-sm font-mono text-slate-400">MAE</span>
           </div>
-          <span className="text-[11px] text-slate-400 mt-1">Estimator vs true uplift</span>
+          <span className="text-sm text-slate-400 mt-1">Estimator vs true uplift</span>
         </div>
       </div>
 
@@ -177,7 +177,7 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
               </h2>
 
               {/* Metric Switcher */}
-              <div className="flex items-center gap-1 bg-navy-900/90 p-1 rounded-full border border-white/10 text-xs">
+              <div className="flex items-center gap-1 bg-navy-900/90 p-1 rounded-full border border-white/10 text-sm">
                 <button
                   type="button"
                   onClick={() => setActiveMetric("peak_reduction_pct")}
@@ -246,7 +246,7 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
                     <div className="w-28 sm:w-32 text-left">
                       <div className="flex items-center gap-1.5">
                         <span
-                          className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded ${
+                          className={`text-sm font-mono font-bold px-1.5 py-0.5 rounded ${
                             isB4
                               ? "bg-amber-500/20 text-amber-300"
                               : "bg-white/5 text-slate-400"
@@ -255,7 +255,7 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
                           {p.id}
                         </span>
                         <span
-                          className={`text-xs truncate ${
+                          className={`text-sm truncate ${
                             isB4
                               ? "font-extrabold text-nudge-yellow"
                               : "font-medium text-slate-200"
@@ -296,7 +296,7 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
                       </div>
 
                       <span
-                        className={`text-xs font-mono min-w-[55px] text-right ${
+                        className={`text-sm font-mono min-w-[55px] text-right ${
                           isB4
                             ? "font-bold text-nudge-yellow"
                             : "text-slate-300 font-medium"
@@ -315,7 +315,7 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
             </div>
           </div>
 
-          <div className="mt-6 pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-400">
+          <div className="mt-6 pt-3 border-t border-slate-700/50 flex items-center justify-between text-sm text-slate-400">
             <span>Simulated under Common Random Numbers (CRN)</span>
             <span className="font-mono text-amber-300">Seed Set: [42, 101, 204, 305, 412]</span>
           </div>
@@ -328,11 +328,11 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
               <h2 className="text-lg font-bold text-white tracking-tight">
                 When we say 90%...
               </h2>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span className="text-xs font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
                 Reliability Diagram
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1 mb-4">
+            <p className="text-sm text-slate-400 mt-1 mb-4">
               Observed arrival SOC frequency tracks predicted confidence lower bound
             </p>
 
@@ -368,7 +368,7 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
                 <circle cx="80" cy="20" r="3.5" fill="#f97316" stroke="#fff" strokeWidth="1" />
               </svg>
 
-              <div className="flex justify-between items-center text-[10px] font-mono text-slate-400 mt-1">
+              <div className="flex justify-between items-center text-xs font-mono text-slate-400 mt-1">
                 <span>0% predicted</span>
                 <span className="text-amber-300">
                   ECE = {calibration?.expected_calibration_error ? `${(calibration.expected_calibration_error * 100).toFixed(1)}%` : "2.1%"}
@@ -378,7 +378,7 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-700/50 text-xs text-slate-400 flex items-center justify-between">
+          <div className="mt-4 pt-3 border-t border-slate-700/50 text-sm text-slate-400 flex items-center justify-between">
             <span>Interval Coverage (90% Nominal)</span>
             <span className="font-mono text-emerald-400 font-bold">91.4% empirical</span>
           </div>
@@ -394,13 +394,13 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
               <h3 className="text-base font-bold text-white">
                 Bandit Learning Curve & Regret
               </h3>
-              <span className="text-xs font-mono text-emerald-400">LinTS</span>
+              <span className="text-sm font-mono text-emerald-400">LinTS</span>
             </div>
-            <p className="text-xs text-slate-400 mb-4">
+            <p className="text-sm text-slate-400 mb-4">
               Cumulative regret asymptotically plateaus as LinTS learns driver fatigue decay and silence.
             </p>
 
-            <div className="space-y-3 font-mono text-xs">
+            <div className="space-y-3 font-mono text-sm">
               <div className="p-3 rounded-2xl bg-navy-900/60 border border-white/5 flex items-center justify-between">
                 <span className="text-slate-300">LinTS vs Plain Bandit Regret:</span>
                 <span className="text-emerald-400 font-bold">-48.2% lower regret</span>
@@ -416,7 +416,7 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
             </div>
           </div>
 
-          <div className="pt-3 mt-4 border-t border-slate-700/50 text-xs text-slate-400">
+          <div className="pt-3 mt-4 border-t border-slate-700/50 text-sm text-slate-400">
             Learned silence preserves driver attention while matching peak shaving.
           </div>
         </div>
@@ -428,13 +428,13 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
               <h3 className="text-base font-bold text-white">
                 Safety Invariants & Misspecification Stress
               </h3>
-              <span className="text-xs font-mono text-cyan-300">Audit Proof</span>
+              <span className="text-sm font-mono text-cyan-300">Audit Proof</span>
             </div>
-            <p className="text-xs text-slate-400 mb-4">
+            <p className="text-sm text-slate-400 mb-4">
               Stress tests under misspecified user priors and sudden temperature shifts.
             </p>
 
-            <div className="space-y-3 font-mono text-xs">
+            <div className="space-y-3 font-mono text-sm">
               <div className="p-3 rounded-2xl bg-navy-900/60 border border-white/5 flex items-center justify-between">
                 <span className="text-slate-300">Attributable Stranded Trips:</span>
                 <span className="text-emerald-400 font-bold">0 (100% safe)</span>
@@ -450,14 +450,14 @@ export function EvaluationView({ evaluation, calibration }: EvaluationViewProps)
             </div>
           </div>
 
-          <div className="pt-3 mt-4 border-t border-slate-700/50 text-xs text-slate-400">
+          <div className="pt-3 mt-4 border-t border-slate-700/50 text-sm text-slate-400">
             Safety Filter #1 and #2 cannot be traded away for reward.
           </div>
         </div>
       </div>
 
       {/* Module E7: Reproducibility Card */}
-      <div className="p-5 rounded-3xl glass-panel flex flex-wrap items-center justify-between gap-4 text-xs font-mono border border-white/10">
+      <div className="p-5 rounded-3xl glass-panel flex flex-wrap items-center justify-between gap-4 text-sm font-mono border border-white/10">
         <div className="flex items-center gap-3">
           <GitCommit className="w-4 h-4 text-amber-400" />
           <span className="text-slate-300">

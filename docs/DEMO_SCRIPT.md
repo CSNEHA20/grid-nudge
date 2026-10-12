@@ -1,69 +1,13 @@
-# GridNudge: 3-Minute Demo Script
+In rapidly electrifying cities like Delhi, unmanaged evening EV charging coincides with domestic peak hours, pushing transformers over their limits. Utilities usually respond with broadcast alerts asking everyone to delay charging. This creates three critical failures: driver alert fatigue, high opt-outs, and secondary rebound peaks when everyone charges at midnight.
 
-> **Hackathon:** Environmental Hacks — WeMakeDevs × AWS  
-> **Track:** Waste & Energy → EV Nudges  
-> **Team:** VibeSync — Vishal & Sneha  
-> **Duration:** 180 seconds (3:00)  
-> **Resolution:** 1440×900
+Introducing GridNudge: a safety-gated, uplift-aware demand flexibility platform. Our core thesis separates the decision into two distinct questions: Physics and forecasts decide what charging plan is safe and beneficial. A causal contextual bandit decides whether, to whom, and how to persuade.
 
----
+GridNudge operates a closed-loop six-stage decision spine. First, our digital twin simulates two thousand EVs across Delhi, grounded in Open-Meteo weather data and Grid-India load curves. Second, our perception layer computes calibrated journey confidence, battery degradation stress, and station queue wait times using Erlang-C queueing. Third, the planner generates feasible alternatives: delaying charging, relocating to solar hubs, or slow charging.
 
-## 00:00 – 00:40 | Beat 1: The Core Thesis ("ML Decides, LLM Phrases, Safety Enforces")
+Fourth, Safety Filter Number One enforces hard constraints through Python invariants and AWS Cedar policies. If a driver's arrival battery confidence falls below ninety percent, the plan is vetoed immediately. Safety is never traded for reward. Fifth, a Linear Thompson Sampling contextual bandit estimates uplift across persuasion frames like cost, green energy, and battery health. If a user shifts naturally or experiences fatigue, the bandit selects our first-class none action. This is learned silence. Finally, our fleet allocator enforces an attention budget and staggers slots to eliminate rebound peaks.
 
-- **Screen:** `/live` (Live Twin Telemetry & Concentric Feeder Gauge)
-- **Speaker:**
-  > "Urban EV adoption is exploding in cities like Delhi. If left uncontrolled, thousands of electric vehicles plug in simultaneously between 6 PM and 10 PM, risking distribution transformer overloads.
-  >
-  > Simple solutions broadcast nudges to everyone, creating rebound peaks elsewhere and exhausting driver attention.
-  >
-  > Enter **GridNudge**: a safety-gated, uplift-aware EV charging decision system.
-  > Our golden rule is simple: **Physics and forecasts decide what is safe and beneficial; contextual bandits decide whether and how to persuade; LLMs only phrase approved facts.**"
+GridNudge is architected natively on AWS Serverless. Amazon API Gateway routes batch requests to AWS Lambda functions running our decision engine with sub-fifty millisecond latency. Amazon DynamoDB on-demand tables track user attention, fatigue, and bandit parameters with zero idle costs. When charging sessions finish, outcomes are ingested into an Amazon SQS FIFO queue. This feeds a single-writer Lambda worker that safely updates the bandit posterior policy without race conditions. Amazon S3 stores complete audit decision records. For messaging, Amazon Bedrock generates multilingual nudges governed by a numeric verifier that strictly rejects unsupported figures.
 
----
+Across five-seed benchmark evaluations under Common Random Numbers, GridNudge reduced evening peak demand by nine point four percent on a twenty-two megawatt feeder. It achieved this with only zero point one four nudges per user per day, representing a seventy-nine percent reduction in notification volume. Driver opt-out dropped from six point five percent to zero point six five percent, with a calibrated ECE of 1.01%, zero stranded trips and zero safety violations.
 
-## 00:40 – 01:25 | Beat 2: Disturbance Injection & Fleet Peak Flattening
-
-- **Screen:** Event Injector on `/live` (Trigger "Heatwave" scenario) → Fleet Load Modal
-- **Speaker:**
-  > "Let's watch GridNudge respond to a stress event. We inject a 45°C Delhi summer Heatwave.
-  > Notice the uncontrolled baseline spike: surging AC demand combined with unmanaged EV charging breaches feeder capacity by up to 18%.
-  >
-  > Now look at GridNudge's response curve: rather than dumping all shifted demand into a single slot, our allocator staggers interventions across 15-minute intervals.
-  >
-  > Across multi-seed runs, GridNudge achieves **9.38% evening peak reduction** and shifts **5185.90 kWh** at an attention budget of **0.14 nudges per driver per day** (compared to 0.67 in unthrottled broadcast baselines)"
-
----
-
-## 01:25 – 02:10 | Beat 3: Safety Veto #1 & Learned Silence
-
-- **Screen:** `/decisions` → Click on `d_002_safety_veto` (Decision Card View)
-- **Speaker:**
-  > "Every decision passes through an auditable 6-stage pipeline.
-  >
-  > Here is candidate `user_102`. A delay plan would save grid capacity, but Monte Carlo perception calculates their lower-bound journey confidence at 82%—violating our strict 90% threshold.
-  >
-  > Safety is a non-negotiable constraint, not a reward term. Safety Filter #1 and AWS Cedar policy instantly trigger a **HARD VETO**. No nudge is sent.
-  >
-  > Next, look at `user_103`. The bandit estimates their spontaneous shift probability is already high. Predicted causal uplift is near-zero. GridNudge chooses the first-class `none` action. We save attention budget for drivers who truly need a nudge."
-
----
-
-## 02:10 – 02:45 | Beat 4: Calibrated Uncertainty & Operator Copilot
-
-- **Screen:** `/evaluation` (Reliability Diagram & KPI Cards) → Drawer (`OperatorCopilotDrawer`)
-- **Speaker:**
-  > "On `/evaluation`, our claims are backed by rigorous statistical evidence.
-  > The reliability diagram shows predicted confidence tracking empirical arrival SOC with an Expected Calibration Error of 1.01%.
-  > Attributable stranded trips? Exactly **0**.
-  >
-  > In the drawer, our Read-Only Operator Copilot cites exact Decision IDs and Cedar policy verdicts without hallucinating numbers."
-
----
-
-## 02:45 – 03:00 | Beat 5: Serverless Architecture & Conclusion
-
-- **Screen:** Architecture map / `/about` (Real vs Simulated provenance)
-- **Speaker:**
-  > "The decision loop is powered by an AWS Serverless stack: API Gateway, Lambda, DynamoDB single-writer state stores, and Amazon S3 audit logs.
-  >
-  > GridNudge proves that sustainable grid stability doesn't require driver fatigue or compromised journeys. Thank you."
+GridNudge proves that true grid resilience does not require nagging drivers; it requires intelligent, safety-gated persuasion. Thank you.

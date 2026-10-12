@@ -140,3 +140,99 @@ class GridNudgeClient:
         event = {"body": json.dumps(payload)}
         res = events.handler(event=event, store=self.store)
         return json.loads(res.get("body", "{}"))
+
+
+def create_client_policy(
+    client: GridNudgeClient,
+    run_id: str = "b4_aws",
+) -> Any:
+    """Create a digital twin policy callback powered by GridNudgeClient (remote API or in-process)."""
+
+    def policy_fn(world: Any) -> List[Dict[str, Any]]:
+        closed_outcomes = world.pop_outcomes()
+        for o in closed_outcomes:
+            client.post_outcome(o)
+
+        candidates = world.candidates()
+        if not candidates:
+            return []
+
+        grid_st = world.grid_state()
+        if not grid_st.get("is_peak_window", False):
+            return []
+
+        cand_payload = []
+        for c in candidates:
+            departure_step = c.get("departure_step")
+            hours_dep = (
+                max(1.0, (departure_step - world.current_step) * (world.step_minutes / 60.0))
+                if departure_step is not None
+                else 8.0
+            )
+            soc = float(c["soc"])
+            target_soc = float(c.get("target_soc", 0.90))
+            batt_kwh = float(c["battery_kwh"])
+            charger_kw = float(c["charger_kw"])
+            energy_needed = max(0.0, (target_soc - soc) * batt_kwh)
+            overlap_start = max(world.hour_of_day, 18.0)
+            overlap_end = min(world.hour_of_day + hours_dep, 22.0)
+            overlap_hours = max(0.0, overlap_end - overlap_start)
+            shiftable_peak_kwh = max(0.0, min(energy_needed, charger_kw * overlap_hours))
+            overlaps_peak = 1.0 if (overlap_hours > 0.0 and shiftable_peak_kwh > 0.0) else 0.0
+
+            cand_payload.append({
+                "user_id": c["user_id"],
+                "ev": {
+                    "battery_kwh": c["battery_kwh"],
+                    "current_soc": c["soc"],
+                    "charger_kw": c["charger_kw"],
+                    "target_soc": target_soc,
+                    "shiftable_peak_kwh": round(shiftable_peak_kwh, 3),
+                    "overlaps_peak": overlaps_peak,
+                },
+                "trip": {
+                    "commute_km": float(c.get("commute_km", 38.0)),
+                    "departure_step": departure_step,
+                    "hours_until_departure": hours_dep,
+                },
+                "context": {
+                    "archetype": c["archetype"],
+                    "fatigue": c["fatigue"],
+                    "nudges_today": c.get("nudges_today", 0),
+                    "last_frame": c.get("last_frame", "none"),
+                    "shiftable_peak_kwh": round(shiftable_peak_kwh, 3),
+                    "overlaps_peak": overlaps_peak,
+                },
+            })
+
+        req = {
+            "run_id": run_id,
+            "sim_time": world.sim_time.isoformat(),
+            "grid_forecast": {
+                "feeder_load_mw": grid_st.get("feeder_load_mw", 8.0),
+                "capacity_mw": grid_st.get("feeder_capacity_mw", 12.0),
+                "grid_stress": grid_st.get("grid_stress", 0.7),
+                "ambient_temp_c": getattr(world, "ambient_temp_c", 30.0),
+            },
+            "candidates": cand_payload,
+        }
+
+        decisions = client.decide(req)
+        interventions = []
+        for d in decisions:
+            alloc = d.get("allocation", {})
+            if alloc.get("selected") and not d.get("fail_silent"):
+                chosen_p = d.get("persuasion", {}).get("chosen_plan")
+                plan_obj = next((p for p in d.get("plans", []) if p.get("plan_id") == chosen_p), None)
+                if plan_obj:
+                    interventions.append({
+                        "decision_id": d["decision_id"],
+                        "user_id": d["user_id"],
+                        "plan": plan_obj,
+                        "frame": d.get("persuasion", {}).get("frame"),
+                        "savings_inr": plan_obj.get("outcomes", {}).get("cost_saving_inr", 0.0),
+                        "delay_hours": plan_obj.get("outcomes", {}).get("delay_hours", 0.0),
+                    })
+        return interventions
+
+    return policy_fn

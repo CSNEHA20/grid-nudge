@@ -29,10 +29,10 @@ export function FlexibilityView({ flexibilityData }: FlexibilityViewProps) {
       {/* Header */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-slate-400">
+          <span className="text-sm font-mono text-slate-400">
             Delhi Suburban Feeder · 24h Flexibility Horizon
           </span>
-          <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span className="text-xs uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             SIMULATION-BASED ESTIMATE
           </span>
         </div>
@@ -48,7 +48,7 @@ export function FlexibilityView({ flexibilityData }: FlexibilityViewProps) {
       {/* Module F1: Hero Headline Band Card */}
       <div className="p-6 sm:p-8 rounded-3xl glass-panel flex flex-wrap items-center justify-between gap-6 border-l-4 border-l-amber-500">
         <div>
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+          <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider block">
             Expected Shiftable Power in Next Peak Window (18:00 – 22:30 IST)
           </span>
           <div className="mt-2 flex items-baseline gap-3">
@@ -59,19 +59,19 @@ export function FlexibilityView({ flexibilityData }: FlexibilityViewProps) {
               &plusmn; {uncertaintyMw} MW
             </span>
           </div>
-          <p className="text-xs text-slate-300 mt-2">
+          <p className="text-sm text-slate-300 mt-2">
             Monte Carlo 10th to 90th percentile credible interval across 2,000 EVs.
           </p>
         </div>
 
         {/* Module F4: What-If Attention Budget Slider */}
         <div className="p-5 rounded-2xl bg-black/30 border border-white/10 w-full md:w-80 space-y-3">
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center justify-between text-sm">
             <span className="text-slate-300 font-semibold flex items-center gap-1.5">
               <Sliders className="w-3.5 h-3.5 text-amber-400" />
               What-If Attention Budget:
             </span>
-            <span className="font-mono text-amber-400 font-bold text-sm">
+            <span className="font-mono text-amber-400 font-bold text-base">
               {budgetSlider}% of EVs
             </span>
           </div>
@@ -86,13 +86,13 @@ export function FlexibilityView({ flexibilityData }: FlexibilityViewProps) {
             className="w-full accent-amber-400 cursor-pointer"
           />
 
-          <div className="flex justify-between text-[10px] font-mono text-slate-400">
+          <div className="flex justify-between text-xs font-mono text-slate-400">
             <span>4% (Conservative)</span>
             <span>8% (Default)</span>
             <span>16% (Aggressive)</span>
           </div>
 
-          <div className="pt-2 border-t border-white/5 flex justify-between text-xs font-mono text-slate-300">
+          <div className="pt-2 border-t border-white/5 flex justify-between text-sm font-mono text-slate-300">
             <span>Projected Nudges/User:</span>
             <span className="text-amber-300 font-bold">{nudgesPerUserDay}/day</span>
           </div>
@@ -106,13 +106,13 @@ export function FlexibilityView({ flexibilityData }: FlexibilityViewProps) {
             <h2 className="text-xl font-bold text-white tracking-tight">
               Flexibility Decomposition: Physical Envelope vs. Behavioral Adoption
             </h2>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-sm text-slate-300 mt-1">
               Physical envelope represents theoretical capability without breaking driver trip deadlines.
               Adoption-weighted reflects the contextual bandit&apos;s expected user compliance.
             </p>
           </div>
 
-          <div className="flex items-center gap-1 bg-navy-900 p-1 rounded-full border border-white/10 text-xs">
+          <div className="flex items-center gap-1 bg-navy-900 p-1 rounded-full border border-white/10 text-sm">
             <button
               type="button"
               onClick={() => setViewMode("side_by_side")}
@@ -140,7 +140,7 @@ export function FlexibilityView({ flexibilityData }: FlexibilityViewProps) {
 
         {/* Peak Hours Hourly Chart Grid */}
         <div className="space-y-4">
-          <span className="text-[11px] uppercase font-mono text-slate-400 block">
+          <span className="text-sm uppercase font-mono text-slate-400 block">
             Hourly Peak Period Capacity (17:00 to 23:00 IST):
           </span>
 
@@ -151,7 +151,7 @@ export function FlexibilityView({ flexibilityData }: FlexibilityViewProps) {
               const maxScaleKw = 2500;
 
               return (
-                <div key={t.hour} className="space-y-1 text-xs font-mono">
+                <div key={t.hour} className="space-y-1 text-sm font-mono">
                   <div className="flex justify-between text-slate-300">
                     <span className="font-bold text-white">{t.label} IST</span>
                     <div className="flex gap-4">
@@ -189,7 +189,7 @@ export function FlexibilityView({ flexibilityData }: FlexibilityViewProps) {
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-700/50 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+        <div className="pt-4 border-t border-slate-700/50 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded bg-slate-600 inline-block" />
