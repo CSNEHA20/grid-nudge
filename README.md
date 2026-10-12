@@ -2,7 +2,8 @@
 
 > **A Safety-Gated, Uplift-Aware EV Charging Decision System**  
 > **Track:** Waste & Energy → EV Nudges | **Hackathon:** Environmental Hacks — WeMakeDevs × AWS  
-> **Team VibeSync:** Vishal ([@Vishallakshmikanthan](https://github.com/Vishallakshmikanthan)) & Sneha ([@CSNEHA20](https://github.com/CSNEHA20))
+> **Team VibeSync:** Vishal ([@Vishallakshmikanthan](https://github.com/Vishallakshmikanthan)) & Sneha ([@CSNEHA20](https://github.com/CSNEHA20))  
+> **Production Live Endpoint:** [`https://4n9hg5tpcf.execute-api.us-east-1.amazonaws.com/prod`](https://4n9hg5tpcf.execute-api.us-east-1.amazonaws.com/prod)
 
 ---
 
@@ -17,55 +18,64 @@ Conventional demand-side management relies on broadcast notifications, inducing 
 > **A contextual bandit with a first-class `none` action decides WHETHER and HOW to persuade.**  
 > **The LLM never decides; it only phrases approved factual tokens into natural language.**
 
-```
-+---------------------------------------------------------------------------------+
-|                               DIGITAL TWIN                                      |
-|            (2,000 EVs, 15-min Timesteps, Seeded NumPy CRN, Delhi Feeder)        |
-+---------------------------------------------------------------------------------+
-                                       |
-                                       v
-+---------------------------------------------------------------------------------+
-|                                 PERCEPTION                                      |
-|      * Calibrated Journey Confidence (P(arrival SOC >= 10% reserve))             |
-|      * Relative Battery Stress & SoH Range                                      |
-|      * Public Station Queue Wait (Erlang-C) & Grid Feeder Stress               |
-+---------------------------------------------------------------------------------+
-                                       |
-                                       v
-+---------------------------------------------------------------------------------+
-|                                  PLANNER                                        |
-|     Enumerates candidate plans: default, delay, slow_charge, relocate           |
-+---------------------------------------------------------------------------------+
-                                       |
-                                       v
-+---------------------------------------------------------------------------------+
-|                          SAFETY FILTER #1 (Python + Cedar)                      |
-|      VETOES any plan where journey confidence lower bound < 90% (0.90)          |
-+---------------------------------------------------------------------------------+
-                                       |
-                                       v
-+---------------------------------------------------------------------------------+
-|                         PERSUASION (Linear Thompson Sampling)                   |
-|     Selects arm: {none} OR {plan x frame x timing}; learns silence on routine   |
-+---------------------------------------------------------------------------------+
-                                       |
-                                       v
-+---------------------------------------------------------------------------------+
-|                              FLEET ALLOCATOR                                    |
-|     Enforces 8% attention budget, daily caps, and anti-herding time staggering  |
-+---------------------------------------------------------------------------------+
-                                       |
-                                       v
-+---------------------------------------------------------------------------------+
-|                     SAFETY FILTER #2 & NUMERIC LANGUAGE VERIFIER                |
-|     Validates Cedar policy; verifies numbers against approved facts payload     |
-+---------------------------------------------------------------------------------+
-                                       |
-                                       v
-+---------------------------------------------------------------------------------+
-|                      CAUSAL REWARD LOOP & POSTERIOR UPDATE                      |
-|     Updates LinTS bandit posterior via single-writer Lambda & DynamoDB          |
-+---------------------------------------------------------------------------------+
+```mermaid
+flowchart TD
+    subgraph TWIN ["1. Digital Twin & Physics Simulation"]
+        T1["2,000 EVs Vectorized Simulator\n15-min Timesteps · Common Random Numbers"]
+        T2["Delhi Feeder Load Profile\nOpen-Meteo 45°C Heatwave Weather"]
+    end
+
+    subgraph PERCEPTION ["2. Perception Engine"]
+        P1["Calibrated Journey Confidence\nP(Arrival SOC ≥ 10% Reserve)"]
+        P2["Battery Degradation Stress Model"]
+        P3["Erlang-C Station Queue Forecast"]
+    end
+
+    subgraph PLANNER ["3. Candidate Planner"]
+        PL1["Enumerate Candidate Plans:\nDefault · Delay · Slow Charge · Relocate"]
+    end
+
+    subgraph SAFETY1 ["4. Safety Gate #1 (Hard Constraint)"]
+        S1{"Journey Conf LB ≥ 0.90\n& Python Invariants?"}
+        V1["VETO PLAN\nZero Nudge Sent"]
+    end
+
+    subgraph PERSUASION ["5. Persuasion Contextual Bandit"]
+        B1["Linear Thompson Sampling (LinTS)\nArm: {none} OR {plan × frame × timing}"]
+        B2["Learns Silence on Routine Shifters\nPreserves Attention Budget"]
+    end
+
+    subgraph ALLOCATOR ["6. Anti-Herding Fleet Allocator"]
+        A1["Enforce 8% Attention Budget Cap\nStagger 15-min Charging Slots"]
+        A2["Eliminate Secondary Rebound Peaks"]
+    end
+
+    subgraph SAFETY2 ["7. Safety Gate #2 & AWS Cedar"]
+        S2{"Cedar Policy Authorization\nALLOW?"}
+        V2["SILENT / FAIL-SAFE\nPreserve Status Quo"]
+    end
+
+    subgraph LANGUAGE ["8. Language Phrasing (AWS Bedrock)"]
+        L1["Amazon Bedrock (Nova / Claude)\nMultilingual Phrasing: EN / HI / TA"]
+        L2["Deterministic Numeric Verifier\nRejects Hallucinated Figures"]
+    end
+
+    subgraph LEARNING ["9. Causal Reward & Single-Writer Loop"]
+        R1["Realized Outcome Ingestion\nAmazon SQS FIFO Queue"]
+        R2["Lambda RewardUpdateFn (Concurrency: 1)\nBayesian Posterior Matrix Update"]
+    end
+
+    TWIN --> PERCEPTION
+    PERCEPTION --> PLANNER
+    PLANNER --> SAFETY1
+    SAFETY1 -- "Violates Safety" --> V1
+    SAFETY1 -- "Safe Plans Only" --> PERSUASION
+    PERSUASION --> ALLOCATOR
+    ALLOCATOR --> SAFETY2
+    SAFETY2 -- "Cedar Deny" --> V2
+    SAFETY2 -- "Cedar Allow" --> LANGUAGE
+    LANGUAGE --> LEARNING
+    LEARNING -.->|Posterior Update| PERSUASION
 ```
 
 ---
@@ -90,7 +100,31 @@ All metrics below originate from multi-seed runs evaluated under Common Random N
 
 ---
 
-## 3. Data Grounding & Provenance Honesty
+## 3. Empirical Results & Verified Charts
+
+### Fleet Load Trajectory Comparison (Feeder Zone 7 — Delhi)
+The 24-hour simulation under an active 45°C heatwave disturbance shows uncontrolled EV charging (B0) driving distribution transformer load past thermal limits. GridNudge (B4) safely clips the peak and staggers charging without creating secondary rebound spikes.
+
+![Fleet Load Trajectory Comparison](results/plots/fleet_load_comparison.png)
+
+### Pareto Efficiency Frontier: Attention Budget vs Energy Shifted
+GridNudge operates along the optimal Pareto frontier: extracting maximum flexibility kWh per unit of driver attention expended, avoiding the fatigue collapse seen in naive broadcast methods.
+
+![Pareto Efficiency Frontier](results/plots/pareto_frontier.png)
+
+### Evening Peak Load Reduction by Policy
+Comparison of evening peak load reduction percentages across all baseline policies (B0–B4) with 95% bootstrap confidence intervals across 5 seeds:
+
+![Peak Load Reduction Across Policies](results/plots/peak_load_reduction_bars.png)
+
+### Journey Confidence Calibration Reliability Diagram
+Predicted confidence scores versus observed empirical completion rates on held-out trip sessions, demonstrating an Expected Calibration Error (ECE) of 1.01%:
+
+![Journey Confidence Calibration Reliability](results/plots/calibration_reliability.png)
+
+---
+
+## 4. Data Grounding & Provenance Honesty
 
 Per AGENTS.md Rule 1.1 and Rule 8, we state data sources and modeling boundaries with complete transparency:
 
@@ -106,33 +140,65 @@ Per AGENTS.md Rule 1.1 and Rule 8, we state data sources and modeling boundaries
 
 ---
 
-## 4. AWS Serverless Architecture & Live Deployment
+## 5. AWS Serverless Architecture & Live Deployment
 
 GridNudge is architected with a local-first Python decision engine wrapped by a thin serverless AWS Lambda and API Gateway deployment (`infra/template.yaml`):
 
-```
-                        +----------------------+
-                        |  Amazon API Gateway  |
-                        +----------------------+
-                                   |
-         +-------------------------+-------------------------+
-         |                         |                         |
-         v                         v                         v
-   POST /decide             POST /outcomes             GET /metrics
-   (Lambda decide)         (Lambda outcomes)         (Lambda metrics)
-         |                         |                         |
-         v                         v                         v
-+------------------+      +------------------+      +------------------+
-| DynamoDB         |      | SQS FIFO Queue   |      | S3 Log Bucket    |
-| - UserState      |      | (single-writer)  |      | (audit trail)    |
-| - ModelState     |      +------------------+      +------------------+
-| - Decisions      |               |
-+------------------+               v
-                         +-------------------+
-                         | Lambda            |
-                         | RewardUpdateFn    |
-                         | (Single-Writer)   |
-                         +-------------------+
+```mermaid
+graph TD
+    Client["Client / Fleet System / Next.js Dashboard"]
+    
+    subgraph APIGW ["Amazon API Gateway (HTTP APIs v2)"]
+        R_Decide["POST /decide"]
+        R_Outcomes["POST /outcomes"]
+        R_Metrics["GET /metrics"]
+        R_Decision["GET /decision/{id}"]
+        R_Explain["POST /explain"]
+        R_Events["POST /events"]
+    end
+
+    subgraph LAMBDA ["AWS Lambda Compute Layer"]
+        Fn_Decide["DecideFn\n(Batch Pipeline Orchestrator)"]
+        Fn_Outcomes["OutcomesFn\n(Session Ingestion)"]
+        Fn_Metrics["MetricsFn\n(Aggregations)"]
+        Fn_Get["DecisionGetFn\n(Audit Fetch)"]
+        Fn_Explain["ExplainFn\n(Copilot Explainer)"]
+        Fn_Events["EventsFn\n(Disturbance Injector)"]
+        Fn_Reward["RewardUpdateFn\n(Single-Writer, Concurrency: 1)"]
+    end
+
+    subgraph PERSISTENCE ["DynamoDB On-Demand Tables"]
+        T_User["gridnudge-user-state-prod\n(Attention & Fatigue)"]
+        T_Model["gridnudge-model-state-prod\n(LinTS Matrix Posterior)"]
+        T_Decisions["gridnudge-decisions-prod\n(Audit Trails)"]
+    end
+
+    subgraph QUEUE ["Amazon SQS FIFO"]
+        Q_Rewards["gridnudge-rewards-prod.fifo\n(Strict Ordering & Deduplication)"]
+    end
+
+    subgraph STORAGE ["Amazon S3 & AI"]
+        S3_Logs["gridnudge-logs-prod\n(Immutable Audit Archive)"]
+        Bedrock["Amazon Bedrock (Nova / Claude)\n+ Numeric Verifier"]
+    end
+
+    Client --> APIGW
+    R_Decide --> Fn_Decide
+    R_Outcomes --> Fn_Outcomes
+    R_Metrics --> Fn_Metrics
+    R_Decision --> Fn_Get
+    R_Explain --> Fn_Explain
+    R_Events --> Fn_Events
+
+    Fn_Decide --> T_User
+    Fn_Decide --> T_Model
+    Fn_Decide --> T_Decisions
+    Fn_Decide -.-> Bedrock
+    
+    Fn_Outcomes --> Q_Rewards
+    Q_Rewards --> Fn_Reward
+    Fn_Reward --> T_Model
+    Fn_Reward --> S3_Logs
 ```
 
 ### Live Production Stack (`gridnudge-prod`, Region: `us-east-1`)
@@ -165,7 +231,7 @@ python scripts/smoke_aws.py
 
 ---
 
-## 5. Quickstart & Verification (3 Commands)
+## 6. Quickstart & Verification (3 Commands)
 
 ### 1. Install & Run Tests
 ```bash
@@ -188,7 +254,7 @@ Open [http://localhost:3000](http://localhost:3000) to inspect `/live`, `/decisi
 
 ---
 
-## 6. Repository Structure
+## 7. Repository Structure
 
 ```
 gridnudge/
@@ -211,12 +277,16 @@ gridnudge/
 ├── eval/                  # CRN baselines (B0-B4), OPE (IPS/DR), metrics, calibration
 ├── services/              # Thin AWS Lambda service adapters & GridNudgeClient
 ├── infra/                 # AWS SAM serverless infrastructure template
-└── dashboard/             # High-fidelity Next.js App Router dashboard
+├── results/
+│   ├── plots/             # Published high-resolution evaluation figures
+│   ├── summary.csv        # Multi-seed empirical benchmark tables
+│   └── calibration.json   # Held-out journey confidence calibration results
+└── dashboard/             # High-fidelity Next.js App Router dashboard with 3D canvas
 ```
 
 ---
 
-## 7. License & Compliance
+## 8. License & Compliance
 
 Built for the **Environmental Hacks Hackathon (WeMakeDevs × AWS)**.  
 Licensed under the Apache License 2.0.
